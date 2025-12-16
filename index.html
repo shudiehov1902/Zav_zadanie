@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1b1424">
+  <title>Tavern Tapper</title>
+  <link rel="icon" type="image/png" href="./src/assets/icons/EmptyPintOfBeer.png">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./src/css/style.css">
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand__dot"></div>
+        <div>
+          <div class="brand__title">Tavern Tapper</div>
+          <div class="brand__subtitle">Pixel bar rush PWA</div>
+        </div>
+      </div>
+      <nav class="hud">
+        <div class="hud__item">
+          <div class="label">Level</div>
+          <div id="hud-level" class="value">-</div>
+        </div>
+        <div class="hud__item">
+          <div class="label">Time</div>
+          <div id="hud-time" class="value">00:00</div>
+        </div>
+        <div class="hud__item">
+          <div class="label">Orders</div>
+          <div id="hud-orders" class="value">0/0</div>
+        </div>
+        <div class="hud__item">
+          <div class="label">Best</div>
+          <div id="hud-best" class="value">—</div>
+        </div>
+        <button id="btn-pause" class="btn btn--ghost">Pause</button>
+        <button id="btn-hint" class="btn btn--ghost">Hint</button>
+        <button id="btn-reset" class="btn btn--ghost">Restart</button>
+      </nav>
+    </header>
+
+    <main class="game-area">
+      <!-- Таверна с посетителями и ингредиентами на столе -->
+      <section class="tavern">
+        <div class="tavern__background" id="tavern-bg">
+          <!-- Фон таверны -->
+        </div>
+        
+        <!-- Посетители с диалоговыми окнами -->
+        <div class="visitors" id="visitors-container">
+          <!-- Посетители будут добавлены через JS -->
+        </div>
+
+        <!-- Ингредиенты на столе (абсолютное позиционирование) -->
+        <div class="ingredients-on-table" id="ingredient-grid">
+          <!-- Ингредиенты будут добавлены через JS -->
+        </div>
+
+        <!-- Шейкер на столе -->
+        <div class="shaker-container">
+          <div class="shaker" id="shaker" 
+               ondrop="event.preventDefault(); handleDrop(event)" 
+               ondragover="event.preventDefault()"
+               draggable="false">
+            <img src="./src/assets/icons/Shaker.png" alt="Shaker" class="shaker__icon" id="shaker-icon">
+            <div class="shaker__label">Drop ingredients</div>
+            <div class="shake-progress">
+              <div class="shake-progress__bar" id="shake-progress-bar"></div>
+              <div class="shake-progress__label" id="shake-progress-label">0%</div>
+            </div>
+          </div>
+          
+          <!-- Окно ингредиентов в шейкере -->
+          <div class="shaker-ingredients-panel" id="shaker-ingredients-panel">
+            <div class="shaker-ingredients-panel__title">Ingredients in Shaker</div>
+            <div class="shaker-ingredients-panel__content" id="shaker-content">
+              <div class="shaker-ingredients-panel__empty">Drop ingredients here</div>
+            </div>
+          </div>
+          
+          <div class="shake-hint" id="shake-hint">
+            <span class="shake-hint__label">Grab & shake the shaker!</span>
+            <span class="shake-hint__value" id="shake-intensity">Power: 2 (Medium)</span>
+          </div>
+        </div>
+
+        <!-- Кнопки управления -->
+        <div class="controls-on-table">
+          <button id="btn-rotate" class="btn btn--small">Rotate (R)</button>
+          <label class="slider">
+            <span>Shake Power</span>
+            <input id="pour-speed" type="range" min="1" max="4" value="2" step="1">
+            <span class="slider__labels">
+              <span>1</span>
+              <span>2</span>
+              <span>3</span>
+              <span>4</span>
+            </span>
+            <span class="slider__hint" id="power-hint">Medium (2)</span>
+          </label>
+          <button id="btn-serve" class="btn btn--primary btn--small">Serve</button>
+        </div>
+      </section>
+
+      <!-- Статус и информация -->
+      <div class="status-bar">
+        <div class="status" id="status-line">Welcome to the tavern! Drag ingredients to the shaker.</div>
+        <div class="progress">
+          <div class="progress__bar" id="fill-progress" style="width:0%"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Информационная панель (скрыта в игре, видна при печати) -->
+    <aside class="info-panel print-only">
+      <h2>How to play</h2>
+      <p>Drag ingredients from the table to the shaker. Shake the shaker to mix. Follow the orders shown in speech bubbles above customers. Rotate garnishes with R key or double tap. Adjust pour speed with the slider. Serve correct drinks before time runs out!</p>
+      <p class="note">Touch tips: tap-and-hold to grab, shake button to mix, swipe on slider to change speed.</p>
+      <div class="stats">
+        <div>Runs played: <span id="stat-runs">0</span></div>
+        <div>Unique tasks in cycle: <span id="stat-unique">0</span></div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Шаблоны -->
+  <template id="visitor-template">
+    <div class="visitor" style="left: 0; top: 0;">
+      <div class="speech-bubble" data-order-id="">
+        <div class="speech-bubble__content">
+          <div class="speech-bubble__title"></div>
+          <div class="speech-bubble__hint"></div>
+          <div class="speech-bubble__timer"></div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template id="ingredient-chip">
+    <div class="ingredient-on-table" draggable="true">
+      <!-- Иконка и текст будут добавлены через JS -->
+    </div>
+  </template>
+
+  <script type="module" src="./src/js/main.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js');
+      });
+    }
+  </script>
+</body>
+</html>

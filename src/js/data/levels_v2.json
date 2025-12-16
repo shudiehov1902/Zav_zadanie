@@ -1,0 +1,68 @@
+{
+  "levels": [
+    {
+      "id": 1,
+      "allowedDrinks": ["beer"],
+      "customerSpeed": "slow",
+      "timeLimitSec": 60,
+      "requiredOrders": 5,
+      "maxMistakes": 0
+    },
+    {
+      "id": 2,
+      "allowedDrinks": ["beer", "cola"],
+      "customerSpeed": "slow",
+      "timeLimitSec": 70,
+      "requiredOrders": 7,
+      "maxMistakes": 0
+    },
+    {
+      "id": 3,
+      "allowedDrinks": ["beer", "cola", "mojito"],
+      "customerSpeed": "medium",
+      "timeLimitSec": 80,
+      "requiredOrders": 8,
+      "maxMistakes": 0
+    },
+    {
+      "id": 4,
+      "allowedDrinks": ["beer", "cola", "mojito", "cuba_libre"],
+      "customerSpeed": "medium",
+      "timeLimitSec": 90,
+      "requiredOrders": 9,
+      "maxMistakes": 0
+    },
+    {
+      "id": 5,
+      "allowedDrinks": ["beer", "cola", "mojito", "cuba_libre", "negroni"],
+      "customerSpeed": "medium_fast",
+      "timeLimitSec": 90,
+      "requiredOrders": 10,
+      "maxMistakes": 0
+    },
+    {
+      "id": 6,
+      "allowedDrinks": ["beer", "cola", "mojito", "cuba_libre", "negroni"],
+      "customerSpeed": "fast",
+      "timeLimitSec": 60,
+      "requiredOrders": 10,
+      "maxMistakes": 3
+    },
+    {
+      "id": 7,
+      "allowedDrinks": ["mojito", "cuba_libre", "negroni"],
+      "customerSpeed": "fast",
+      "timeLimitSec": 80,
+      "requiredOrders": 8,
+      "maxMistakes": 1
+    },
+    {
+      "id": 8,
+      "allowedDrinks": ["beer", "cola", "mojito", "cuba_libre", "negroni"],
+      "customerSpeed": "very_fast",
+      "timeLimitSec": 90,
+      "requiredOrders": 12,
+      "maxMistakes": 1
+    }
+  ]
+}
