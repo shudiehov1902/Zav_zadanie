@@ -35,6 +35,11 @@ const beerGlassEl = document.getElementById('beer-glass');
 const trayContainerEl = document.querySelector('.tray-container');
 const beerTapContainerEl = document.querySelector('.beer-tap-container');
 const trayDrinkEl = document.getElementById('tray-drink');
+const pauseMenuEl = document.getElementById('pause-menu');
+const pauseMenuCloseEl = document.getElementById('pause-menu-close');
+const pauseMenuLevelsEl = document.getElementById('pause-menu-levels');
+const pauseMenuRestartEl = document.getElementById('pause-menu-restart');
+const pauseMenuResumeEl = document.getElementById('pause-menu-resume');
 
 const STORAGE_KEY = 'tavern-tapper-progress';
 const VISITOR_TEMPLATE = document.getElementById('visitor-template');
@@ -98,6 +103,15 @@ function attachControls() {
   // Кнопка и функционал поворота отключены
   
   // Горячая клавиша R больше не используется для поворота
+  
+  // Обработчики для меню паузы
+  pauseMenuCloseEl?.addEventListener('click', closePauseMenu);
+  pauseMenuResumeEl?.addEventListener('click', closePauseMenu);
+  pauseMenuRestartEl?.addEventListener('click', () => {
+    closePauseMenu();
+    startLevel();
+  });
+  pauseMenuEl?.querySelector('.pause-menu__overlay')?.addEventListener('click', closePauseMenu);
   
   // Обработчики для холодильника
   barFridgeEl?.addEventListener('click', toggleFridgeMenu);
@@ -1145,14 +1159,63 @@ function showCurrentHint() {
 
 function togglePause() {
   if (!state.timerId) {
+    // Игра была на паузе, возобновляем
+    closePauseMenu();
     tick();
     state.visitors.forEach(v => startVisitorTimer(v));
     status('Resumed.');
   } else {
+    // Ставим на паузу и открываем меню
     clearTimer();
     state.visitors.forEach(v => clearVisitorTimer(v));
+    openPauseMenu();
     status('Paused.');
   }
+}
+
+function openPauseMenu() {
+  if (!pauseMenuEl) return;
+  pauseMenuEl.style.display = 'block';
+  renderPauseMenuLevels();
+}
+
+function closePauseMenu() {
+  if (!pauseMenuEl) return;
+  pauseMenuEl.style.display = 'none';
+}
+
+function renderPauseMenuLevels() {
+  if (!pauseMenuLevelsEl || !gameData.levels) return;
+  
+  pauseMenuLevelsEl.innerHTML = '';
+  
+  gameData.levels.forEach(level => {
+    const btn = document.createElement('button');
+    btn.className = 'pause-menu__level-btn';
+    if (state.currentLevel && state.currentLevel.id === level.id) {
+      btn.classList.add('pause-menu__level-btn--active');
+    }
+    btn.textContent = `Level ${level.id}: ${level.name}`;
+    btn.addEventListener('click', () => {
+      // Переключаемся на выбранный уровень
+      state.currentLevel = level;
+      state.timer = level.timeLimit;
+      state.served = 0;
+      state.currentDrink = [];
+      state.shakeProgress = 0;
+      
+      ordersEl.textContent = `0/${level.target}`;
+      levelEl.textContent = `Lv.${level.id}`;
+      
+      renderVisitors();
+      clearShaker();
+      tick();
+      closePauseMenu();
+      status(`Switched to Level ${level.id}: ${level.name}`);
+    });
+    
+    pauseMenuLevelsEl.appendChild(btn);
+  });
 }
 
 function tick() {

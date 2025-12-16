@@ -121,6 +121,29 @@
         </div>
       </div>
 
+      <!-- Модальное окно меню паузы -->
+      <div class="pause-menu" id="pause-menu" style="display: none;">
+        <div class="pause-menu__overlay"></div>
+        <div class="pause-menu__content">
+          <div class="pause-menu__header">
+            <h2 class="pause-menu__title">PAUSE MENU</h2>
+            <button class="pause-menu__close" id="pause-menu-close">×</button>
+          </div>
+          <div class="pause-menu__body">
+            <div class="pause-menu__section">
+              <h3 class="pause-menu__section-title">Select Level</h3>
+              <div class="pause-menu__levels" id="pause-menu-levels">
+                <!-- Уровни будут добавлены через JS -->
+              </div>
+            </div>
+            <div class="pause-menu__actions">
+              <button class="btn btn--primary" id="pause-menu-restart">Restart Level</button>
+              <button class="btn btn--ghost" id="pause-menu-resume">Resume</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Статус и информация -->
       <div class="status-bar">
         <div class="status" id="status-line">Welcome to the tavern! Drag ingredients to the shaker.</div>
