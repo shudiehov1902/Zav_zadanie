@@ -176,11 +176,12 @@ body {
 /* Барная стойка поверх фона, но под пузырями диалога */
 .tavern__table {
   position: absolute;
-  left: -20%;
-  right: 10;
-  bottom: -110%;
-  width: 140%;           /* на всю ширину области таверны */
-  height: 1260px;         /* можешь менять высоту как тебе нужно */
+  left: -20%;             /* стол выходит за левый край на 20% ширины контейнера */
+  bottom: -120%;              /* прижимаем к низу контейнера */
+  width: 140%;            /* ширина на 40% больше контейнера (чтобы покрыть отрицательный left) */
+  height: 180vh;           /* высота составляет 70% от высоты viewport */
+  min-height: 600px;      /* минимальная высота для маленьких экранов */
+  max-height: 1400px;     /* максимальная высота для очень больших экранов */
   background-image: url('../assets/background/table.png');
   background-repeat: no-repeat;
   background-position: bottom center;
