@@ -1093,9 +1093,49 @@ function handleServe() {
       
       persistProgress();
     } else {
-      status('Wrong recipe! Check the order.', true);
+      // Рецепт невалиден - проверяем, подходят ли ингредиенты хотя бы к одному рецепту
+      const matchesAnyRecipe = checkIfIngredientsMatchAnyRecipe(state.currentDrink);
+      
+      if (!matchesAnyRecipe) {
+        // Ингредиенты не подходят ни к одному рецепту - создаем trash
+        showTrayTrash();
+        status('Trash created! Ingredients don\'t match any recipe.', true);
+        clearShaker();
+      } else {
+        status('Wrong recipe! Check the order.', true);
+      }
     }
   }
+}
+
+// Проверяет, подходят ли ингредиенты хотя бы к одному рецепту из всех уровней
+function checkIfIngredientsMatchAnyRecipe(drink) {
+  if (!drink || drink.length === 0) return false;
+  if (!gameData.levels) return false;
+  
+  const drinkIds = drink.map(ing => ing.id.toLowerCase()).sort();
+  
+  // Проверяем все рецепты во всех уровнях
+  for (const level of gameData.levels) {
+    if (!level.orders) continue;
+    
+    for (const order of level.orders) {
+      // Проверяем, подходит ли текущий набор ингредиентов к этому рецепту
+      if (validateRecipe(drink, order)) {
+        return true; // Нашли хотя бы один подходящий рецепт
+      }
+    }
+  }
+  
+  return false; // Не подходит ни к одному рецепту
+}
+
+// Показывает trash на подносе
+function showTrayTrash() {
+  if (!trayDrinkEl) return;
+  trayDrinkEl.src = './src/assets/icons/trash.png';
+  trayDrinkEl.alt = 'Trash';
+  trayDrinkEl.style.display = 'block';
 }
 
 function validateRecipe(drink, order) {
@@ -1159,11 +1199,8 @@ function showCurrentHint() {
 
 function togglePause() {
   if (!state.timerId) {
-    // Игра была на паузе, возобновляем
+    // Игра была на паузе, просто закрываем меню (игра возобновится автоматически)
     closePauseMenu();
-    tick();
-    state.visitors.forEach(v => startVisitorTimer(v));
-    status('Resumed.');
   } else {
     // Ставим на паузу и открываем меню
     clearTimer();
@@ -1182,6 +1219,12 @@ function openPauseMenu() {
 function closePauseMenu() {
   if (!pauseMenuEl) return;
   pauseMenuEl.style.display = 'none';
+  // При закрытии меню автоматически возобновляем игру
+  if (!state.timerId) {
+    tick();
+    state.visitors.forEach(v => startVisitorTimer(v));
+    status('Resumed.');
+  }
 }
 
 function renderPauseMenuLevels() {
