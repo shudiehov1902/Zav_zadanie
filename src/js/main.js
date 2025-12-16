@@ -1358,3 +1358,30 @@ function formatTime(sec) {
   const s = Math.max(0, sec % 60);
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
+
+// Утилита для просмотра всех ингредиентов в холодильнике (доступна в консоли)
+window.showFridgeIngredients = function() {
+  const allIngredients = new Map();
+  
+  gameData.levels.forEach(level => {
+    if (level.ingredients) {
+      level.ingredients.forEach(ing => {
+        if (!allIngredients.has(ing.id)) {
+          allIngredients.set(ing.id, ing);
+        }
+      });
+    }
+  });
+  
+  const sorted = Array.from(allIngredients.values()).sort((a, b) => a.id.localeCompare(b.id));
+  
+  console.log('%cВсе ингредиенты в холодильнике:', 'font-size: 16px; font-weight: bold; color: #f1b33f;');
+  console.log('================================');
+  sorted.forEach((ing, i) => {
+    console.log(`${(i+1).toString().padStart(2, '0')}. ${ing.id.padEnd(20)} - ${ing.label}`);
+  });
+  console.log('================================');
+  console.log(`Всего: ${allIngredients.size} уникальных ингредиентов`);
+  
+  return sorted;
+};
