@@ -1,0 +1,134 @@
+{
+  "levels": [
+    {
+      "id": 1,
+      "name": "Taproom Warmup",
+      "timeLimit": 180,
+      "target": 4,
+      "ingredients": [
+        { "id": "lager", "label": "Lager" },
+        { "id": "foam", "label": "Foam" },
+        { "id": "stein", "label": "Stein" }
+      ],
+      "orders": [
+        { "name": "Pint of Lager", "tags": ["beer"], "shortHint": "Fill to 90%, foam cap", "hint": "Tilt the stein, pour lager, finish with foam", "steps": ["Take stein", "Pour lager 90%", "Add foam cap"] }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Citrus Breeze",
+      "timeLimit": 180,
+      "target": 4,
+      "ingredients": [
+        { "id": "lager", "label": "Lager" },
+        { "id": "lime", "label": "Lime" },
+        { "id": "soda", "label": "Soda" },
+        { "id": "stein", "label": "Tall Glass" }
+      ],
+      "orders": [
+        { "name": "Radler", "tags": ["beer", "citrus"], "shortHint": "Half lager, half soda", "hint": "Pour lager, top with soda, lime twist", "steps": ["Glass", "Lager 50%", "Soda 50%", "Lime twist"] }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Minty Trails",
+      "timeLimit": 200,
+      "target": 5,
+      "ingredients": [
+        { "id": "rum", "label": "Rum" },
+        { "id": "mint", "label": "Mint" },
+        { "id": "lime", "label": "Lime" },
+        { "id": "syrup", "label": "Sugar Syrup" },
+        { "id": "soda", "label": "Soda" },
+        { "id": "cubes", "label": "Ice" },
+        { "id": "highball", "label": "Highball" }
+      ],
+      "orders": [
+        { "name": "Mojito", "tags": ["rum", "herbal"], "shortHint": "Muddle mint + lime, rum, ice, soda", "hint": "Muddle mint & lime with syrup, add rum, ice, top soda", "steps": ["Glass", "Mint + lime + syrup", "Muddle", "Rum 40%", "Ice", "Top soda"] }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Bitter Flame",
+      "timeLimit": 200,
+      "target": 5,
+      "ingredients": [
+        { "id": "gin", "label": "Gin" },
+        { "id": "vermouth", "label": "Red Vermouth" },
+        { "id": "campari", "label": "Bitter" },
+        { "id": "orange", "label": "Orange Peel" },
+        { "id": "rocks", "label": "Rocks Glass" }
+      ],
+      "orders": [
+        { "name": "Negroni", "tags": ["bitter", "classic"], "shortHint": "Equal thirds, stir, orange peel", "hint": "Gin + bitter + vermouth 1:1:1 on ice, stir, orange", "steps": ["Glass", "Ice", "Gin 30%", "Bitter 30%", "Vermouth 30%", "Stir", "Orange peel"] }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Spirits Rush",
+      "timeLimit": 160,
+      "target": 6,
+      "ingredients": [
+        { "id": "whiskey", "label": "Whiskey" },
+        { "id": "bitters", "label": "Bitters" },
+        { "id": "syrup", "label": "Syrup" },
+        { "id": "orange", "label": "Orange Peel" },
+        { "id": "rocks", "label": "Rocks Glass" }
+      ],
+      "orders": [
+        { "name": "Old Fashioned", "tags": ["stirred"], "shortHint": "Stir whiskey + bitters + syrup", "hint": "Syrup + bitters, whiskey, stir on ice, orange peel", "steps": ["Glass", "Ice", "Syrup dash", "Bitters dash", "Whiskey 70%", "Stir", "Orange peel"] }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Clover Garden",
+      "timeLimit": 170,
+      "target": 5,
+      "ingredients": [
+        { "id": "gin", "label": "Gin" },
+        { "id": "lemon", "label": "Lemon" },
+        { "id": "syrup", "label": "Raspberry Syrup" },
+        { "id": "white", "label": "Egg White" },
+        { "id": "coupe", "label": "Coupe" }
+      ],
+      "orders": [
+        { "name": "Clover Club", "tags": ["shaken", "foam"], "shortHint": "Dry shake, then ice, fine strain", "hint": "Gin + lemon + syrup + egg white, dry shake, ice shake, strain", "steps": ["Shaker", "Gin 40%", "Lemon 20%", "Syrup 20%", "Egg white", "Dry shake", "Ice shake", "Strain to coupe"] }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Smoky Night",
+      "timeLimit": 160,
+      "target": 6,
+      "ingredients": [
+        { "id": "mezcal", "label": "Mezcal" },
+        { "id": "tequila", "label": "Tequila" },
+        { "id": "pineapple", "label": "Pineapple" },
+        { "id": "lime", "label": "Lime" },
+        { "id": "chili", "label": "Chili Salt" },
+        { "id": "rocks", "label": "Rocks Glass" }
+      ],
+      "orders": [
+        { "name": "Smoky Daisy", "tags": ["shaken", "spicy"], "shortHint": "Rim salt, shake agave mix", "hint": "Rim chili salt, mezcal+tequila+pineapple+lime, shake, rocks", "steps": ["Glass rim chili", "Shaker", "Mezcal 30%", "Tequila 20%", "Pineapple 30%", "Lime 20%", "Ice shake", "Strain on ice"] }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Final Pour",
+      "timeLimit": 140,
+      "target": 7,
+      "ingredients": [
+        { "id": "espresso", "label": "Espresso" },
+        { "id": "vodka", "label": "Vodka" },
+        { "id": "liqueur", "label": "Coffee Liqueur" },
+        { "id": "syrup", "label": "Syrup" },
+        { "id": "coupe", "label": "Coupe" },
+        { "id": "beans", "label": "Coffee Beans" }
+      ],
+      "orders": [
+        { "name": "Espresso Martini", "tags": ["shaken", "sweet"], "shortHint": "Shake hard for foam", "hint": "Espresso + vodka + liqueur + syrup, hard shake, strain, 3 beans", "steps": ["Shaker", "Espresso 30%", "Vodka 30%", "Liqueur 30%", "Syrup dash", "Ice shake hard", "Strain coupe", "3 beans"] }
+      ]
+    }
+  ]
+}
+
