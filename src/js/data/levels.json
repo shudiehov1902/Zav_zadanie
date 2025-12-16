@@ -2,133 +2,255 @@
   "levels": [
     {
       "id": 1,
-      "name": "Taproom Warmup",
+      "name": "First Shift",
       "timeLimit": 180,
       "target": 4,
       "ingredients": [
-        { "id": "lager", "label": "Lager" },
-        { "id": "foam", "label": "Foam" },
-        { "id": "stein", "label": "Stein" }
       ],
       "orders": [
-        { "name": "Pint of Lager", "tags": ["beer"], "shortHint": "Fill to 90%, foam cap", "hint": "Tilt the stein, pour lager, finish with foam", "steps": ["Take stein", "Pour lager 90%", "Add foam cap"] }
+        {
+          "name": "Pint of Lager",
+          "tags": ["beer", "easy"],
+          "shortHint": "Take beer mug and fill it with lager",
+          "hint": "Take a clean mug, pour lager almost to the top and add a foam cap."
+        }
       ]
     },
+
     {
       "id": 2,
-      "name": "Citrus Breeze",
-      "timeLimit": 180,
-      "target": 4,
-      "ingredients": [
-        { "id": "lager", "label": "Lager" },
-        { "id": "lime", "label": "Lime" },
-        { "id": "soda", "label": "Soda" },
-        { "id": "stein", "label": "Tall Glass" }
-      ],
-      "orders": [
-        { "name": "Radler", "tags": ["beer", "citrus"], "shortHint": "Half lager, half soda", "hint": "Pour lager, top with soda, lime twist", "steps": ["Glass", "Lager 50%", "Soda 50%", "Lime twist"] }
-      ]
-    },
-    {
-      "id": 3,
-      "name": "Minty Trails",
-      "timeLimit": 200,
-      "target": 5,
-      "ingredients": [
-        { "id": "rum", "label": "Rum" },
-        { "id": "mint", "label": "Mint" },
-        { "id": "lime", "label": "Lime" },
-        { "id": "syrup", "label": "Sugar Syrup" },
-        { "id": "soda", "label": "Soda" },
-        { "id": "cubes", "label": "Ice" },
-        { "id": "highball", "label": "Highball" }
-      ],
-      "orders": [
-        { "name": "Mojito", "tags": ["rum", "herbal"], "shortHint": "Muddle mint + lime, rum, ice, soda", "hint": "Muddle mint & lime with syrup, add rum, ice, top soda", "steps": ["Glass", "Mint + lime + syrup", "Muddle", "Rum 40%", "Ice", "Top soda"] }
-      ]
-    },
-    {
-      "id": 4,
-      "name": "Bitter Flame",
-      "timeLimit": 200,
-      "target": 5,
-      "ingredients": [
-        { "id": "gin", "label": "Gin" },
-        { "id": "vermouth", "label": "Red Vermouth" },
-        { "id": "campari", "label": "Bitter" },
-        { "id": "orange", "label": "Orange Peel" },
-        { "id": "rocks", "label": "Rocks Glass" }
-      ],
-      "orders": [
-        { "name": "Negroni", "tags": ["bitter", "classic"], "shortHint": "Equal thirds, stir, orange peel", "hint": "Gin + bitter + vermouth 1:1:1 on ice, stir, orange", "steps": ["Glass", "Ice", "Gin 30%", "Bitter 30%", "Vermouth 30%", "Stir", "Orange peel"] }
-      ]
-    },
-    {
-      "id": 5,
-      "name": "Spirits Rush",
-      "timeLimit": 160,
-      "target": 6,
-      "ingredients": [
-        { "id": "whiskey", "label": "Whiskey" },
-        { "id": "bitters", "label": "Bitters" },
-        { "id": "syrup", "label": "Syrup" },
-        { "id": "orange", "label": "Orange Peel" },
-        { "id": "rocks", "label": "Rocks Glass" }
-      ],
-      "orders": [
-        { "name": "Old Fashioned", "tags": ["stirred"], "shortHint": "Stir whiskey + bitters + syrup", "hint": "Syrup + bitters, whiskey, stir on ice, orange peel", "steps": ["Glass", "Ice", "Syrup dash", "Bitters dash", "Whiskey 70%", "Stir", "Orange peel"] }
-      ]
-    },
-    {
-      "id": 6,
-      "name": "Clover Garden",
+      "name": "Busy Taproom",
       "timeLimit": 170,
       "target": 5,
       "ingredients": [
-        { "id": "gin", "label": "Gin" },
-        { "id": "lemon", "label": "Lemon" },
-        { "id": "syrup", "label": "Raspberry Syrup" },
-        { "id": "white", "label": "Egg White" },
-        { "id": "coupe", "label": "Coupe" }
+        { "id": "cola", "label": "Cola" }
       ],
       "orders": [
-        { "name": "Clover Club", "tags": ["shaken", "foam"], "shortHint": "Dry shake, then ice, fine strain", "hint": "Gin + lemon + syrup + egg white, dry shake, ice shake, strain", "steps": ["Shaker", "Gin 40%", "Lemon 20%", "Syrup 20%", "Egg white", "Dry shake", "Ice shake", "Strain to coupe"] }
+        {
+          "name": "Pint of Lager",
+          "tags": ["beer", "easy"],
+          "shortHint": "Same simple lager as in Lv.1",
+          "hint": "Mug, lager to 90%, foam cap.",
+          "steps": [
+            "Take beer mug",
+            "Fill with lager to ~90%",
+            "Add foam on top"
+          ]
+        },
+        {
+          "name": "Shandy",
+          "tags": ["beer", "cola", "soft"],
+          "shortHint": "Half lager, half cola",
+          "hint": "Use tall glass, pour lager then cola 1:1.",
+          "steps": [
+            "Take tall glass",
+            "Pour lager to ~50%",
+            "Top with cola to 100%"
+          ]
+        }
       ]
     },
+
     {
-      "id": 7,
-      "name": "Smoky Night",
-      "timeLimit": 160,
+      "id": 3,
+      "name": "Rum & Cola Night",
+      "timeLimit": 170,
       "target": 6,
       "ingredients": [
-        { "id": "mezcal", "label": "Mezcal" },
-        { "id": "tequila", "label": "Tequila" },
-        { "id": "pineapple", "label": "Pineapple" },
-        { "id": "lime", "label": "Lime" },
-        { "id": "chili", "label": "Chili Salt" },
-        { "id": "rocks", "label": "Rocks Glass" }
+        { "id": "rum", "label": "Rum" },
+        { "id": "cola", "label": "Cola" },
+        { "id": "lime", "label": "Lime wedge" },
+        { "id": "ice", "label": "Ice cubes" },
+        { "id": "highball", "label": "Tall glass" }
       ],
       "orders": [
-        { "name": "Smoky Daisy", "tags": ["shaken", "spicy"], "shortHint": "Rim salt, shake agave mix", "hint": "Rim chili salt, mezcal+tequila+pineapple+lime, shake, rocks", "steps": ["Glass rim chili", "Shaker", "Mezcal 30%", "Tequila 20%", "Pineapple 30%", "Lime 20%", "Ice shake", "Strain on ice"] }
+        {
+          "name": "Cuba Libre",
+          "tags": ["rum", "citrus"],
+          "shortHint": "Rum + cola on ice, lime wedge",
+          "hint": "Fill tall glass with ice, add rum, top with cola, garnish with lime.",
+          "steps": [
+            "Take tall glass",
+            "Add ice cubes",
+            "Pour rum to ~35%",
+            "Top with cola to 100%",
+            "Add lime wedge"
+          ]
+        }
       ]
     },
+
     {
-      "id": 8,
-      "name": "Final Pour",
-      "timeLimit": 140,
-      "target": 7,
+      "id": 4,
+      "name": "Garden Mojitos",
+      "timeLimit": 180,
+      "target": 6,
       "ingredients": [
-        { "id": "espresso", "label": "Espresso" },
-        { "id": "vodka", "label": "Vodka" },
-        { "id": "liqueur", "label": "Coffee Liqueur" },
-        { "id": "syrup", "label": "Syrup" },
-        { "id": "coupe", "label": "Coupe" },
-        { "id": "beans", "label": "Coffee Beans" }
+        { "id": "rum", "label": "Rum" },
+        { "id": "mint", "label": "Mint leaves" },
+        { "id": "lime", "label": "Lime wedge" },
+        { "id": "syrup", "label": "Sugar syrup" },
+        { "id": "soda", "label": "Soda water" },
+        { "id": "ice", "label": "Ice cubes" },
+        { "id": "highball", "label": "Tall glass" }
       ],
       "orders": [
-        { "name": "Espresso Martini", "tags": ["shaken", "sweet"], "shortHint": "Shake hard for foam", "hint": "Espresso + vodka + liqueur + syrup, hard shake, strain, 3 beans", "steps": ["Shaker", "Espresso 30%", "Vodka 30%", "Liqueur 30%", "Syrup dash", "Ice shake hard", "Strain coupe", "3 beans"] }
+        {
+          "name": "Mojito",
+          "tags": ["rum", "herbal"],
+          "shortHint": "Muddle mint + lime, rum, ice, soda",
+          "hint": "Mint, lime and syrup in glass, muddle, add rum, fill with ice and top with soda.",
+          "steps": [
+            "Take tall glass",
+            "Add mint leaves, lime and syrup",
+            "Muddle ingredients",
+            "Pour rum to ~35–40%",
+            "Add ice cubes",
+            "Top with soda water"
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": 5,
+      "name": "Clear & Bubbly",
+      "timeLimit": 170,
+      "target": 7,
+      "ingredients": [
+        { "id": "gin", "label": "Gin" },
+        { "id": "tonic", "label": "Tonic water" },
+        { "id": "lime", "label": "Lime wedge" },
+        { "id": "ice", "label": "Ice cubes" },
+        { "id": "highball", "label": "Tall glass" }
+      ],
+      "orders": [
+        {
+          "name": "Gin & Tonic",
+          "tags": ["gin", "bubbly"],
+          "shortHint": "Gin on ice, top with tonic",
+          "hint": "Fill tall glass with ice, add gin, top with tonic, garnish with lime.",
+          "steps": [
+            "Take tall glass",
+            "Add ice cubes",
+            "Pour gin to ~30–35%",
+            "Top with tonic water",
+            "Add lime wedge"
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": 6,
+      "name": "Old Classics",
+      "timeLimit": 165,
+      "target": 7,
+      "ingredients": [
+        { "id": "whiskey", "label": "Whiskey" },
+        { "id": "bitters", "label": "Bitters" },
+        { "id": "syrup", "label": "Sugar syrup" },
+        { "id": "orange", "label": "Orange peel" },
+        { "id": "ice", "label": "Ice cubes" },
+        { "id": "rocks", "label": "Rocks glass" }
+      ],
+      "orders": [
+        {
+          "name": "Old Fashioned",
+          "tags": ["whiskey", "stirred"],
+          "shortHint": "Syrup + bitters, whiskey on ice, stir",
+          "hint": "Build in rocks glass: syrup and bitters, add ice and whiskey, stir, garnish with orange peel.",
+          "steps": [
+            "Take rocks glass",
+            "Add syrup splash and bitters",
+            "Add ice cubes",
+            "Pour whiskey to ~70%",
+            "Stir",
+            "Add orange peel"
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": 7,
+      "name": "Negroni Ritual",
+      "timeLimit": 160,
+      "target": 8,
+      "ingredients": [
+        { "id": "gin", "label": "Gin" },
+        { "id": "vermouth", "label": "Red vermouth" },
+        { "id": "bitter", "label": "Red bitter" },
+        { "id": "orange", "label": "Orange peel" },
+        { "id": "ice", "label": "Ice cubes" },
+        { "id": "rocks", "label": "Rocks glass" }
+      ],
+      "orders": [
+        {
+          "name": "Negroni",
+          "tags": ["bitter", "classic"],
+          "shortHint": "1:1:1 gin, bitter, vermouth",
+          "hint": "Fill rocks glass with ice, add gin, bitter and vermouth in equal parts, stir and garnish with orange peel.",
+          "steps": [
+            "Take rocks glass",
+            "Add ice cubes",
+            "Pour gin to ~30%",
+            "Pour bitter to ~60%",
+            "Pour vermouth to ~90%",
+            "Stir",
+            "Add orange peel"
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": 8,
+      "name": "Arcane Specials",
+      "timeLimit": 150,
+      "target": 9,
+      "ingredients": [
+        { "id": "gin", "label": "Gin" },
+        { "id": "rum", "label": "Rum" },
+        { "id": "bitter", "label": "Red bitter" },
+        { "id": "tonic", "label": "Tonic water" },
+        { "id": "blueEssence", "label": "Blue mana syrup" },
+        { "id": "chiliSyrup", "label": "Dragon chili syrup" },
+        { "id": "lime", "label": "Lime wedge" },
+        { "id": "ice", "label": "Ice cubes" },
+        { "id": "highball", "label": "Tall glass" },
+        { "id": "rocks", "label": "Rocks glass" }
+      ],
+      "orders": [
+        {
+          "name": "Mana Elixir",
+          "tags": ["magic", "bubbly"],
+          "shortHint": "Blue gin tonic for wizards",
+          "hint": "Highball with ice, gin + blue syrup, top with tonic. Bright blue mana drink.",
+          "steps": [
+            "Take tall glass",
+            "Add ice cubes",
+            "Pour gin to ~30%",
+            "Add blue mana syrup splash",
+            "Top with tonic water",
+            "Add lime wedge"
+          ]
+        },
+        {
+          "name": "Dragon’s Breath",
+          "tags": ["magic", "spicy"],
+          "shortHint": "Rum + bitter + chili, served on rocks",
+          "hint": "Rocks glass with ice, rum and red bitter, add dragon chili syrup and lime. Very spicy.",
+          "steps": [
+            "Take rocks glass",
+            "Add ice cubes",
+            "Pour rum to ~40%",
+            "Pour red bitter to ~70%",
+            "Add dragon chili syrup",
+            "Add lime wedge"
+          ]
+        }
       ]
     }
   ]
 }
-

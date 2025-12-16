@@ -13,6 +13,7 @@ export const ICON_MAP = {
   'bitters': 'Alcohol.png',
   'liqueur': 'Alcohol.png',
   'espresso': 'Alcohol.png',
+  'shandy': 'shandy.png',
   
   // Ингредиенты
   'soda': 'SodaWater.png',
@@ -27,6 +28,7 @@ export const ICON_MAP = {
   'foam': 'FullPintOfBeer.png',
   'white': 'SodaWater.png', // яичный белок временно
   'beans': 'ShugarCube.png', // кофейные зерна временно
+  'cola': 'cola.png',
   
   // Посуда
   'stein': 'EmptyPintOfBeer.png',

@@ -522,10 +522,17 @@ body {
 
 .beer-tap__glass {
   width: 64px;
-  height: auto;
+  height: 80px;  /* фиксированная высота для одинакового размера пива и shandy */
+  object-fit: contain;  /* сохраняем пропорции, но вписываем в заданный размер */
   image-rendering: pixelated;
   filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6));
   cursor: grab;
+}
+
+/* Увеличенный размер для shandy */
+.beer-tap__glass[data-state="shandy"] {
+  width: 90px;
+  height: 110px;
 }
 
 .beer-tap__glass.dragging {

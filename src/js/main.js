@@ -112,6 +112,23 @@ function attachControls() {
     zone?.addEventListener('drop', handleBeerGlassDrop);
   });
   
+  // Обработчик для смешивания напитков: перетаскивание ингредиентов на бокал
+  if (beerGlassEl) {
+    beerGlassEl.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      // Показываем визуальную подсказку, что можно смешать
+      if (beerGlassEl.dataset.state === 'full') {
+        beerGlassEl.style.filter = 'drop-shadow(0 0 12px rgba(241, 179, 63, 0.8))';
+      }
+    });
+    
+    beerGlassEl.addEventListener('dragleave', () => {
+      beerGlassEl.style.filter = '';
+    });
+    
+    beerGlassEl.addEventListener('drop', handleIngredientOnBeerGlass);
+  }
+  
   // Обработчики для шейкера (drop ингредиентов)
   shakerEl?.addEventListener('dragover', (e) => {
     e.preventDefault();
@@ -736,6 +753,7 @@ function showTrayDrink(order) {
 function getTraySpriteForOrder(order) {
   const name = (order.name || '').toLowerCase();
   
+  if (name.includes('shandy')) return 'shandy.png';
   if (name.includes('mojito')) return 'mojito.png';
   if (name.includes('negroni')) return 'negroni.png';
   if (name.includes('gin') && name.includes('tonic')) return 'gintonic.png';
@@ -823,19 +841,66 @@ function handleBeerGlassDrop(e) {
   }
 }
 
+// Обработчик смешивания: перетаскивание ингредиента (колы) на полный бокал пива
+function handleIngredientOnBeerGlass(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  if (!beerGlassEl) return;
+  
+  // Проверяем, что бокал полный (содержит пиво)
+  if (beerGlassEl.dataset.state !== 'full') {
+    status('Fill the glass with beer first!', true);
+    beerGlassEl.style.filter = '';
+    return;
+  }
+  
+  const ingredientId = e.dataTransfer.getData('text/plain');
+  if (!ingredientId) return;
+  
+  // Проверяем, что это кола (coke или cola)
+  const ingredientIdLower = ingredientId.toLowerCase();
+  if (ingredientIdLower !== 'coke' && ingredientIdLower !== 'cola') {
+    status('Only cola can be mixed with beer!', true);
+    beerGlassEl.style.filter = '';
+    return;
+  }
+  
+  // Превращаем пиво в shandy
+  beerGlassEl.src = './src/assets/icons/shandy.png';
+  beerGlassEl.dataset.state = 'shandy';
+  beerGlassEl.style.filter = '';
+  status('Shandy created! Beer + Cola', false);
+}
+
 function isBeerOrder(order) {
   if (!order) return false;
   const name = (order.name || '').toLowerCase();
   return name.includes('lager') || name.includes('beer') || name.includes('pint');
 }
 
+function isShandyOrder(order) {
+  if (!order) return false;
+  const name = (order.name || '').toLowerCase();
+  return name.includes('shandy');
+}
+
 function isFullBeerGlassOnTray() {
   if (!beerGlassEl) return false;
   // Проверяем, что бокал находится на подносе
   const isOnTray = trayContainerEl && trayContainerEl.contains(beerGlassEl);
-  // Проверяем, что бокал полный
+  // Проверяем, что бокал полный (пиво)
   const isFull = beerGlassEl.dataset.state === 'full';
   return isOnTray && isFull;
+}
+
+function isShandyOnTray() {
+  if (!beerGlassEl) return false;
+  // Проверяем, что бокал находится на подносе
+  const isOnTray = trayContainerEl && trayContainerEl.contains(beerGlassEl);
+  // Проверяем, что бокал содержит shandy
+  const isShandy = beerGlassEl.dataset.state === 'shandy';
+  return isOnTray && isShandy;
 }
 
 function handleServe() {
@@ -845,12 +910,22 @@ function handleServe() {
   }
   
   const isBeer = isBeerOrder(state.activeOrder);
+  const isShandy = isShandyOrder(state.activeOrder);
   
-  if (isBeer) {
-    // Для пива проверяем, есть ли полный бокал на подносе
-    if (!isFullBeerGlassOnTray()) {
-      status('Place a full beer glass on the tray first!', true);
-      return;
+  if (isBeer || isShandy) {
+    // Для пива или shandy проверяем, есть ли нужный напиток на подносе
+    if (isShandy) {
+      // Для shandy проверяем, что на подносе shandy
+      if (!isShandyOnTray()) {
+        status('Place shandy on the tray first!', true);
+        return;
+      }
+    } else {
+      // Для пива проверяем, что на подносе полный бокал пива
+      if (!isFullBeerGlassOnTray()) {
+        status('Place a full beer glass on the tray first!', true);
+        return;
+      }
     }
     
     // Пиво готово к подаче
@@ -874,6 +949,11 @@ function handleServe() {
         beerGlassStartEl.appendChild(beerGlassEl);
         beerGlassEl.style.position = '';
       }
+    }
+    
+    // Если это был shandy, также очищаем его с подноса
+    if (isShandy && trayDrinkEl) {
+      trayDrinkEl.style.display = 'none';
     }
     
     if (state.served >= state.currentLevel.target) {
