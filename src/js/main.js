@@ -752,6 +752,13 @@ function getTraySpriteForOrder(order) {
 // Простая логика пивного крана: по клику наполняем или опустошаем бокал.
 function handleBeerTap() {
   if (!beerGlassEl) return;
+  
+  // Проверяем, стоит ли бокал под краном.
+  if (!isGlassUnderTap()) {
+    status('Place the glass under the tap first!', true);
+    return;
+  }
+  
   const isFull = beerGlassEl.dataset.state === 'full';
   
   if (isFull) {
@@ -763,6 +770,27 @@ function handleBeerTap() {
     beerGlassEl.dataset.state = 'full';
     status('Beer poured!', false);
   }
+}
+
+// Проверка, что бокал стоит непосредственно под краном
+function isGlassUnderTap() {
+  if (!beerTapEl || !beerGlassEl) return false;
+  
+  const tapRect = beerTapEl.getBoundingClientRect();
+  const glassRect = beerGlassEl.getBoundingClientRect();
+  
+  const glassCenterX = glassRect.left + glassRect.width / 2;
+  const glassTopY = glassRect.top;
+  
+  const withinX =
+    glassCenterX >= tapRect.left - 20 &&
+    glassCenterX <= tapRect.right + 20;
+  
+  const withinY =
+    glassTopY >= tapRect.bottom - 40 &&
+    glassTopY <= tapRect.bottom + 80;
+  
+  return withinX && withinY;
 }
 
 // Drag & drop бокала между краном и подносом

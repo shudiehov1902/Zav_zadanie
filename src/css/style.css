@@ -459,7 +459,7 @@ body {
   left: 50%;
   transform: translateX(-50%);
   z-index: 14;        /* над столом, но под всплывающими окнами */
-  pointer-events: none;
+  pointer-events: auto; /* нужна, чтобы можно было дропать бокал/напиток на поднос */
 }
 
 .tray__icon {
@@ -495,8 +495,8 @@ body {
 /* Пивной кран справа на столе */
 .beer-tap-container {
   position: absolute;
-  bottom: 50px;  /* чуть ниже */
-  right: 20px;   /* и правее */
+  bottom: 120px;  /* поднимаем кран выше, как на скрине */
+  right: 120px;   /* смещаем кран левее, ближе к центру */
   z-index: 15;
   display: flex;
   flex-direction: column;
@@ -529,8 +529,8 @@ body {
 /* Стартовая позиция бокала на столе, слева от крана */
 .beer-glass-start {
   position: absolute;
-  bottom: 60px;
-  right: 200px; /* подгони под свою сцену */
+  bottom: 40px;    /* ставим бокал на стол рядом с краном */
+  right: 220px;    /* немного левее, чтобы нужно было пододвинуть под кран */
   z-index: 15;
 }
 
