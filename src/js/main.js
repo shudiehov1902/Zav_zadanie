@@ -808,6 +808,7 @@ function getTraySpriteForOrder(order) {
   if (name.includes('mojito')) return 'mojito.png';
   if (name.includes('negroni')) return 'negroni.png';
   if (name.includes('gin') && name.includes('tonic')) return 'gintonic.png';
+  if (name.includes('cuba libre')) return 'cuba_libre.png';
   if (name.includes('coke') || name.includes('cola')) return 'coke.png';
   
   // Для пива и прочих напитков по умолчанию используем полный бокал
@@ -1087,20 +1088,27 @@ function validateRecipe(drink, order) {
   const steps = order.steps || [];
   const requiredIngredients = [];
   
+  // Список посуды, которую нужно исключить из ингредиентов
+  const glassware = ['stein', 'highball', 'rocks', 'coupe', 'shaker'];
+  
   steps.forEach(step => {
     const stepLower = step.toLowerCase();
     const ingredientPatterns = [
       /\b(stein|highball|rocks|coupe|shaker)\b/,
       /\b(gin|rum|vodka|whiskey|tequila|mezcal|lager|vermouth|campari|liqueur|espresso)\b/,
-      /\b(soda|syrup|mint|lime|orange|lemon|foam|cubes|white|beans|bitters)\b/,
+      /\b(soda|syrup|mint|lime|orange|lemon|foam|cubes|white|beans|bitters|cola|ice)\b/,
     ];
     
     ingredientPatterns.forEach(pattern => {
       const match = stepLower.match(pattern);
       if (match) {
         const ing = match[1];
-        if (!['take', 'add', 'pour', 'top', 'stir', 'shake', 'muddle', 'strain', 'rim'].includes(ing)) {
-          requiredIngredients.push(ing);
+        // Исключаем действия и посуду из списка ингредиентов
+        if (!['take', 'add', 'pour', 'top', 'stir', 'shake', 'muddle', 'strain', 'rim'].includes(ing) &&
+            !glassware.includes(ing)) {
+          // Нормализуем "cubes" в "ice" для совместимости
+          const normalizedIng = ing === 'cubes' ? 'ice' : ing;
+          requiredIngredients.push(normalizedIng);
         }
       }
     });

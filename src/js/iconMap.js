@@ -2,8 +2,8 @@
 export const ICON_MAP = {
   // Алкоголь
   'lager': 'EmptyPintOfBeer.png',
-  'rum': 'Alcohol.png',
-  'gin': 'Alcohol.png',
+  'rum': 'rum.png',
+  'gin': 'gin.png',
   'whiskey': 'Alcohol.png',
   'vodka': 'Alcohol.png',
   'tequila': 'Alcohol.png',
@@ -14,6 +14,7 @@ export const ICON_MAP = {
   'liqueur': 'Alcohol.png',
   'espresso': 'Alcohol.png',
   'shandy': 'shandy.png',
+    'cuba_libre': 'cuba_libre.png',
   
   // Ингредиенты
   'soda': 'SodaWater.png',
@@ -29,6 +30,7 @@ export const ICON_MAP = {
   'white': 'SodaWater.png', // яичный белок временно
   'beans': 'ShugarCube.png', // кофейные зерна временно
   'cola': 'cola.png',
+  'ice': 'ice.png',
   
   // Посуда
   'stein': 'EmptyPintOfBeer.png',
