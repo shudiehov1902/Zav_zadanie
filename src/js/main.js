@@ -823,22 +823,37 @@ function handleBeerGlassDrop(e) {
   }
 }
 
+function isBeerOrder(order) {
+  if (!order) return false;
+  const name = (order.name || '').toLowerCase();
+  return name.includes('lager') || name.includes('beer') || name.includes('pint');
+}
+
+function isFullBeerGlassOnTray() {
+  if (!beerGlassEl) return false;
+  // Проверяем, что бокал находится на подносе
+  const isOnTray = trayContainerEl && trayContainerEl.contains(beerGlassEl);
+  // Проверяем, что бокал полный
+  const isFull = beerGlassEl.dataset.state === 'full';
+  return isOnTray && isFull;
+}
+
 function handleServe() {
-  if (!state.activeOrder || state.currentDrink.length === 0) {
-    status('Prepare a drink first!', true);
+  if (!state.activeOrder) {
+    status('No active order!', true);
     return;
   }
   
-  if (state.shakeProgress < 100) {
-    status(`Shake the shaker more! (${Math.floor(state.shakeProgress)}%)`, true);
-    return;
-  }
+  const isBeer = isBeerOrder(state.activeOrder);
   
-  const isValid = validateRecipe(state.currentDrink, state.activeOrder);
-  
-  if (isValid) {
-    // Показать готовый напиток на подносе (для любых коктейлей из шейкера)
-    showTrayDrink(state.activeOrder);
+  if (isBeer) {
+    // Для пива проверяем, есть ли полный бокал на подносе
+    if (!isFullBeerGlassOnTray()) {
+      status('Place a full beer glass on the tray first!', true);
+      return;
+    }
+    
+    // Пиво готово к подаче
     state.served += 1;
     ordersEl.textContent = `${state.served}/${state.currentLevel.target}`;
     progressEl.style.width = Math.min(100, (state.served / state.currentLevel.target) * 100) + '%';
@@ -848,7 +863,18 @@ function handleServe() {
     state.activeVisitor.bubble.classList.add('served');
     
     status(`✓ ${state.activeOrder.name} served!`, false);
-    clearShaker();
+    
+    // Очищаем бокал после подачи
+    if (beerGlassEl) {
+      beerGlassEl.src = './src/assets/icons/EmptyPintOfBeer.png';
+      beerGlassEl.dataset.state = 'empty';
+      // Возвращаем бокал на стартовую позицию
+      const beerGlassStartEl = document.querySelector('.beer-glass-start');
+      if (beerGlassStartEl) {
+        beerGlassStartEl.appendChild(beerGlassEl);
+        beerGlassEl.style.position = '';
+      }
+    }
     
     if (state.served >= state.currentLevel.target) {
       const elapsed = state.currentLevel.timeLimit - state.timer;
@@ -872,7 +898,57 @@ function handleServe() {
     
     persistProgress();
   } else {
-    status('Wrong recipe! Check the order.', true);
+    // Для коктейлей проверяем шейкер как раньше
+    if (state.currentDrink.length === 0) {
+      status('Prepare a drink first!', true);
+      return;
+    }
+    
+    if (state.shakeProgress < 100) {
+      status(`Shake the shaker more! (${Math.floor(state.shakeProgress)}%)`, true);
+      return;
+    }
+    
+    const isValid = validateRecipe(state.currentDrink, state.activeOrder);
+    
+    if (isValid) {
+      // Показать готовый напиток на подносе (для любых коктейлей из шейкера)
+      showTrayDrink(state.activeOrder);
+      state.served += 1;
+      ordersEl.textContent = `${state.served}/${state.currentLevel.target}`;
+      progressEl.style.width = Math.min(100, (state.served / state.currentLevel.target) * 100) + '%';
+      
+      clearVisitorTimer(state.activeVisitor);
+      state.activeVisitor.bubble.classList.remove('active');
+      state.activeVisitor.bubble.classList.add('served');
+      
+      status(`✓ ${state.activeOrder.name} served!`, false);
+      clearShaker();
+      
+      if (state.served >= state.currentLevel.target) {
+        const elapsed = state.currentLevel.timeLimit - state.timer;
+        state.servedSet.add(state.currentLevel.id);
+        updateBest(elapsed);
+        status('Level complete! Starting next level...');
+        setTimeout(() => startLevel(), 1500);
+      } else {
+        setTimeout(() => {
+          // Заменяем текущего гостя новым у стойки
+          const active = state.activeVisitor;
+          if (active) {
+            const el = active.element;
+            if (el && el.parentElement === visitorsContainerEl) {
+              visitorsContainerEl.removeChild(el);
+            }
+          }
+          spawnNextVisitor();
+        }, 1000);
+      }
+      
+      persistProgress();
+    } else {
+      status('Wrong recipe! Check the order.', true);
+    }
   }
 }
 
