@@ -37,6 +37,7 @@
           <div class="label">Best</div>
           <div id="hud-best" class="value">—</div>
         </div>
+        <button id="btn-recipes" class="btn btn--ghost">Recipes</button>
         <button id="btn-pause" class="btn btn--ghost">Pause</button>
         <button id="btn-hint" class="btn btn--ghost">Hint</button>
         <button id="btn-reset" class="btn btn--ghost">Restart</button>
@@ -59,13 +60,13 @@
 
         <!-- Холодильник слева на стойке -->
         <div class="bar-fridge-container">
-          <img src="./src/assets/icons/barfridge.png" alt="Bar fridge" class="bar-fridge__icon" id="bar-fridge">
+          <img src="./src/assets/icons/barfridge.png" alt="Bar fridge" class="bar-fridge__icon" id="bar-fridge" draggable="false">
         </div>
 
         <!-- Поднос для готовых напитков (в центре стола) -->
         <div class="tray-container">
-          <img src="./src/assets/icons/server.png" alt="Serving tray" class="tray__icon" id="serving-tray">
-          <img src="" alt="" class="tray__drink" id="tray-drink" style="display:none">
+          <img src="./src/assets/icons/server.png" alt="Serving tray" class="tray__icon" id="serving-tray" draggable="false">
+          <img src="" alt="" class="tray__drink" id="tray-drink" style="display:none" draggable="false">
         </div>
 
         <!-- Шейкер на столе -->
@@ -93,7 +94,7 @@
 
         <!-- Пивной кран справа на стойке -->
         <div class="beer-tap-container">
-          <img src="./src/assets/icons/beerTap.png" alt="Beer tap" class="beer-tap__icon" id="beer-tap">
+          <img src="./src/assets/icons/beerTap.png" alt="Beer tap" class="beer-tap__icon" id="beer-tap" draggable="false">
         </div>
 
         <!-- Стартовая позиция бокала на столе (игрок сам перетаскивает его под кран) -->
@@ -117,6 +118,22 @@
           </div>
           <div class="fridge-menu__grid" id="fridge-menu-grid">
             <!-- Ингредиенты будут добавлены через JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Модальное окно рецептов -->
+      <div class="recipes-menu" id="recipes-menu" style="display: none;">
+        <div class="recipes-menu__overlay"></div>
+        <div class="recipes-menu__content">
+          <div class="recipes-menu__header">
+            <h2 class="recipes-menu__title">COCKTAIL RECIPES</h2>
+            <button class="recipes-menu__close" id="recipes-menu-close">×</button>
+          </div>
+          <div class="recipes-menu__body">
+            <div class="recipes-menu__list" id="recipes-menu-list">
+              <!-- Рецепты будут добавлены через JS -->
+            </div>
           </div>
         </div>
       </div>

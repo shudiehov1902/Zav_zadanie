@@ -4,17 +4,18 @@ export const ICON_MAP = {
   'lager': 'EmptyPintOfBeer.png',
   'rum': 'rum.png',
   'gin': 'gin.png',
-  'whiskey': 'Alcohol.png',
+  'whiskey': 'whiskey.png',
   'vodka': 'Alcohol.png',
   'tequila': 'Alcohol.png',
   'mezcal': 'Alcohol.png',
-  'vermouth': 'Alcohol.png',
+  'vermouth': 'redwermouth.png', // Red vermouth
   'campari': 'Alcohol.png',
   'bitters': 'Alcohol.png',
+  'bitter': 'biter.png', // Red bitter
   'liqueur': 'Alcohol.png',
   'espresso': 'Alcohol.png',
   'shandy': 'shandy.png',
-    'cuba_libre': 'cuba_libre.png',
+  'cuba_libre': 'cuba_libre.png',
   
   // Ингредиенты
   'soda': 'SodaWater.png',
@@ -31,7 +32,9 @@ export const ICON_MAP = {
   'beans': 'ShugarCube.png', // кофейные зерна временно
   'cola': 'cola.png',
   'ice': 'ice.png',
-    'tonic': 'tonic.png',
+  'tonic': 'tonic.png',
+  'blueEssence': 'manasyrup.png', // Blue mana syrup
+  'chiliSyrup': 'chilisyrup.png', // Dragon chili syrup
   
   // Посуда
 

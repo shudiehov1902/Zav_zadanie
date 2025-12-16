@@ -40,6 +40,10 @@ const pauseMenuCloseEl = document.getElementById('pause-menu-close');
 const pauseMenuLevelsEl = document.getElementById('pause-menu-levels');
 const pauseMenuRestartEl = document.getElementById('pause-menu-restart');
 const pauseMenuResumeEl = document.getElementById('pause-menu-resume');
+const btnRecipes = document.getElementById('btn-recipes');
+const recipesMenuEl = document.getElementById('recipes-menu');
+const recipesMenuCloseEl = document.getElementById('recipes-menu-close');
+const recipesMenuListEl = document.getElementById('recipes-menu-list');
 
 const STORAGE_KEY = 'tavern-tapper-progress';
 const VISITOR_TEMPLATE = document.getElementById('visitor-template');
@@ -118,6 +122,11 @@ function attachControls() {
   fridgeMenuCloseEl?.addEventListener('click', closeFridgeMenu);
   fridgeMenuEl?.querySelector('.fridge-menu__overlay')?.addEventListener('click', closeFridgeMenu);
   
+  // Обработчики для меню рецептов
+  btnRecipes?.addEventListener('click', openRecipesMenu);
+  recipesMenuCloseEl?.addEventListener('click', closeRecipesMenu);
+  recipesMenuEl?.querySelector('.recipes-menu__overlay')?.addEventListener('click', closeRecipesMenu);
+  
   // Клик по пивному крану — наливаем или опустошаем бокал
   beerTapEl?.addEventListener('click', handleBeerTap);
   
@@ -171,7 +180,15 @@ function attachControls() {
     shakerEl?.classList.remove('drag-over');
     const ingredientId = e.dataTransfer.getData('text/plain');
     if (ingredientId) {
-      addIngredientToShaker(ingredientId);
+      // Проверяем, что перетаскиваемый элемент является ингредиентом
+      // (имеет класс fridge-menu__item или является валидным ингредиентом)
+      const draggedEl = draggedElement || document.querySelector(`[data-id="${ingredientId}"]`);
+      if (draggedEl && draggedEl.classList.contains('fridge-menu__item')) {
+        addIngredientToShaker(ingredientId);
+      } else {
+        // Пытаемся добавить, но addIngredientToShaker проверит валидность
+        addIngredientToShaker(ingredientId);
+      }
     }
   };
 }
@@ -233,6 +250,17 @@ function setupShakerShaking() {
         // Показываем коктейль на подносе
         if (state.currentDrink.length > 0) {
           showDrinkOnTray();
+          // Сбрасываем прогресс после показа коктейля
+          setTimeout(() => {
+            state.shakeProgress = 0;
+            if (shakeProgressBarEl) {
+              shakeProgressBarEl.style.width = '0%';
+            }
+            if (shakeProgressLabelEl) {
+              shakeProgressLabelEl.textContent = '0%';
+              shakeProgressLabelEl.style.color = 'var(--text)';
+            }
+          }, 500);
         }
       }
     }
@@ -289,6 +317,17 @@ function setupShakerShaking() {
         // Показываем коктейль на подносе
         if (state.currentDrink.length > 0) {
           showDrinkOnTray();
+          // Сбрасываем прогресс после показа коктейля
+          setTimeout(() => {
+            state.shakeProgress = 0;
+            if (shakeProgressBarEl) {
+              shakeProgressBarEl.style.width = '0%';
+            }
+            if (shakeProgressLabelEl) {
+              shakeProgressLabelEl.textContent = '0%';
+              shakeProgressLabelEl.style.color = 'var(--text)';
+            }
+          }, 500);
         }
       }
     }
@@ -317,6 +356,17 @@ function updateShakeProgress(distance) {
       // Когда шейкер готов, автоматически показываем коктейль на подносе
       if (!wasComplete && state.currentDrink.length > 0) {
         showDrinkOnTray();
+        // Сбрасываем прогресс после показа коктейля
+        setTimeout(() => {
+          state.shakeProgress = 0;
+          if (shakeProgressBarEl) {
+            shakeProgressBarEl.style.width = '0%';
+          }
+          if (shakeProgressLabelEl) {
+            shakeProgressLabelEl.textContent = '0%';
+            shakeProgressLabelEl.style.color = 'var(--text)';
+          }
+        }, 500); // Небольшая задержка, чтобы игрок увидел "READY!"
       }
     } else if (newProgress >= 75) {
       shakeProgressLabelEl.style.color = 'var(--accent)';
@@ -662,9 +712,15 @@ function handleTouchStart(e) {
     const shakerRect = shakerEl.getBoundingClientRect();
     const touchEnd = ev.changedTouches[0];
     
+    // Проверяем, что элемент является ингредиентом из меню холодильника
     if (touchEnd.clientX >= shakerRect.left && touchEnd.clientX <= shakerRect.right &&
         touchEnd.clientY >= shakerRect.top && touchEnd.clientY <= shakerRect.bottom) {
-      addIngredientToShaker(element.dataset.id);
+      // Проверяем, что элемент имеет класс fridge-menu__item (ингредиент из меню)
+      if (element.classList.contains('fridge-menu__item') && element.dataset.id) {
+        addIngredientToShaker(element.dataset.id);
+      } else {
+        status('Only ingredients can be added to the shaker!', true);
+      }
     }
     
     element.style.position = '';
@@ -684,6 +740,13 @@ function handleTouchStart(e) {
 }
 
 function addIngredientToShaker(ingredientId) {
+  // Проверяем, что это не специальные элементы интерфейса
+  const forbiddenIds = ['beer-glass', 'fridge', 'tap', 'trash', 'shaker', 'tray', 'server'];
+  if (forbiddenIds.includes(ingredientId)) {
+    status('This item cannot be added to the shaker!', true);
+    return;
+  }
+  
   // Ищем ингредиент во всех уровнях, а не только в текущем
   let ingredient = null;
   
@@ -696,9 +759,15 @@ function addIngredientToShaker(ingredientId) {
     }
   }
   
-  // Если ингредиент не найден, используем ID как label
+  // Если ингредиент не найден в списке ингредиентов, не добавляем его
   if (!ingredient) {
-    ingredient = { id: ingredientId, label: ingredientId };
+    status('Only ingredients can be added to the shaker!', true);
+    return;
+  }
+  
+  // Если добавляем первый ингредиент в пустой шейкер, скрываем предыдущий напиток с подноса
+  if (state.currentDrink.length === 0) {
+    hideTrayDrink();
   }
   
   state.currentDrink.push({
@@ -847,7 +916,9 @@ function showTrayDrink(order) {
 
 // Подбор подходящей иконки напитка
 function getTraySpriteForOrder(order) {
-  const name = (order.name || '').toLowerCase();
+  if (!order || !order.name) return null;
+  
+  const name = order.name.toLowerCase();
   
   if (name.includes('shandy')) return 'shandy.png';
   if (name.includes('mojito')) return 'mojito.png';
@@ -855,6 +926,14 @@ function getTraySpriteForOrder(order) {
   if (name.includes('gin') && name.includes('tonic')) return 'gintonic.png';
   if (name.includes('cuba libre')) return 'cuba_libre.png';
   if (name.includes('coke') || name.includes('cola')) return 'coke.png';
+  if (name.includes('old fashioned')) return 'oldfashioned.png';
+  if (name.includes('mana elixir')) return 'ManaElixir.png';
+  // Проверка для Dragon's Breath (разные варианты написания с апострофом или без)
+  // Проверяем наличие обоих слов "dragon" и "breath" в названии
+  // Учитываем возможные варианты: "dragon's breath", "dragons breath", "dragon breath"
+  if (name.includes('dragon') && name.includes('breath')) {
+    return 'dragonsbreath.png';
+  }
   
   // Для пива и прочих напитков по умолчанию используем полный бокал
   if (name.includes('lager') || name.includes('beer') || name.includes('pint')) {
@@ -883,6 +962,8 @@ function handleBeerTap() {
   } else {
     beerGlassEl.src = './src/assets/icons/FullPintOfBeer.png';
     beerGlassEl.dataset.state = 'full';
+    // Скрываем trash/коктейль с подноса при наливании пива
+    hideTrayDrink();
     status('Beer poured!', false);
   }
 }
@@ -967,6 +1048,8 @@ function handleIngredientOnBeerGlass(e) {
   beerGlassEl.src = './src/assets/icons/shandy.png';
   beerGlassEl.dataset.state = 'shandy';
   beerGlassEl.style.filter = '';
+  // Скрываем trash/коктейль с подноса при создании shandy
+  hideTrayDrink();
   status('Shandy created! Beer + Cola', false);
 }
 
@@ -1176,15 +1259,22 @@ function showTrayTrash() {
 function showDrinkOnTray() {
   if (!trayDrinkEl || !state.currentDrink || state.currentDrink.length === 0) return;
   
+  // Сначала скрываем предыдущий напиток (если был)
+  hideTrayDrink();
+  
   // Ищем подходящий рецепт
   const matchedOrder = findMatchingRecipe(state.currentDrink);
   
   if (matchedOrder) {
     // Показываем найденный коктейль
     showTrayDrink(matchedOrder);
+    // Показываем название коктейля в статусе
+    status(`Cocktail created: ${matchedOrder.name}`, false);
   } else {
     // Показываем trash
     showTrayTrash();
+    // Показываем в статусе, что создан trash
+    status('Trash created! Ingredients don\'t match any recipe.', true);
   }
 }
 
@@ -1228,6 +1318,7 @@ function validateRecipe(drink, order) {
   const drinkIds = drink.map(ing => ing.id.toLowerCase()).sort();
   const requiredSorted = uniqueRequired.sort();
   
+  // Проверяем, что все требуемые ингредиенты присутствуют
   for (const required of requiredSorted) {
     if (!drinkIds.includes(required)) {
       console.log(`Missing ingredient: ${required}`);
@@ -1235,13 +1326,20 @@ function validateRecipe(drink, order) {
     }
   }
   
+  // Проверяем лишние ингредиенты - не допускаем лишних вообще
   const extraIngredients = drinkIds.filter(id => !requiredSorted.includes(id));
-  if (extraIngredients.length > 2) {
-    console.log(`Too many extra ingredients: ${extraIngredients.join(', ')}`);
+  if (extraIngredients.length > 0) {
+    console.log(`Extra ingredients not allowed: ${extraIngredients.join(', ')}`);
     return false;
   }
   
-  return drinkIds.length >= Math.max(2, Math.ceil(requiredSorted.length * 0.7));
+  // Проверяем, что количество ингредиентов точно соответствует требуемому
+  if (drinkIds.length !== requiredSorted.length) {
+    console.log(`Ingredient count mismatch: got ${drinkIds.length}, required ${requiredSorted.length}`);
+    return false;
+  }
+  
+  return true;
 }
 
 function showCurrentHint() {
@@ -1357,6 +1455,238 @@ function formatTime(sec) {
   const m = Math.max(0, Math.floor(sec / 60));
   const s = Math.max(0, sec % 60);
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+// Меню рецептов
+function openRecipesMenu() {
+  if (!recipesMenuEl) return;
+  recipesMenuEl.style.display = 'block';
+  renderRecipes();
+}
+
+function closeRecipesMenu() {
+  if (!recipesMenuEl) return;
+  recipesMenuEl.style.display = 'none';
+}
+
+function renderRecipes() {
+  if (!recipesMenuListEl || !gameData.levels) return;
+  
+  recipesMenuListEl.innerHTML = '';
+  
+  // Собираем все уникальные рецепты из всех уровней
+  const allRecipes = new Map();
+  
+  gameData.levels.forEach(level => {
+    if (!level.orders) return;
+    
+    level.orders.forEach(order => {
+      // Используем название коктейля как ключ, чтобы избежать дубликатов
+      const key = order.name.toLowerCase();
+      if (!allRecipes.has(key)) {
+        allRecipes.set(key, {
+          name: order.name,
+          hint: order.hint || order.shortHint || '',
+          steps: order.steps || [],
+          level: level.name
+        });
+      }
+    });
+  });
+  
+  // Сортируем рецепты по названию
+  const sortedRecipes = Array.from(allRecipes.values()).sort((a, b) => 
+    a.name.localeCompare(b.name)
+  );
+  
+  // Рендерим каждый рецепт
+  sortedRecipes.forEach(recipe => {
+    const recipeEl = document.createElement('div');
+    recipeEl.className = 'recipes-menu__item';
+    
+    // Извлекаем ингредиенты из steps
+    const ingredients = extractIngredientsFromSteps(recipe.steps);
+    
+    // Получаем картинку готового коктейля
+    const cocktailImage = getTraySpriteForOrder({ name: recipe.name });
+    const cocktailImagePath = cocktailImage 
+      ? `./src/assets/icons/${cocktailImage}` 
+      : './src/assets/icons/FullPintOfBeer.png'; // fallback
+    
+    // Заголовок рецепта с картинкой коктейля
+    const headerEl = document.createElement('div');
+    headerEl.className = 'recipes-menu__item-header';
+    
+    const imageEl = document.createElement('img');
+    imageEl.className = 'recipes-menu__item-image';
+    imageEl.src = cocktailImagePath;
+    imageEl.alt = recipe.name;
+    
+    const infoEl = document.createElement('div');
+    infoEl.className = 'recipes-menu__item-info';
+    
+    const nameEl = document.createElement('h3');
+    nameEl.className = 'recipes-menu__item-name';
+    nameEl.textContent = recipe.name;
+    
+    const hintEl = document.createElement('p');
+    hintEl.className = 'recipes-menu__item-hint';
+    hintEl.textContent = recipe.hint;
+    
+    infoEl.appendChild(nameEl);
+    infoEl.appendChild(hintEl);
+    headerEl.appendChild(imageEl);
+    headerEl.appendChild(infoEl);
+    
+    // Список ингредиентов
+    const ingredientsEl = document.createElement('div');
+    ingredientsEl.className = 'recipes-menu__item-ingredients';
+    
+    if (ingredients.length > 0) {
+      const ingredientsTitleEl = document.createElement('h4');
+      ingredientsTitleEl.className = 'recipes-menu__item-ingredients-title';
+      ingredientsTitleEl.textContent = 'Ingredients:';
+      
+      const ingredientsListEl = document.createElement('div');
+      ingredientsListEl.className = 'recipes-menu__item-ingredients-list';
+      
+      ingredients.forEach(ing => {
+        const ingEl = document.createElement('div');
+        ingEl.className = 'recipes-menu__ingredient';
+        
+        const ingImageEl = document.createElement('img');
+        ingImageEl.className = 'recipes-menu__ingredient-image';
+        ingImageEl.src = getIconPath(ing.id);
+        ingImageEl.alt = ing.label;
+        
+        const ingLabelEl = document.createElement('span');
+        ingLabelEl.className = 'recipes-menu__ingredient-label';
+        ingLabelEl.textContent = ing.label;
+        
+        ingEl.appendChild(ingImageEl);
+        ingEl.appendChild(ingLabelEl);
+        ingredientsListEl.appendChild(ingEl);
+      });
+      
+      ingredientsEl.appendChild(ingredientsTitleEl);
+      ingredientsEl.appendChild(ingredientsListEl);
+    }
+    
+    recipeEl.appendChild(headerEl);
+    recipeEl.appendChild(ingredientsEl);
+    recipesMenuListEl.appendChild(recipeEl);
+  });
+}
+
+// Извлекает ингредиенты из steps рецепта
+function extractIngredientsFromSteps(steps) {
+  if (!steps || steps.length === 0) return [];
+  
+  const ingredients = [];
+  const glassware = ['stein', 'highball', 'rocks', 'coupe', 'shaker', 'mug', 'glass'];
+  const actions = ['take', 'add', 'pour', 'top', 'stir', 'shake', 'muddle', 'strain', 'rim', 'fill'];
+  
+  steps.forEach(step => {
+    const stepLower = step.toLowerCase();
+    
+    // Паттерны для поиска ингредиентов
+    // Сначала проверяем специальные случаи (многословные ингредиенты)
+    if (stepLower.includes('blue mana syrup') || stepLower.includes('blue syrup')) {
+      const normalizedIng = 'blueEssence';
+      if (!ingredients.find(i => i.id === normalizedIng)) {
+        let ingredientData = null;
+        if (gameData.levels) {
+          for (const level of gameData.levels) {
+            if (level.ingredients) {
+              ingredientData = level.ingredients.find(ing => ing.id === normalizedIng);
+              if (ingredientData) break;
+            }
+          }
+        }
+        ingredients.push({
+          id: normalizedIng,
+          label: ingredientData?.label || 'Blue mana syrup'
+        });
+      }
+    }
+    
+    if (stepLower.includes('dragon chili syrup') || stepLower.includes('chili syrup')) {
+      const normalizedIng = 'chiliSyrup';
+      if (!ingredients.find(i => i.id === normalizedIng)) {
+        let ingredientData = null;
+        if (gameData.levels) {
+          for (const level of gameData.levels) {
+            if (level.ingredients) {
+              ingredientData = level.ingredients.find(ing => ing.id === normalizedIng);
+              if (ingredientData) break;
+            }
+          }
+        }
+        ingredients.push({
+          id: normalizedIng,
+          label: ingredientData?.label || 'Dragon chili syrup'
+        });
+      }
+    }
+    
+    if (stepLower.includes('red bitter') || (stepLower.includes('bitter') && !stepLower.includes('bitters'))) {
+      const normalizedIng = 'bitter';
+      if (!ingredients.find(i => i.id === normalizedIng)) {
+        let ingredientData = null;
+        if (gameData.levels) {
+          for (const level of gameData.levels) {
+            if (level.ingredients) {
+              ingredientData = level.ingredients.find(ing => ing.id === normalizedIng);
+              if (ingredientData) break;
+            }
+          }
+        }
+        ingredients.push({
+          id: normalizedIng,
+          label: ingredientData?.label || 'Red bitter'
+        });
+      }
+    }
+    
+    // Обычные паттерны для остальных ингредиентов
+    const ingredientPatterns = [
+      /\b(gin|rum|vodka|whiskey|tequila|mezcal|lager|vermouth|campari|liqueur|espresso|bitters)\b/,
+      /\b(soda|syrup|mint|lime|orange|lemon|pineapple|foam|cubes|white|beans|cola|ice|tonic)\b/,
+    ];
+    
+    ingredientPatterns.forEach(pattern => {
+      const match = stepLower.match(pattern);
+      if (match) {
+        const ing = match[1];
+        // Исключаем действия и посуду
+        if (!actions.includes(ing) && !glassware.includes(ing)) {
+          // Нормализуем "cubes" в "ice"
+          const normalizedIng = ing === 'cubes' ? 'ice' : ing;
+          
+          // Проверяем, не добавлен ли уже этот ингредиент
+          if (!ingredients.find(i => i.id === normalizedIng)) {
+            // Ищем ингредиент в данных уровней для получения label
+            let ingredientData = null;
+            if (gameData.levels) {
+              for (const level of gameData.levels) {
+                if (level.ingredients) {
+                  ingredientData = level.ingredients.find(ing => ing.id === normalizedIng);
+                  if (ingredientData) break;
+                }
+              }
+            }
+            
+            ingredients.push({
+              id: normalizedIng,
+              label: ingredientData?.label || normalizedIng.charAt(0).toUpperCase() + normalizedIng.slice(1)
+            });
+          }
+        }
+      }
+    });
+  });
+  
+  return ingredients;
 }
 
 // Утилита для просмотра всех ингредиентов в холодильнике (доступна в консоли)
