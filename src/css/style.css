@@ -339,24 +339,160 @@ body {
   50% { transform: scale(1.03); }
 }
 
-/* Ингредиенты на столе (стоят на барной стойке) */
+/* Ингредиенты на столе - теперь скрыты, все продукты в холодильнике */
 .ingredients-on-table {
+  display: none; /* ингредиенты больше не отображаются на столе */
+}
+
+/* Холодильник слева на стойке */
+.bar-fridge-container {
   position: absolute;
-  bottom: +8%;
-  left: 0%;
-  right: 5%;
+  bottom: 60px;
+  left: 40px;
+  z-index: 15;
+  cursor: pointer;
+  transition: transform 150ms ease;
+}
+
+.bar-fridge-container:hover {
+  transform: scale(1.05);
+}
+
+.bar-fridge__icon {
+  width: 180px;  /* увеличен размер холодильника */
+  height: auto;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
+}
+
+/* Модальное окно меню холодильника */
+.fridge-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+  pointer-events: none; /* позволяем клики сквозь overlay */
+}
+
+.fridge-menu__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 500px;  /* только слева, где меню */
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);  /* легкое затемнение только слева */
+  backdrop-filter: none;  /* убираем размытие */
+  pointer-events: auto; /* overlay кликабелен для закрытия */
+}
+
+.fridge-menu__content {
+  position: absolute;
+  top: 50%;
+  left: 40px;  /* позиционируем слева */
+  transform: translateY(-50%);
+  background: #2a1f3a;
+  border: 4px solid #4a3f5a;
+  border-radius: 0;
+  padding: 16px;
+  width: 400px;  /* фиксированная ширина, меньше чем было */
+  max-height: 75vh;  /* ограничиваем высоту */
+  overflow-y: auto;
+  box-shadow: 
+    0 0 0 2px #1a1222,
+    inset 0 0 0 1px rgba(255,255,255,0.1),
+    0 12px 24px rgba(0,0,0,0.9);
+  image-rendering: pixelated;
+  font-family: 'Press Start 2P', cursive;
+  pointer-events: auto; /* содержимое меню кликабельно */
+}
+
+.fridge-menu__header {
   display: flex;
-  justify-content: flex-start;
-  align-items: flex-end;
-  gap: 16px;
-  flex-wrap: wrap;
-  z-index: 15; /* выше стола и персонажей, чтобы бутылки были поверх стойки */
-  padding: 20px 15px;
-  overflow-x: auto;
-  overflow-y: visible;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(241, 179, 63, 0.5) transparent;
-  max-height: 200px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 3px solid #4a3f5a;
+}
+
+.fridge-menu__title {
+  font-size: 14px;
+  color: var(--accent);
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+  margin: 0;
+}
+
+.fridge-menu__close {
+  width: 32px;
+  height: 32px;
+  background: var(--danger);
+  border: 2px solid #1a1222;
+  border-radius: 0;
+  color: white;
+  font-size: 20px;
+  font-family: 'Press Start 2P', cursive;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 100ms ease;
+}
+
+.fridge-menu__close:hover {
+  transform: scale(1.1);
+}
+
+.fridge-menu__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);  /* 2 колонки вместо auto-fill */
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.fridge-menu__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px;
+  background: rgba(0,0,0,0.4);
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  cursor: grab;
+  transition: transform 150ms ease, border-color 150ms ease;
+  image-rendering: pixelated;
+}
+
+.fridge-menu__item:hover {
+  transform: translateY(-4px) scale(1.05);
+  border-color: rgba(241,179,63,0.6);
+  background: rgba(0,0,0,0.6);
+}
+
+.fridge-menu__item:active {
+  cursor: grabbing;
+}
+
+.fridge-menu__item img {
+  width: 56px;  /* немного меньше для компактности */
+  height: 56px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+  pointer-events: none;
+}
+
+.fridge-menu__item-label {
+  font-size: 8px;
+  color: var(--text);
+  text-align: center;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.9);
+  line-height: 1.3;
 }
 
 .ingredients-on-table::-webkit-scrollbar {

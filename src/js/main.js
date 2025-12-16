@@ -2,8 +2,12 @@ import { getIconPath } from './iconMap.js';
 
 // DOM элементы
 const visitorsContainerEl = document.getElementById('visitors-container');
-const ingredientGridEl = document.getElementById('ingredient-grid');
+const ingredientGridEl = document.getElementById('ingredient-grid'); // больше не используется, но оставляем для совместимости
 const shakerEl = document.getElementById('shaker');
+const barFridgeEl = document.getElementById('bar-fridge');
+const fridgeMenuEl = document.getElementById('fridge-menu');
+const fridgeMenuGridEl = document.getElementById('fridge-menu-grid');
+const fridgeMenuCloseEl = document.getElementById('fridge-menu-close');
 const shakerContentEl = document.getElementById('shaker-content');
 const shakerIconEl = document.getElementById('shaker-icon');
 const statusLineEl = document.getElementById('status-line');
@@ -94,6 +98,11 @@ function attachControls() {
   // Кнопка и функционал поворота отключены
   
   // Горячая клавиша R больше не используется для поворота
+  
+  // Обработчики для холодильника
+  barFridgeEl?.addEventListener('click', toggleFridgeMenu);
+  fridgeMenuCloseEl?.addEventListener('click', closeFridgeMenu);
+  fridgeMenuEl?.querySelector('.fridge-menu__overlay')?.addEventListener('click', closeFridgeMenu);
   
   // Клик по пивному крану — наливаем или опустошаем бокал
   beerTapEl?.addEventListener('click', handleBeerTap);
@@ -497,21 +506,37 @@ function activateNextVisitor() {
 }
 
 function renderIngredients() {
-  ingredientGridEl.innerHTML = '';
+  // Теперь ингредиенты отображаются в меню холодильника, а не на столе
+  if (!fridgeMenuGridEl) return;
   
-  // Показываем ВСЕ ингредиенты уровня, независимо от текущего заказа
+  fridgeMenuGridEl.innerHTML = '';
+  
+  // Показываем ВСЕ ингредиенты уровня в меню холодильника
   if (!state.currentLevel || !state.currentLevel.ingredients) {
     return;
   }
   
-  // Размещаем ингредиенты на столе горизонтально, все видны одновременно
-  state.currentLevel.ingredients.forEach((ing, index) => {
-    const chip = INGREDIENT_TEMPLATE.content.cloneNode(true);
-    const ingredientEl = chip.querySelector('.ingredient-on-table');
-    
-    // Не используем абсолютное позиционирование, используем flexbox
-    ingredientEl.dataset.id = ing.id;
-    ingredientEl.dataset.label = ing.label;
+  // Создаём список всех доступных ингредиентов для всех рецептов
+  const allIngredients = new Map();
+  
+  // Собираем все ингредиенты из всех уровней
+  gameData.levels.forEach(level => {
+    if (level.ingredients) {
+      level.ingredients.forEach(ing => {
+        if (!allIngredients.has(ing.id)) {
+          allIngredients.set(ing.id, ing);
+        }
+      });
+    }
+  });
+  
+  // Отображаем все ингредиенты в меню холодильника
+  allIngredients.forEach((ing) => {
+    const item = document.createElement('div');
+    item.className = 'fridge-menu__item';
+    item.dataset.id = ing.id;
+    item.dataset.label = ing.label;
+    item.draggable = true;
     
     const img = document.createElement('img');
     img.src = getIconPath(ing.id);
@@ -519,19 +544,45 @@ function renderIngredients() {
     img.draggable = false;
     
     const label = document.createElement('span');
-    label.className = 'chip__label';
+    label.className = 'fridge-menu__item-label';
     label.textContent = ing.label;
     
-    ingredientEl.appendChild(img);
-    ingredientEl.appendChild(label);
+    item.appendChild(img);
+    item.appendChild(label);
     
-    ingredientEl.addEventListener('dragstart', handleDragStart);
-    ingredientEl.addEventListener('dragend', handleDragEnd);
-    ingredientEl.addEventListener('touchstart', handleTouchStart, { passive: false });
-    ingredientEl.addEventListener('dblclick', () => addIngredientToShaker(ing.id));
+    item.addEventListener('dragstart', handleDragStart);
+    item.addEventListener('dragend', handleDragEnd);
+    item.addEventListener('touchstart', handleTouchStart, { passive: false });
+    item.addEventListener('click', () => {
+      addIngredientToShaker(ing.id);
+      status(`Added ${ing.label} to shaker`);
+    });
     
-    ingredientGridEl.appendChild(chip);
+    fridgeMenuGridEl.appendChild(item);
   });
+}
+
+function toggleFridgeMenu() {
+  if (!fridgeMenuEl) return;
+  const isOpen = fridgeMenuEl.style.display !== 'none';
+  if (isOpen) {
+    closeFridgeMenu();
+  } else {
+    openFridgeMenu();
+  }
+}
+
+function openFridgeMenu() {
+  if (!fridgeMenuEl) return;
+  fridgeMenuEl.style.display = 'block';
+  renderIngredients(); // Обновляем список ингредиентов при открытии
+  status('Fridge menu opened');
+}
+
+function closeFridgeMenu() {
+  if (!fridgeMenuEl) return;
+  fridgeMenuEl.style.display = 'none';
+  status('Fridge menu closed');
 }
 
 let draggedElement = null;

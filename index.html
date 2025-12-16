@@ -57,9 +57,9 @@
           <!-- Посетители будут добавлены через JS -->
         </div>
 
-        <!-- Ингредиенты на столе (абсолютное позиционирование) -->
-        <div class="ingredients-on-table" id="ingredient-grid">
-          <!-- Ингредиенты будут добавлены через JS -->
+        <!-- Холодильник слева на стойке -->
+        <div class="bar-fridge-container">
+          <img src="./src/assets/icons/barfridge.png" alt="Bar fridge" class="bar-fridge__icon" id="bar-fridge">
         </div>
 
         <!-- Поднос для готовых напитков (в центре стола) -->
@@ -106,6 +106,20 @@
           <button id="btn-serve" class="btn btn--primary controls-on-table__serve">Serve</button>
         </div>
       </section>
+
+      <!-- Модальное окно меню холодильника -->
+      <div class="fridge-menu" id="fridge-menu" style="display: none;">
+        <div class="fridge-menu__overlay"></div>
+        <div class="fridge-menu__content">
+          <div class="fridge-menu__header">
+            <h2 class="fridge-menu__title">Bar Fridge</h2>
+            <button class="fridge-menu__close" id="fridge-menu-close">×</button>
+          </div>
+          <div class="fridge-menu__grid" id="fridge-menu-grid">
+            <!-- Ингредиенты будут добавлены через JS -->
+          </div>
+        </div>
+      </div>
 
       <!-- Статус и информация -->
       <div class="status-bar">
