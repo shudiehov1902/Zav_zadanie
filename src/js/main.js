@@ -230,6 +230,10 @@ function setupShakerShaking() {
       if (state.shakeProgress >= 100) {
         state.isShaking = false;
         status('Shaker fully mixed! Ready to serve.');
+        // Показываем коктейль на подносе
+        if (state.currentDrink.length > 0) {
+          showDrinkOnTray();
+        }
       }
     }
   });
@@ -282,6 +286,10 @@ function setupShakerShaking() {
       if (state.shakeProgress >= 100) {
         state.isShaking = false;
         status('Shaker fully mixed! Ready to serve.');
+        // Показываем коктейль на подносе
+        if (state.currentDrink.length > 0) {
+          showDrinkOnTray();
+        }
       }
     }
   });
@@ -290,6 +298,7 @@ function setupShakerShaking() {
 function updateShakeProgress(distance) {
   // Накопление прогресса зависит от силы тряски (pourSpeed)
   const progressPerPixel = 0.1 * state.pourSpeed; // Чем больше сила, тем быстрее накапливается
+  const wasComplete = state.shakeProgress >= 100;
   const newProgress = Math.min(100, state.shakeProgress + (distance * progressPerPixel / 10));
   
   state.shakeProgress = newProgress;
@@ -304,6 +313,11 @@ function updateShakeProgress(distance) {
     if (newProgress >= 100) {
       shakeProgressLabelEl.textContent = 'READY!';
       shakeProgressLabelEl.style.color = 'var(--success)';
+      
+      // Когда шейкер готов, автоматически показываем коктейль на подносе
+      if (!wasComplete && state.currentDrink.length > 0) {
+        showDrinkOnTray();
+      }
     } else if (newProgress >= 75) {
       shakeProgressLabelEl.style.color = 'var(--accent)';
     } else {
@@ -670,8 +684,22 @@ function handleTouchStart(e) {
 }
 
 function addIngredientToShaker(ingredientId) {
-  const ingredient = state.currentLevel?.ingredients.find(ing => ing.id === ingredientId);
-  if (!ingredient) return;
+  // Ищем ингредиент во всех уровнях, а не только в текущем
+  let ingredient = null;
+  
+  if (gameData.levels) {
+    for (const level of gameData.levels) {
+      if (level.ingredients) {
+        ingredient = level.ingredients.find(ing => ing.id === ingredientId);
+        if (ingredient) break;
+      }
+    }
+  }
+  
+  // Если ингредиент не найден, используем ID как label
+  if (!ingredient) {
+    ingredient = { id: ingredientId, label: ingredientId };
+  }
   
   state.currentDrink.push({
     id: ingredientId,
@@ -792,6 +820,9 @@ function clearShaker() {
   shakerContentEl.innerHTML = '';
   shakerEl?.classList.remove('shaking');
   shakerEl?.classList.remove('dragging');
+  
+  // Скрываем коктейль с подноса при очистке шейкера
+  hideTrayDrink();
   
   if (shakeProgressBarEl) {
     shakeProgressBarEl.style.width = '0%';
@@ -1058,8 +1089,9 @@ function handleServe() {
     const isValid = validateRecipe(state.currentDrink, state.activeOrder);
     
     if (isValid) {
-      // Показать готовый напиток на подносе (для любых коктейлей из шейкера)
-      showTrayDrink(state.activeOrder);
+      // Ингредиенты подходят к текущему заказу - успешная подача
+      // Коктейль уже показан на подносе после взбалтывания, просто скрываем его
+      hideTrayDrink();
       state.served += 1;
       ordersEl.textContent = `${state.served}/${state.currentLevel.target}`;
       progressEl.style.width = Math.min(100, (state.served / state.currentLevel.target) * 100) + '%';
@@ -1093,27 +1125,29 @@ function handleServe() {
       
       persistProgress();
     } else {
-      // Рецепт невалиден - проверяем, подходят ли ингредиенты хотя бы к одному рецепту
-      const matchesAnyRecipe = checkIfIngredientsMatchAnyRecipe(state.currentDrink);
+      // Рецепт невалиден для текущего заказа - проверяем, подходят ли ингредиенты к какому-то рецепту
+      const matchedOrder = findMatchingRecipe(state.currentDrink);
       
-      if (!matchesAnyRecipe) {
-        // Ингредиенты не подходят ни к одному рецепту - создаем trash
-        showTrayTrash();
-        status('Trash created! Ingredients don\'t match any recipe.', true);
+      // Коктейль уже показан на подносе после взбалтывания, просто скрываем его
+      hideTrayDrink();
+      
+      if (matchedOrder) {
+        // Ингредиенты подходят к какому-то рецепту, но не к текущему заказу
+        status(`Wrong order! You made ${matchedOrder.name}, but customer wants ${state.activeOrder.name}.`, true);
         clearShaker();
       } else {
-        status('Wrong recipe! Check the order.', true);
+        // Ингредиенты не подходят ни к одному рецепту - создали trash
+        status('Trash created! Ingredients don\'t match any recipe.', true);
+        clearShaker();
       }
     }
   }
 }
 
-// Проверяет, подходят ли ингредиенты хотя бы к одному рецепту из всех уровней
-function checkIfIngredientsMatchAnyRecipe(drink) {
-  if (!drink || drink.length === 0) return false;
-  if (!gameData.levels) return false;
-  
-  const drinkIds = drink.map(ing => ing.id.toLowerCase()).sort();
+// Находит рецепт, к которому подходят ингредиенты (если есть)
+function findMatchingRecipe(drink) {
+  if (!drink || drink.length === 0) return null;
+  if (!gameData.levels) return null;
   
   // Проверяем все рецепты во всех уровнях
   for (const level of gameData.levels) {
@@ -1122,12 +1156,12 @@ function checkIfIngredientsMatchAnyRecipe(drink) {
     for (const order of level.orders) {
       // Проверяем, подходит ли текущий набор ингредиентов к этому рецепту
       if (validateRecipe(drink, order)) {
-        return true; // Нашли хотя бы один подходящий рецепт
+        return order; // Нашли подходящий рецепт
       }
     }
   }
   
-  return false; // Не подходит ни к одному рецепту
+  return null; // Не подходит ни к одному рецепту
 }
 
 // Показывает trash на подносе
@@ -1136,6 +1170,28 @@ function showTrayTrash() {
   trayDrinkEl.src = './src/assets/icons/trash.png';
   trayDrinkEl.alt = 'Trash';
   trayDrinkEl.style.display = 'block';
+}
+
+// Автоматически показывает коктейль на подносе после взбалтывания
+function showDrinkOnTray() {
+  if (!trayDrinkEl || !state.currentDrink || state.currentDrink.length === 0) return;
+  
+  // Ищем подходящий рецепт
+  const matchedOrder = findMatchingRecipe(state.currentDrink);
+  
+  if (matchedOrder) {
+    // Показываем найденный коктейль
+    showTrayDrink(matchedOrder);
+  } else {
+    // Показываем trash
+    showTrayTrash();
+  }
+}
+
+// Скрывает коктейль с подноса
+function hideTrayDrink() {
+  if (!trayDrinkEl) return;
+  trayDrinkEl.style.display = 'none';
 }
 
 function validateRecipe(drink, order) {
