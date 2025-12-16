@@ -31,6 +31,7 @@ export const ICON_MAP = {
   'beans': 'ShugarCube.png', // кофейные зерна временно
   'cola': 'cola.png',
   'ice': 'ice.png',
+    'tonic': 'tonic.png',
   
   // Посуда
 
