@@ -108,14 +108,49 @@
       "target": 6,
       "ingredients": [
         { "id": "rum", "label": "Rum" },
-        { "id": "mint", "label": "Mint leaves" },
+        { "id": "cola", "label": "Cola" },
         { "id": "lime", "label": "Lime wedge" },
-        { "id": "syrup", "label": "Sugar syrup" },
-        { "id": "soda", "label": "Soda water" },
         { "id": "ice", "label": "Ice cubes" },
-        { "id": "highball", "label": "Tall glass" }
+        { "id": "mint", "label": "Mint leaves" },
+        { "id": "syrup", "label": "Sugar syrup" },
+        { "id": "soda", "label": "Soda water" }
       ],
       "orders": [
+        {
+          "name": "Pint of Lager",
+          "tags": ["beer", "easy"],
+          "shortHint": "Same simple lager as in Lv.1",
+          "hint": "Mug, lager to 90%, foam cap.",
+          "steps": [
+            "Take beer mug",
+            "Fill with lager to ~90%",
+            "Add foam on top"
+          ]
+        },
+        {
+          "name": "Shandy",
+          "tags": ["beer", "cola", "soft"],
+          "shortHint": "Half lager, half cola",
+          "hint": "Use tall glass, pour lager then cola 1:1.",
+          "steps": [
+            "Take tall glass",
+            "Pour lager to ~50%",
+            "Top with cola to 100%"
+          ]
+        },
+        {
+          "name": "Cuba Libre",
+          "tags": ["rum", "citrus"],
+          "shortHint": "Mix in shaker: ice, rum, cola, lime",
+          "hint": "Mix ice, rum, cola and lime in shaker, then serve.",
+          "steps": [
+            "Add ice cubes to shaker",
+            "Add rum to shaker",
+            "Add cola to shaker",
+            "Add lime to shaker",
+            "Shake well"
+          ]
+        },
         {
           "name": "Mojito",
           "tags": ["rum", "herbal"],

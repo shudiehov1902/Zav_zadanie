@@ -33,10 +33,9 @@ export const ICON_MAP = {
   'ice': 'ice.png',
   
   // Посуда
-  'stein': 'EmptyPintOfBeer.png',
-  'highball': 'EmptyPintOfBeer.png',
-  'rocks': 'EmptyPintOfBeer.png',
-  'coupe': 'EmptyPintOfBeer.png',
+
+
+
   'shaker': 'Shaker.png',
 };
 
