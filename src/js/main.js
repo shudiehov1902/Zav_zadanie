@@ -79,6 +79,7 @@ let state = {
   pourSpeed: 2,
   isShaking: false,
   shakeProgress: 0, // Прогресс взбалтывания (0-100)
+  isShaken: false, // Флаг, что шейкер был взболтан до 100%
   isDraggingShaker: false,
   lastShakePosition: { x: 0, y: 0 },
   shakeAnimationId: null,
@@ -352,11 +353,12 @@ function updateShakeProgress(distance) {
     if (newProgress >= 100) {
       shakeProgressLabelEl.textContent = 'READY!';
       shakeProgressLabelEl.style.color = 'var(--success)';
+      state.isShaken = true; // Помечаем, что шейкер взболтан
       
       // Когда шейкер готов, автоматически показываем коктейль на подносе
       if (!wasComplete && state.currentDrink.length > 0) {
         showDrinkOnTray();
-        // Сбрасываем прогресс после показа коктейля
+        // Сбрасываем прогресс после показа коктейля (но флаг isShaken остается true)
         setTimeout(() => {
           state.shakeProgress = 0;
           if (shakeProgressBarEl) {
@@ -438,6 +440,7 @@ function startLevel() {
   state.rotation = 0;
   state.isShaking = false;
   state.shakeProgress = 0;
+  state.isShaken = false; // Сбрасываем флаг при старте уровня
   state.isDraggingShaker = false;
   state.pourSpeed = 2; // Сброс на среднюю силу
   
@@ -768,6 +771,7 @@ function addIngredientToShaker(ingredientId) {
   // Если добавляем первый ингредиент в пустой шейкер, скрываем предыдущий напиток с подноса
   if (state.currentDrink.length === 0) {
     hideTrayDrink();
+    state.isShaken = false; // Сбрасываем флаг при добавлении нового ингредиента
   }
   
   state.currentDrink.push({
@@ -885,6 +889,7 @@ function clearShaker() {
   state.rotation = 0;
   state.isShaking = false;
   state.shakeProgress = 0;
+  state.isShaken = false; // Сбрасываем флаг при очистке шейкера
   state.isDraggingShaker = false;
   shakerContentEl.innerHTML = '';
   shakerEl?.classList.remove('shaking');
@@ -1164,7 +1169,8 @@ function handleServe() {
       return;
     }
     
-    if (state.shakeProgress < 100) {
+    // Проверяем, что шейкер был взболтан (либо прогресс 100%, либо флаг isShaken)
+    if (state.shakeProgress < 100 && !state.isShaken) {
       status(`Shake the shaker more! (${Math.floor(state.shakeProgress)}%)`, true);
       return;
     }
@@ -1296,7 +1302,7 @@ function validateRecipe(drink, order) {
     const ingredientPatterns = [
       /\b(stein|highball|rocks|coupe|shaker)\b/,
       /\b(gin|rum|vodka|whiskey|tequila|mezcal|lager|vermouth|campari|liqueur|espresso)\b/,
-      /\b(soda|syrup|mint|lime|orange|lemon|foam|cubes|white|beans|bitters|cola|ice)\b/,
+      /\b(soda|syrup|mint|lime|orange|lemon|foam|cubes|white|beans|bitters|cola|ice|tonic)\b/,
     ];
     
     ingredientPatterns.forEach(pattern => {
@@ -1317,6 +1323,13 @@ function validateRecipe(drink, order) {
   const uniqueRequired = [...new Set(requiredIngredients)];
   const drinkIds = drink.map(ing => ing.id.toLowerCase()).sort();
   const requiredSorted = uniqueRequired.sort();
+  
+  // Отладочный вывод
+  console.log('=== Recipe Validation ===');
+  console.log('Order:', order.name);
+  console.log('Steps:', steps);
+  console.log('Extracted ingredients:', requiredSorted);
+  console.log('Drink ingredients:', drinkIds);
   
   // Проверяем, что все требуемые ингредиенты присутствуют
   for (const required of requiredSorted) {

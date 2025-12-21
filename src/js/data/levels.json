@@ -154,13 +154,13 @@
         {
           "name": "Mojito",
           "tags": ["rum", "herbal"],
-          "shortHint": "Muddle mint + lime, rum, ice, soda",
-          "hint": "Mint, lime and syrup in glass, muddle, add rum, fill with ice and top with soda.",
+          "shortHint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
+          "hint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
           "steps": [
-            "Take tall glass",
-            "Add mint leaves, lime and syrup",
-            "Muddle ingredients",
-            "Pour rum to ~35–40%",
+            "Add mint leaves",
+            "Add lime wedge",
+            "Add sugar syrup",
+            "Add rum to shaker",
             "Add ice cubes",
             "Top with soda water"
           ]
@@ -174,24 +174,78 @@
       "timeLimit": 170,
       "target": 7,
       "ingredients": [
-        { "id": "gin", "label": "Gin" },
-        { "id": "tonic", "label": "Tonic water" },
+        { "id": "rum", "label": "Rum" },
+        { "id": "cola", "label": "Cola" },
         { "id": "lime", "label": "Lime wedge" },
         { "id": "ice", "label": "Ice cubes" },
-        { "id": "highball", "label": "Tall glass" }
+        { "id": "mint", "label": "Mint leaves" },
+        { "id": "syrup", "label": "Sugar syrup" },
+        { "id": "soda", "label": "Soda water" },
+        { "id": "gin", "label": "Gin" },
+        { "id": "tonic", "label": "Tonic water" }
+     
       ],
       "orders": [
         {
-          "name": "Gin & Tonic",
-          "tags": ["gin", "bubbly"],
-          "shortHint": "Gin on ice, top with tonic",
-          "hint": "Fill tall glass with ice, add gin, top with tonic, garnish with lime.",
+          "name": "Pint of Lager",
+          "tags": ["beer", "easy"],
+          "shortHint": "Same simple lager as in Lv.1",
+          "hint": "Mug, lager to 90%, foam cap.",
+          "steps": [
+            "Take beer mug",
+            "Fill with lager to ~90%",
+            "Add foam on top"
+          ]
+        },
+        {
+          "name": "Shandy",
+          "tags": ["beer", "cola", "soft"],
+          "shortHint": "Half lager, half cola",
+          "hint": "Use tall glass, pour lager then cola 1:1.",
           "steps": [
             "Take tall glass",
+            "Pour lager to ~50%",
+            "Top with cola to 100%"
+          ]
+        },
+        {
+          "name": "Cuba Libre",
+          "tags": ["rum", "citrus"],
+          "shortHint": "Mix in shaker: ice, rum, cola, lime",
+          "hint": "Mix ice, rum, cola and lime in shaker, then serve.",
+          "steps": [
+            "Add ice cubes to shaker",
+            "Add rum to shaker",
+            "Add cola to shaker",
+            "Add lime to shaker",
+            "Shake well"
+          ]
+        },
+        {
+          "name": "Mojito",
+          "tags": ["rum", "herbal"],
+          "shortHint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
+          "hint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
+          "steps": [
+            "Add mint leaves",
+            "Add lime wedge",
+            "Add sugar syrup",
+            "Add rum to shaker",
             "Add ice cubes",
-            "Pour gin to ~30–35%",
-            "Top with tonic water",
-            "Add lime wedge"
+            "Top with soda water"
+          ]
+        },
+        {
+          
+          "name": "Gin & Tonic",
+          "tags": ["gin", "bubbly"],
+          "shortHint": "Mix in shaker : gin, tonic, ice , lime",
+          "hint": "Mix in shaker : gin, tonic, ice , lime",
+          "steps": [
+            "Add lime wedge",
+            "Add ice cubes",
+            "Add gin",
+            "Add tonic water"
           ]
         }
       ]
@@ -203,25 +257,93 @@
       "timeLimit": 165,
       "target": 7,
       "ingredients": [
+        { "id": "rum", "label": "Rum" },
+        { "id": "cola", "label": "Cola" },
+        { "id": "lime", "label": "Lime wedge" },
+        { "id": "ice", "label": "Ice cubes" },
+        { "id": "mint", "label": "Mint leaves" },
+        { "id": "syrup", "label": "Sugar syrup" },
+        { "id": "soda", "label": "Soda water" },
+        { "id": "gin", "label": "Gin" },
+        { "id": "tonic", "label": "Tonic water" },
         { "id": "whiskey", "label": "Whiskey" },
         { "id": "bitters", "label": "Bitters" },
-        { "id": "syrup", "label": "Sugar syrup" },
         { "id": "orange", "label": "Orange peel" },
-        { "id": "ice", "label": "Ice cubes" },
         { "id": "rocks", "label": "Rocks glass" }
       ],
       "orders": [
+        {
+          "name": "Pint of Lager",
+          "tags": ["beer", "easy"],
+          "shortHint": "Same simple lager as in Lv.1",
+          "hint": "Mug, lager to 90%, foam cap.",
+          "steps": [
+            "Take beer mug",
+            "Fill with lager to ~90%",
+            "Add foam on top"
+          ]
+        },
+        {
+          "name": "Shandy",
+          "tags": ["beer", "cola", "soft"],
+          "shortHint": "Half lager, half cola",
+          "hint": "Use tall glass, pour lager then cola 1:1.",
+          "steps": [
+            "Take tall glass",
+            "Pour lager to ~50%",
+            "Top with cola to 100%"
+          ]
+        },
+        {
+          "name": "Cuba Libre",
+          "tags": ["rum", "citrus"],
+          "shortHint": "Mix in shaker: ice, rum, cola, lime",
+          "hint": "Mix ice, rum, cola and lime in shaker, then serve.",
+          "steps": [
+            "Add ice cubes to shaker",
+            "Add rum to shaker",
+            "Add cola to shaker",
+            "Add lime to shaker",
+            "Shake well"
+          ]
+        },
+        {
+          "name": "Mojito",
+          "tags": ["rum", "herbal"],
+          "shortHint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
+          "hint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
+          "steps": [
+            "Add mint leaves",
+            "Add lime wedge",
+            "Add sugar syrup",
+            "Add rum to shaker",
+            "Add ice cubes",
+            "Top with soda water"
+          ]
+        },
+        {
+          
+          "name": "Gin & Tonic",
+          "tags": ["gin", "bubbly"],
+          "shortHint": "Mix in shaker : gin, tonic, ice , lime",
+          "hint": "Mix in shaker : gin, tonic, ice , lime",
+          "steps": [
+            "Add lime wedge",
+            "Add ice cubes",
+            "Add gin",
+            "Add tonic water"
+          ]
+        },
         {
           "name": "Old Fashioned",
           "tags": ["whiskey", "stirred"],
           "shortHint": "Syrup + bitters, whiskey on ice, stir",
           "hint": "Build in rocks glass: syrup and bitters, add ice and whiskey, stir, garnish with orange peel.",
           "steps": [
-            "Take rocks glass",
-            "Add syrup splash and bitters",
+            "Add syrup splash",
+            "Add bitters",
             "Add ice cubes",
-            "Pour whiskey to ~70%",
-            "Stir",
+            "Add whiskey",
             "Add orange peel"
           ]
         }
@@ -238,6 +360,7 @@
         { "id": "vermouth", "label": "Red vermouth" },
         { "id": "bitter", "label": "Red bitter" },
         { "id": "orange", "label": "Orange peel" },
+        { "id": "lime", "label": "Lime wedge" },
         { "id": "ice", "label": "Ice cubes" },
         { "id": "rocks", "label": "Rocks glass" }
       ],
@@ -245,8 +368,8 @@
         {
           "name": "Negroni",
           "tags": ["bitter", "classic"],
-          "shortHint": "1:1:1 gin, bitter, vermouth",
-          "hint": "Fill rocks glass with ice, add gin, bitter and vermouth in equal parts, stir and garnish with orange peel.",
+          "shortHint": "1:1:1 gin, bitter, vermouth, with lime",
+          "hint": "Fill rocks glass with ice, add gin, bitter and vermouth in equal parts, stir and garnish with orange peel and lime.",
           "steps": [
             "Take rocks glass",
             "Add ice cubes",
@@ -255,6 +378,7 @@
             "Pour vermouth to ~90%",
             "Stir",
             "Add orange peel"
+            
           ]
         }
       ]
