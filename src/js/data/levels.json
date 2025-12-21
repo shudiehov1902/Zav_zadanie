@@ -90,6 +90,7 @@
           "tags": ["rum", "citrus"],
           "shortHint": "Mix in shaker: ice, rum, cola, lime",
           "hint": "Mix ice, rum, cola and lime in shaker, then serve.",
+          "ingredients": ["ice", "rum", "cola", "lime"],
           "steps": [
             "Add ice cubes to shaker",
             "Add rum to shaker",
@@ -143,6 +144,7 @@
           "tags": ["rum", "citrus"],
           "shortHint": "Mix in shaker: ice, rum, cola, lime",
           "hint": "Mix ice, rum, cola and lime in shaker, then serve.",
+          "ingredients": ["ice", "rum", "cola", "lime"],
           "steps": [
             "Add ice cubes to shaker",
             "Add rum to shaker",
@@ -156,6 +158,7 @@
           "tags": ["rum", "herbal"],
           "shortHint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
           "hint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
+          "ingredients": ["mint", "lime", "syrup", "rum", "ice", "soda"],
           "steps": [
             "Add mint leaves",
             "Add lime wedge",
@@ -213,6 +216,7 @@
           "tags": ["rum", "citrus"],
           "shortHint": "Mix in shaker: ice, rum, cola, lime",
           "hint": "Mix ice, rum, cola and lime in shaker, then serve.",
+          "ingredients": ["ice", "rum", "cola", "lime"],
           "steps": [
             "Add ice cubes to shaker",
             "Add rum to shaker",
@@ -226,6 +230,7 @@
           "tags": ["rum", "herbal"],
           "shortHint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
           "hint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
+          "ingredients": ["mint", "lime", "syrup", "rum", "ice", "soda"],
           "steps": [
             "Add mint leaves",
             "Add lime wedge",
@@ -241,6 +246,7 @@
           "tags": ["gin", "bubbly"],
           "shortHint": "Mix in shaker : gin, tonic, ice , lime",
           "hint": "Mix in shaker : gin, tonic, ice , lime",
+          "ingredients": ["lime", "ice", "gin", "tonic"],
           "steps": [
             "Add lime wedge",
             "Add ice cubes",
@@ -299,6 +305,7 @@
           "tags": ["rum", "citrus"],
           "shortHint": "Mix in shaker: ice, rum, cola, lime",
           "hint": "Mix ice, rum, cola and lime in shaker, then serve.",
+          "ingredients": ["ice", "rum", "cola", "lime"],
           "steps": [
             "Add ice cubes to shaker",
             "Add rum to shaker",
@@ -312,6 +319,7 @@
           "tags": ["rum", "herbal"],
           "shortHint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
           "hint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
+          "ingredients": ["mint", "lime", "syrup", "rum", "ice", "soda"],
           "steps": [
             "Add mint leaves",
             "Add lime wedge",
@@ -327,6 +335,7 @@
           "tags": ["gin", "bubbly"],
           "shortHint": "Mix in shaker : gin, tonic, ice , lime",
           "hint": "Mix in shaker : gin, tonic, ice , lime",
+          "ingredients": ["lime", "ice", "gin", "tonic"],
           "steps": [
             "Add lime wedge",
             "Add ice cubes",
@@ -337,8 +346,9 @@
         {
           "name": "Old Fashioned",
           "tags": ["whiskey", "stirred"],
-          "shortHint": "Syrup + bitters, whiskey on ice, stir",
-          "hint": "Build in rocks glass: syrup and bitters, add ice and whiskey, stir, garnish with orange peel.",
+          "shortHint": "Mix in shaker : syrup, bitters, ice, whiskey, orange",
+          "hint": "Mix syrup, bitters, ice, whiskey and orange in shaker, then serve.",
+          "ingredients": ["syrup", "bitters", "ice", "whiskey", "orange"],
           "steps": [
             "Add syrup splash",
             "Add bitters",
@@ -356,29 +366,112 @@
       "timeLimit": 160,
       "target": 8,
       "ingredients": [
-        { "id": "gin", "label": "Gin" },
-        { "id": "vermouth", "label": "Red vermouth" },
-        { "id": "bitter", "label": "Red bitter" },
-        { "id": "orange", "label": "Orange peel" },
+        { "id": "rum", "label": "Rum" },
+        { "id": "cola", "label": "Cola" },
         { "id": "lime", "label": "Lime wedge" },
         { "id": "ice", "label": "Ice cubes" },
-        { "id": "rocks", "label": "Rocks glass" }
+        { "id": "mint", "label": "Mint leaves" },
+        { "id": "syrup", "label": "Sugar syrup" },
+        { "id": "soda", "label": "Soda water" },
+        { "id": "gin", "label": "Gin" },
+        { "id": "tonic", "label": "Tonic water" },
+        { "id": "whiskey", "label": "Whiskey" },
+        { "id": "bitters", "label": "Bitters" },
+        { "id": "orange", "label": "Orange peel" },
+        { "id": "vermouth", "label": "Red vermouth" },
+        { "id": "bitter", "label": "Red bitter" }
       ],
       "orders": [
         {
+          "name": "Pint of Lager",
+          "tags": ["beer", "easy"],
+          "shortHint": "Same simple lager as in Lv.1",
+          "hint": "Mug, lager to 90%, foam cap.",
+          "steps": [
+            "Take beer mug",
+            "Fill with lager to ~90%",
+            "Add foam on top"
+          ]
+        },
+        {
+          "name": "Shandy",
+          "tags": ["beer", "cola", "soft"],
+          "shortHint": "Half lager, half cola",
+          "hint": "Use tall glass, pour lager then cola 1:1.",
+          "steps": [
+            "Take tall glass",
+            "Pour lager to ~50%",
+            "Top with cola to 100%"
+          ]
+        },
+        {
+          "name": "Cuba Libre",
+          "tags": ["rum", "citrus"],
+          "shortHint": "Mix in shaker: ice, rum, cola, lime",
+          "hint": "Mix ice, rum, cola and lime in shaker, then serve.",
+          "ingredients": ["ice", "rum", "cola", "lime"],
+          "steps": [
+            "Add ice cubes to shaker",
+            "Add rum to shaker",
+            "Add cola to shaker",
+            "Add lime to shaker",
+            "Shake well"
+          ]
+        },
+        {
+          "name": "Mojito",
+          "tags": ["rum", "herbal"],
+          "shortHint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
+          "hint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
+          "ingredients": ["mint", "lime", "syrup", "rum", "ice", "soda"],
+          "steps": [
+            "Add mint leaves",
+            "Add lime wedge",
+            "Add sugar syrup",
+            "Add rum to shaker",
+            "Add ice cubes",
+            "Top with soda water"
+          ]
+        },
+        {
+          "name": "Gin & Tonic",
+          "tags": ["gin", "bubbly"],
+          "shortHint": "Mix in shaker : gin, tonic, ice , lime",
+          "hint": "Mix in shaker : gin, tonic, ice , lime",
+          "ingredients": ["lime", "ice", "gin", "tonic"],
+          "steps": [
+            "Add lime wedge",
+            "Add ice cubes",
+            "Add gin",
+            "Add tonic water"
+          ]
+        },
+        {
+          "name": "Old Fashioned",
+          "tags": ["whiskey", "stirred"],
+          "shortHint": "Mix in shaker : syrup, bitters, ice, whiskey, orange",
+          "hint": "Mix syrup, bitters, ice, whiskey and orange in shaker, then serve.",
+          "ingredients": ["syrup", "bitters", "ice", "whiskey", "orange"],
+          "steps": [
+            "Add syrup splash",
+            "Add bitters",
+            "Add ice cubes",
+            "Add whiskey",
+            "Add orange peel"
+          ]
+        },
+        {
           "name": "Negroni",
           "tags": ["bitter", "classic"],
-          "shortHint": "1:1:1 gin, bitter, vermouth, with lime",
-          "hint": "Fill rocks glass with ice, add gin, bitter and vermouth in equal parts, stir and garnish with orange peel and lime.",
+          "shortHint": "Mix in shaker : gin, bitter, vermouth, ice, orange",
+          "hint": "Mix gin, bitter, vermouth, ice and orange in shaker, then serve.",
+          "ingredients": ["ice", "gin", "bitter", "vermouth", "orange"],
           "steps": [
-            "Take rocks glass",
             "Add ice cubes",
-            "Pour gin to ~30%",
-            "Pour bitter to ~60%",
-            "Pour vermouth to ~90%",
-            "Stir",
+            "Add gin",
+            "Add bitter",
+            "Add vermouth",
             "Add orange peel"
-            
           ]
         }
       ]
@@ -390,43 +483,141 @@
       "timeLimit": 150,
       "target": 9,
       "ingredients": [
-        { "id": "gin", "label": "Gin" },
         { "id": "rum", "label": "Rum" },
-        { "id": "bitter", "label": "Red bitter" },
-        { "id": "tonic", "label": "Tonic water" },
-        { "id": "blueEssence", "label": "Blue mana syrup" },
-        { "id": "chiliSyrup", "label": "Dragon chili syrup" },
+        { "id": "cola", "label": "Cola" },
         { "id": "lime", "label": "Lime wedge" },
         { "id": "ice", "label": "Ice cubes" },
-        { "id": "highball", "label": "Tall glass" },
-        { "id": "rocks", "label": "Rocks glass" }
+        { "id": "mint", "label": "Mint leaves" },
+        { "id": "syrup", "label": "Sugar syrup" },
+        { "id": "soda", "label": "Soda water" },
+        { "id": "gin", "label": "Gin" },
+        { "id": "tonic", "label": "Tonic water" },
+        { "id": "whiskey", "label": "Whiskey" },
+        { "id": "bitters", "label": "Bitters" },
+        { "id": "orange", "label": "Orange peel" },
+        { "id": "vermouth", "label": "Red vermouth" },
+        { "id": "bitter", "label": "Red bitter" },
+        { "id": "blueEssence", "label": "Blue mana syrup" },
+        { "id": "chiliSyrup", "label": "Dragon chili syrup" }
       ],
       "orders": [
         {
-          "name": "Mana Elixir",
-          "tags": ["magic", "bubbly"],
-          "shortHint": "Blue gin tonic for wizards",
-          "hint": "Highball with ice, gin + blue syrup, top with tonic. Bright blue mana drink.",
+          "name": "Pint of Lager",
+          "tags": ["beer", "easy"],
+          "shortHint": "Same simple lager as in Lv.1",
+          "hint": "Mug, lager to 90%, foam cap.",
+          "steps": [
+            "Take beer mug",
+            "Fill with lager to ~90%",
+            "Add foam on top"
+          ]
+        },
+        {
+          "name": "Shandy",
+          "tags": ["beer", "cola", "soft"],
+          "shortHint": "Half lager, half cola",
+          "hint": "Use tall glass, pour lager then cola 1:1.",
           "steps": [
             "Take tall glass",
+            "Pour lager to ~50%",
+            "Top with cola to 100%"
+          ]
+        },
+        {
+          "name": "Cuba Libre",
+          "tags": ["rum", "citrus"],
+          "shortHint": "Mix in shaker: ice, rum, cola, lime",
+          "hint": "Mix ice, rum, cola and lime in shaker, then serve.",
+          "ingredients": ["ice", "rum", "cola", "lime"],
+          "steps": [
+            "Add ice cubes to shaker",
+            "Add rum to shaker",
+            "Add cola to shaker",
+            "Add lime to shaker",
+            "Shake well"
+          ]
+        },
+        {
+          "name": "Mojito",
+          "tags": ["rum", "herbal"],
+          "shortHint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
+          "hint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
+          "ingredients": ["mint", "lime", "syrup", "rum", "ice", "soda"],
+          "steps": [
+            "Add mint leaves",
+            "Add lime wedge",
+            "Add sugar syrup",
+            "Add rum to shaker",
             "Add ice cubes",
-            "Pour gin to ~30%",
-            "Add blue mana syrup splash",
-            "Top with tonic water",
+            "Top with soda water"
+          ]
+        },
+        {
+          "name": "Gin & Tonic",
+          "tags": ["gin", "bubbly"],
+          "shortHint": "Mix in shaker : gin, tonic, ice , lime",
+          "hint": "Mix in shaker : gin, tonic, ice , lime",
+          "ingredients": ["lime", "ice", "gin", "tonic"],
+          "steps": [
+            "Add lime wedge",
+            "Add ice cubes",
+            "Add gin",
+            "Add tonic water"
+          ]
+        },
+        {
+          "name": "Old Fashioned",
+          "tags": ["whiskey", "stirred"],
+          "shortHint": "Mix in shaker : syrup, bitters, ice, whiskey, orange",
+          "hint": "Mix syrup, bitters, ice, whiskey and orange in shaker, then serve.",
+          "ingredients": ["syrup", "bitters", "ice", "whiskey", "orange"],
+          "steps": [
+            "Add syrup splash",
+            "Add bitters",
+            "Add ice cubes",
+            "Add whiskey",
+            "Add orange peel"
+          ]
+        },
+        {
+          "name": "Negroni",
+          "tags": ["bitter", "classic"],
+          "shortHint": "Mix in shaker : gin, bitter, vermouth, ice, orange",
+          "hint": "Mix gin, bitter, vermouth, ice and orange in shaker, then serve.",
+          "ingredients": ["ice", "gin", "bitter", "vermouth", "orange"],
+          "steps": [
+            "Add ice cubes",
+            "Add gin",
+            "Add bitter",
+            "Add vermouth",
+            "Add orange peel"
+          ]
+        },
+        {
+          "name": "Mana Elixir",
+          "tags": ["magic", "bubbly"],
+          "shortHint": "Mix in shaker : gin, blueEssence, tonic, ice, lime",
+          "hint": "Mix gin, blueEssence, tonic, ice and lime in shaker, then serve.",
+          "ingredients": ["ice", "gin", "blueEssence", "tonic", "lime"],
+          "steps": [
+            "Add ice cubes",
+            "Add gin",
+            "Add blueEssence",
+            "Add tonic",
             "Add lime wedge"
           ]
         },
         {
-          "name": "Dragon’s Breath",
+          "name": "Dragon's Breath",
           "tags": ["magic", "spicy"],
-          "shortHint": "Rum + bitter + chili, served on rocks",
-          "hint": "Rocks glass with ice, rum and red bitter, add dragon chili syrup and lime. Very spicy.",
+          "shortHint": "Mix in rocks glass : ice, rum, red bitter, chiliSyrup, lime",
+          "hint": "Mix ice, rum, red bitter, chiliSyrup and lime in rocks glass, then serve.",
+          "ingredients": ["ice", "rum", "bitter", "chiliSyrup", "lime"],
           "steps": [
-            "Take rocks glass",
             "Add ice cubes",
-            "Pour rum to ~40%",
-            "Pour red bitter to ~70%",
-            "Add dragon chili syrup",
+            "Add rum",
+            "Add red bitter",
+            "Add chiliSyrup",
             "Add lime wedge"
           ]
         }

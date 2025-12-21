@@ -1291,48 +1291,26 @@ function hideTrayDrink() {
 }
 
 function validateRecipe(drink, order) {
-  const steps = order.steps || [];
-  const requiredIngredients = [];
+  // Используем явный список ингредиентов из рецепта
+  const requiredIngredients = order.ingredients || [];
   
-  // Список посуды, которую нужно исключить из ингредиентов
-  const glassware = ['stein', 'highball', 'rocks', 'coupe', 'shaker'];
+  // Если ингредиенты не указаны явно, возвращаем false (рецепт некорректный)
+  if (requiredIngredients.length === 0) {
+    console.warn(`Recipe "${order.name}" has no ingredients specified!`);
+    return false;
+  }
   
-  steps.forEach(step => {
-    const stepLower = step.toLowerCase();
-    const ingredientPatterns = [
-      /\b(stein|highball|rocks|coupe|shaker)\b/,
-      /\b(gin|rum|vodka|whiskey|tequila|mezcal|lager|vermouth|campari|liqueur|espresso)\b/,
-      /\b(soda|syrup|mint|lime|orange|lemon|foam|cubes|white|beans|bitters|cola|ice|tonic)\b/,
-    ];
-    
-    ingredientPatterns.forEach(pattern => {
-      const match = stepLower.match(pattern);
-      if (match) {
-        const ing = match[1];
-        // Исключаем действия и посуду из списка ингредиентов
-        if (!['take', 'add', 'pour', 'top', 'stir', 'shake', 'muddle', 'strain', 'rim'].includes(ing) &&
-            !glassware.includes(ing)) {
-          // Нормализуем "cubes" в "ice" для совместимости
-          const normalizedIng = ing === 'cubes' ? 'ice' : ing;
-          requiredIngredients.push(normalizedIng);
-        }
-      }
-    });
-  });
-  
-  const uniqueRequired = [...new Set(requiredIngredients)];
   const drinkIds = drink.map(ing => ing.id.toLowerCase()).sort();
-  const requiredSorted = uniqueRequired.sort();
+  const requiredIds = requiredIngredients.map(ing => ing.toLowerCase()).sort();
   
   // Отладочный вывод
   console.log('=== Recipe Validation ===');
   console.log('Order:', order.name);
-  console.log('Steps:', steps);
-  console.log('Extracted ingredients:', requiredSorted);
+  console.log('Required ingredients:', requiredIds);
   console.log('Drink ingredients:', drinkIds);
   
   // Проверяем, что все требуемые ингредиенты присутствуют
-  for (const required of requiredSorted) {
+  for (const required of requiredIds) {
     if (!drinkIds.includes(required)) {
       console.log(`Missing ingredient: ${required}`);
       return false;
@@ -1340,15 +1318,16 @@ function validateRecipe(drink, order) {
   }
   
   // Проверяем лишние ингредиенты - не допускаем лишних вообще
-  const extraIngredients = drinkIds.filter(id => !requiredSorted.includes(id));
+  const extraIngredients = drinkIds.filter(id => !requiredIds.includes(id));
   if (extraIngredients.length > 0) {
     console.log(`Extra ingredients not allowed: ${extraIngredients.join(', ')}`);
+    console.log(`Expected: ${requiredIds.join(', ')}, but got: ${drinkIds.join(', ')}`);
     return false;
   }
   
   // Проверяем, что количество ингредиентов точно соответствует требуемому
-  if (drinkIds.length !== requiredSorted.length) {
-    console.log(`Ingredient count mismatch: got ${drinkIds.length}, required ${requiredSorted.length}`);
+  if (drinkIds.length !== requiredIds.length) {
+    console.log(`Ingredient count mismatch: got ${drinkIds.length}, required ${requiredIds.length}`);
     return false;
   }
   
@@ -1501,6 +1480,7 @@ function renderRecipes() {
           name: order.name,
           hint: order.hint || order.shortHint || '',
           steps: order.steps || [],
+          ingredients: order.ingredients || [],
           level: level.name
         });
       }
@@ -1517,8 +1497,8 @@ function renderRecipes() {
     const recipeEl = document.createElement('div');
     recipeEl.className = 'recipes-menu__item';
     
-    // Извлекаем ингредиенты из steps
-    const ingredients = extractIngredientsFromSteps(recipe.steps);
+    // Извлекаем ингредиенты из рецепта (используем поле ingredients, если есть)
+    const ingredients = extractIngredientsFromSteps(recipe.steps, recipe.ingredients);
     
     // Получаем картинку готового коктейля
     const cocktailImage = getTraySpriteForOrder({ name: recipe.name });
@@ -1591,8 +1571,32 @@ function renderRecipes() {
   });
 }
 
-// Извлекает ингредиенты из steps рецепта
-function extractIngredientsFromSteps(steps) {
+// Извлекает ингредиенты из рецепта (использует поле ingredients, если есть, иначе извлекает из steps)
+function extractIngredientsFromSteps(steps, recipeIngredients) {
+  // Если ингредиенты указаны явно в рецепте, используем их
+  if (recipeIngredients && recipeIngredients.length > 0) {
+    const ingredients = [];
+    recipeIngredients.forEach(ingId => {
+      // Ищем ингредиент в данных уровней для получения label
+      let ingredientData = null;
+      if (gameData.levels) {
+        for (const level of gameData.levels) {
+          if (level.ingredients) {
+            ingredientData = level.ingredients.find(ing => ing.id === ingId);
+            if (ingredientData) break;
+          }
+        }
+      }
+      
+      ingredients.push({
+        id: ingId,
+        label: ingredientData?.label || ingId.charAt(0).toUpperCase() + ingId.slice(1)
+      });
+    });
+    return ingredients;
+  }
+  
+  // Иначе извлекаем из steps (старый способ для обратной совместимости)
   if (!steps || steps.length === 0) return [];
   
   const ingredients = [];
