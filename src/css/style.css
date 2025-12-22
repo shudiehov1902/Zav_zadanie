@@ -5,6 +5,8 @@ html, body {
   margin: 0;
   padding: 0;
   overflow: hidden; /* блокируем прокрутку страницы, игра всегда внутри экрана */
+  -webkit-overflow-scrolling: touch; /* плавная прокрутка на iOS */
+  touch-action: manipulation; /* предотвращаем двойной тап для зума */
 }
 
 :root {
@@ -20,7 +22,17 @@ html, body {
   color-scheme: dark;
 }
 
-* { box-sizing: border-box; }
+* { 
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent; /* убираем подсветку при касании на мобильных */
+}
+
+*:not(input):not(textarea) {
+  user-select: none; /* предотвращаем выделение текста при касании */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
 
 body {
   margin: 0;
@@ -37,8 +49,10 @@ body {
   margin: 0;
   padding: 12px;
   min-height: 100vh;
+  max-height: 100vh; /* ограничиваем высоту на мобильных */
   display: flex;
   flex-direction: column;
+  overflow: hidden; /* предотвращаем скроллинг */
 }
 
 .topbar {
@@ -149,6 +163,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-height: 0; /* важно для flex-контейнеров */
+  overflow: hidden;
 }
 
 /* Таверна - основной контейнер */
@@ -157,8 +173,11 @@ body {
   min-height: 500px;
   background: transparent;
   border-radius: 8px;
-  overflow: visible;
+  overflow: hidden; /* предотвращаем выход элементов за границы */
   flex: 1;
+  width: 100%;
+  max-width: 100%;
+  min-height: 0; /* важно для flex-контейнеров */
 }
 
 .tavern__background {
@@ -173,23 +192,6 @@ body {
   background-repeat: no-repeat;
 }
 
-/* Барная стойка поверх фона, но под пузырями диалога */
-.tavern__table {
-  position: absolute;
-  left: -20%;             /* стол выходит за левый край на 20% ширины контейнера */
-  bottom: -120%;              /* прижимаем к низу контейнера */
-  width: 140%;            /* ширина на 40% больше контейнера (чтобы покрыть отрицательный left) */
-  height: 180vh;           /* высота составляет 70% от высоты viewport */
-  min-height: 600px;      /* минимальная высота для маленьких экранов */
-  max-height: 1400px;     /* максимальная высота для очень больших экранов */
-  background-image: url('../assets/background/table.png');
-  background-repeat: no-repeat;
-  background-position: bottom center;
-  background-size: 100% 100%;  /* растягиваем текстуру по всей ширине и высоте блока */
-  z-index: 8;
-  background-color: transparent;
-  pointer-events: none;
-}
 
 /* Посетители с диалоговыми окнами */
 .visitors {
@@ -209,19 +211,47 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  /* Стартуем чуть левее экрана и "заходим" к стойке */
-  transform: translateX(-120%);
-  animation: visitor-enter 0.9s ease-out forwards;
+  /* Посетитель появляется из центра (двери) и приближается к бару */
+  left: 50% !important; /* Центрируем по горизонтали */
+  animation: visitor-enter 1.2s ease-out forwards;
+  max-width: 100%;
+  box-sizing: border-box;
+  transform-origin: center bottom; /* Точка масштабирования - центр снизу */
+  overflow: visible; /* Чтобы speech-bubble был виден даже если посетитель высоко */
+}
+
+/* Для мобильных устройств используем другую анимацию */
+@media (max-width: 768px) {
+  .visitor {
+    animation: visitor-enter-mobile 1.2s ease-out forwards;
+  }
+  
+  /* Отключаем анимацию только если transform задан через style и это не начальная анимация */
+  .visitor[style*="transform"]:not([data-animating="true"]) {
+    animation: none;
+  }
 }
 
 /* Контейнер с персонажем под пузырём */
 .visitor__avatar {
   margin-top: 6px;
+  order: 2; /* Аватар идет после speech-bubble */
+}
+
+/* Speech-bubble теперь позиционируется абсолютно относительно .tavern, а не .visitor */
+.visitor .speech-bubble {
+  position: absolute;
+  bottom: auto;
+  left: auto;
+  transform: none;
+  order: 1; /* Speech-bubble идет первым */
 }
 
 .visitor__img {
-  width: 380px;
-  height: 380px;
+  width: clamp(200px, 25vw, 380px);
+  height: clamp(200px, 25vw, 380px);
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
@@ -231,58 +261,52 @@ body {
 
 @keyframes visitor-enter {
   from {
-    transform: translateX(-120%);
+    opacity: 0.2;
+    transform: translateX(-50%) translateY(-100%) scale(0.3);
+    filter: brightness(0.2);
   }
   to {
-    transform: translateX(0);
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+    filter: brightness(1);
   }
 }
 
-/* Пиксельное диалоговое окно над персонажами */
+@keyframes visitor-enter-mobile {
+  from {
+    opacity: 0.2;
+    transform: translateX(-50%) translateY(-100%) scale(0.3);
+    filter: brightness(0.2);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+    filter: brightness(1);
+  }
+}
+
+/* Окошко с заказом (слева, похоже на панель ингредиентов шейкера) */
 .speech-bubble {
-  position: relative;
+  position: absolute;
+  bottom: 55%;       /* на той же высоте, что и панель шейкера */
+  left: 25%;         /* слева, симметрично панели шейкера справа */
+  right: auto;
+  transform: none;
   background: #2a1f3a;
   border: 3px solid #4a3f5a;
   border-radius: 0;
-  padding: 10px 14px;
-  min-width: 200px;
-  max-width: 240px;
+  padding: clamp(8px, 1.5vw, 12px);
+  min-width: clamp(120px, 30vw, 280px);
+  max-width: clamp(140px, 50vw, 400px);
+  width: auto;
   box-shadow: 
     0 0 0 2px #1a1222,
     inset 0 0 0 1px rgba(255,255,255,0.1),
-    0 6px 12px rgba(0,0,0,0.7);
+    0 8px 16px rgba(0,0,0,0.8);
+  z-index: 20;
   image-rendering: pixelated;
   font-family: 'Press Start 2P', cursive;
-  font-size: 8px;
-  line-height: 1.5;
-  margin-bottom: 10px;
-  z-index: 20;
-}
-
-.speech-bubble::before {
-  content: '';
-  position: absolute;
-  bottom: -14px;
-  left: 30px;
-  width: 0;
-  height: 0;
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-top: 14px solid #4a3f5a;
-  image-rendering: pixelated;
-}
-
-.speech-bubble::after {
-  content: '';
-  position: absolute;
-  bottom: -11px;
-  left: 32px;
-  width: 0;
-  height: 0;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-top: 11px solid #2a1f3a;
-  image-rendering: pixelated;
+  white-space: normal;
 }
 
 .speech-bubble__content {
@@ -291,26 +315,30 @@ body {
 }
 
 .speech-bubble__title {
+  font-size: clamp(5px, 1.2vw, 9px);
   color: var(--accent);
-  margin-bottom: 8px;
+  text-align: center;
+  margin-bottom: clamp(6px, 1.5vh, 10px);
   text-transform: uppercase;
-  font-size: 10px;
   text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
 }
 
 .speech-bubble__hint {
   color: var(--muted);
-  font-size: 7px;
-  margin-bottom: 6px;
+  font-size: clamp(4px, 1vw, 7px);
+  text-align: center;
+  margin-bottom: clamp(4px, 1vh, 8px);
   line-height: 1.4;
 }
 
 .speech-bubble__timer {
+  font-size: clamp(4px, 1vw, 7px);
   color: var(--danger);
-  font-size: 8px;
-  margin-top: 6px;
-  border-top: 2px solid rgba(255,255,255,0.15);
-  padding-top: 6px;
+  text-align: center;
+  margin-top: clamp(4px, 1vh, 8px);
+  padding-top: clamp(4px, 1vh, 8px);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  line-height: 1.4;
   text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
 }
 
@@ -359,7 +387,7 @@ body {
 }
 
 .bar-fridge__icon {
-  width: 180px;  /* увеличен размер холодильника */
+  width: clamp(60px, 15vw, 180px);  /* увеличен размер холодильника */
   height: auto;
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
@@ -399,6 +427,7 @@ body {
   width: 400px;  /* фиксированная ширина, меньше чем было */
   max-height: 75vh;  /* ограничиваем высоту */
   overflow-y: auto;
+  overflow-x: visible;  /* не обрезаем элементы по горизонтали */
   box-shadow: 
     0 0 0 2px #1a1222,
     inset 0 0 0 1px rgba(255,255,255,0.1),
@@ -474,6 +503,14 @@ body {
 
 .fridge-menu__item:active {
   cursor: grabbing;
+}
+
+.fridge-menu__item.dragging {
+  z-index: 3000 !important;  /* ⬆️ выше всего (меню: 1000, пауза: 2000) */
+  opacity: 0.9;
+  transform: scale(1.1);
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.8));
+  will-change: transform, left, top;  /* оптимизация для анимации */
 }
 
 .fridge-menu__item img {
@@ -835,6 +872,7 @@ body {
   transition: transform 100ms ease;
   image-rendering: pixelated;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
+  -webkit-touch-callout: none; /* отключаем контекстное меню на iOS */
 }
 
 .ingredient-on-table::before {
@@ -912,8 +950,8 @@ body {
   transform: translateX(-50%);
   z-index: 14;        /* над столом, но под всплывающими окнами */
   pointer-events: auto; /* нужна, чтобы можно было дропать бокал/напиток на поднос */
-  width: 400px;       /* увеличиваем «хитбокс» подноса для drag&drop */
-  height: 400px;
+  width: 260px;       /* соответствуем размеру визуального подноса */
+  height: 200px;      /* уменьшаем высоту, чтобы соответствовать визуальному подносу */
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -945,9 +983,10 @@ body {
 /* Когда бокал стоит на подносе, позиционируем его в центре подноса */
 .tray-container .beer-tap__glass {
   position: absolute;
-  bottom: 70px;              /* подгони под высоту подноса */
+  bottom: 40%;            /* поднимаем еще выше (два раза) - используем проценты для адаптивности */
   left: 50%;
   transform: translateX(-50%);
+  z-index: 1;
 }
 
 /* Пивной кран справа на столе */
@@ -979,6 +1018,8 @@ body {
   image-rendering: pixelated;
   filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6));
   cursor: grab;
+  touch-action: none;
+  -webkit-touch-callout: none;
 }
 
 /* Увеличенный размер для shandy */
@@ -1010,6 +1051,9 @@ body {
   cursor: grab;
   transition: transform 200ms ease;
   user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  -webkit-touch-callout: none;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
 }
 
@@ -1339,6 +1383,12 @@ body {
   padding: 10px;
   z-index: 100;
   position: relative;
+  flex-shrink: 0 !important; /* Не даем статус-бару сжиматься */
+  flex-grow: 0 !important; /* Не даем статус-бару расти */
+  min-height: fit-content; /* Минимальная высота по содержимому */
+  display: block !important; /* Убеждаемся, что элемент отображается */
+  visibility: visible !important; /* Убеждаемся, что элемент виден */
+  opacity: 1 !important; /* Убеждаемся, что элемент не прозрачный */
 }
 
 .status {
@@ -1374,91 +1424,827 @@ body {
 }
 
 /* Адаптивность */
-@media (max-width: 768px) {
-  .visitors {
-    flex-wrap: wrap;
-    gap: 20px;
-    padding: 15px;
-  }
-  
-  .visitor {
-    position: relative;
-    flex: 0 0 calc(50% - 10px);
+/* Промежуточные размеры для плавных переходов */
+@media (max-width: 900px) {
+  .visitor__img {
+    width: clamp(220px, 28vw, 320px) !important;
+    height: clamp(220px, 28vw, 320px) !important;
   }
   
   .speech-bubble {
-    min-width: 160px;
-    max-width: 180px;
+    min-width: clamp(150px, 28vw, 250px);
+    max-width: clamp(170px, 35vw, 300px);
+    padding: clamp(6px, 1.2vw, 10px);
+  }
+  
+  .bar-fridge__icon {
+    width: clamp(80px, 13vw, 140px);
+  }
+  
+  .shaker {
+    width: clamp(80px, 14vw, 120px);
+    height: clamp(100px, 17vh, 150px);
+  }
+  
+  .shaker__icon {
+    width: clamp(70px, 12vw, 100px);
+    height: clamp(70px, 12vw, 100px);
+  }
+  
+  .beer-tap__icon {
+    width: clamp(100px, 16vw, 150px);
+  }
+  
+  .tray-container {
+    width: clamp(150px, 22vw, 220px);
+    height: clamp(120px, 18vh, 180px);
+  }
+  
+  .tray__icon {
+    width: clamp(150px, 22vw, 220px);
+  }
+}
+
+@media (max-width: 768px) {
+  /* Общие настройки для мобильных */
+  .page {
+    padding: 4px;
+    max-height: 100vh;
+    overflow: hidden;
+  }
+  
+  .topbar {
+    flex-direction: row;
+    align-items: center;
+    padding: 6px 8px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+  }
+  
+  .brand {
+    font-size: 8px;
+  }
+  
+  .brand__subtitle {
     font-size: 7px;
   }
   
-  .ingredients-on-table {
-    bottom: 80px;
-    left: 10px;
-    right: 45%;
-    gap: 10px;
-    padding: 10px;
-    max-height: 150px;
+  .hud {
+    width: 100%;
+    justify-content: space-between;
+    gap: 3px;
+    flex-wrap: wrap;
   }
   
-  .ingredient-on-table img {
-    width: 56px;
-    height: 56px;
+  .hud__item {
+    min-width: 50px;
+    padding: 3px 5px;
+    flex: 1 1 auto;
   }
   
-  .ingredient-on-table .chip__label {
-    font-size: 8px;
-    padding: 3px 6px;
-  }
-  
-  .shaker-container {
-    bottom: 100px;
-    right: 20px;
-  }
-  
-  .shaker {
-    width: 80px;
-    height: 100px;
-  }
-  
-  .shaker__icon {
-    width: 60px;
-    height: 60px;
-  }
-  
-  .shaker-ingredients-panel {
-    min-width: 240px;
-    max-width: 320px;
-    padding: 10px;
-  }
-  
-  .shaker-ingredients-panel__title {
-    font-size: 8px;
-  }
-  
-  .shaker-ingredient-item img {
-    width: 28px;
-    height: 28px;
-  }
-  
-  .shaker-ingredient-item__label {
+  .label {
     font-size: 6px;
   }
   
+  .value {
+    font-size: 7px;
+  }
+  
+  .btn {
+    font-size: 7px;
+    padding: 4px 6px;
+    flex: 1 1 auto;
+    min-width: 60px;
+  }
+  
+  /* Игровая область */
+  .game-area {
+    gap: 4px;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: visible; /* Разрешаем видимость статус-бара */
+  }
+  
+  /* Таверна и фон */
+  .tavern {
+    min-height: 0;
+    flex: 1 1 0; /* Может сжиматься, но имеет приоритет роста, но не занимает все пространство */
+    max-height: calc(100% - 60px); /* Оставляем место для статус-бара */
+    overflow: hidden;
+  }
+  
+  
+  /* Посетители */
+  .visitors {
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 5px;
+    min-height: 0;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+  
+  .visitor {
+    position: absolute;
+    flex: none;
+    transform: translateX(-50%);
+  }
+  
+  .visitor__img {
+    width: clamp(200px, 35vw, 260px) !important;
+    height: clamp(200px, 35vw, 260px) !important;
+    max-width: 100%;
+    max-height: 100%;
+  }
+  
+  .speech-bubble {
+    bottom: auto;
+    top: auto;
+    bottom: clamp(80px, 15vh, 110px);
+    left: clamp(10%, 15vw, 20%);
+    right: auto;
+    min-width: clamp(100px, 30vw, 140px);
+    max-width: clamp(120px, 35vw, 160px);
+    width: auto;
+    padding: clamp(3px, 1vw, 6px);
+    max-height: 20vh;
+    overflow-y: auto;
+    font-size: clamp(5px, 1.5vw, 7px);
+  }
+  
+  .speech-bubble__title {
+    font-size: clamp(5px, 1.5vw, 7px);
+    margin-bottom: clamp(3px, 0.8vh, 5px);
+    text-align: center;
+  }
+  
+  .speech-bubble__hint {
+    font-size: clamp(4px, 1.2vw, 6px);
+    margin-bottom: clamp(2px, 0.6vh, 4px);
+  }
+  
+  .speech-bubble__timer {
+    font-size: clamp(5px, 1.5vw, 7px);
+    padding-top: clamp(3px, 0.8vh, 5px);
+    margin-top: clamp(3px, 0.8vh, 5px);
+  }
+  
+  /* Холодильник */
+  .bar-fridge-container {
+    bottom: 15px;
+    left: 5px;
+    z-index: 15;
+  }
+  
+  .bar-fridge__icon {
+    width: clamp(50px, 12vw, 80px);
+  }
+  
+  /* Поднос */
+  .tray-container {
+    bottom: clamp(5px, 1.5vh, 15px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: clamp(80px, 20vw, 120px);      /* соответствуем размеру визуального подноса */
+    height: clamp(60px, 15vh, 90px);      /* уменьшаем высоту для точного позиционирования */
+  }
+  
+  .tray__icon {
+    width: clamp(80px, 20vw, 120px);
+  }
+  
+  .tray__drink {
+    bottom: 30px;
+    width: 40px;
+  }
+  
+  /* Бокал на подносе на мобильных */
+  .tray-container .beer-tap__glass {
+    bottom: 30%;           /* поднимаем еще выше (два раза) - используем проценты для адаптивности */
+  }
+  
+  /* Шейкер */
+  .shaker-container {
+    position: absolute;
+    bottom: clamp(20px, 4vh, 35px);
+    left: clamp(55%, 60vw, 65%);
+    right: auto;
+    transform: translateX(-50%);
+    z-index: 15;
+  }
+  
   .shaker {
-    width: 80px;
-    height: 100px;
+    width: clamp(50px, 12vw, 70px);
+    height: clamp(60px, 15vh, 85px);
   }
   
   .shaker__icon {
+    width: clamp(40px, 10vw, 60px);
+    height: clamp(40px, 10vw, 60px);
+  }
+  
+  .shaker__label {
+    font-size: 6px;
+    margin-top: 2px;
+  }
+  
+  .shake-progress {
+    height: 8px;
+    margin-top: 4px;
+  }
+  
+  .shake-progress__label {
+    font-size: 5px;
+  }
+  
+  /* Панель ингредиентов шейкера - справа от шейкера */
+  .shaker-ingredients-panel {
+    bottom: auto;
+    top: auto;
+    bottom: clamp(90px, 15vh, 120px);
+    right: auto;
+    left: clamp(70%, 75vw, 80%);
+    min-width: clamp(100px, 25vw, 150px);
+    max-width: clamp(120px, 30vw, 170px);
+    width: auto;
+    padding: clamp(3px, 1vw, 6px);
+    max-height: 20vh;
+    overflow-y: auto;
+  }
+  
+  .shaker-ingredients-panel__title {
+    font-size: 6px;
+    margin-bottom: 4px;
+  }
+  
+  .shaker-ingredient-item {
+    padding: 3px;
+  }
+  
+  .shaker-ingredient-item img {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .shaker-ingredient-item__label {
+    font-size: 4px;
+  }
+  
+  /* Пивной кран */
+  .beer-tap-container {
+    bottom: clamp(30px, 6vh, 50px);
+    right: clamp(3px, 1.5vw, 10px);
+  }
+  
+  .beer-tap__icon {
+    width: clamp(55px, 12vw, 80px);
+  }
+  
+  /* Бокал */
+  .beer-glass-start {
+    bottom: 20px;
+    right: 80px;
+  }
+  
+  .beer-tap__glass {
+    width: clamp(25px, 6vw, 35px);
+    height: clamp(35px, 8vh, 45px);
+  }
+  
+  .beer-tap__glass[data-state="shandy"] {
+    width: clamp(35px, 8vw, 45px);
+    height: clamp(45px, 10vh, 55px);
+  }
+  
+  /* Ингредиенты на столе */
+  .ingredients-on-table {
+    bottom: 60px;
+    left: 10px;
+    right: 45%;
+    gap: 8px;
+    padding: 8px;
+    max-height: 120px;
+  }
+  
+  .ingredient-on-table img {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .ingredient-on-table .chip__label {
+    font-size: 7px;
+    padding: 2px 5px;
+  }
+  
+  /* Кнопки управления */
+  .controls-on-table {
+    bottom: 2px;
+    padding: 4px 8px;
+    gap: 4px;
+  }
+  
+  .controls-on-table__serve {
+    padding: 6px 12px;
+    font-size: 7px;
+  }
+  
+  /* Статус бар */
+  .status-bar {
+    padding: 4px 6px;
+    margin-top: 2px;
+    flex-shrink: 0 !important; /* Не даем статус-бару сжиматься */
+    flex-grow: 0 !important; /* Не даем статус-бару расти */
+    min-height: fit-content; /* Минимальная высота по содержимому */
+    display: block !important; /* Убеждаемся, что элемент отображается */
+    visibility: visible !important; /* Убеждаемся, что элемент виден */
+    opacity: 1 !important; /* Убеждаемся, что элемент не прозрачный */
+    max-height: none !important; /* Убираем ограничение высоты */
+  }
+  
+  .status {
+    font-size: 7px;
+    margin-bottom: 4px;
+    line-height: 1.3; /* Улучшаем читаемость */
+    word-wrap: break-word; /* Переносим длинные слова */
+  }
+  
+  .progress {
+    height: 6px;
+  }
+  
+  /* Модальные окна */
+  .fridge-menu__content {
+    width: 70vw;           /* уменьшаем ширину, чтобы не перекрывать шейкер */
+    max-width: 280px;      /* ограничиваем максимальную ширину */
+    left: 10px;            /* позиционируем слева, чтобы не перекрывать шейкер справа */
+    top: 50%;
+    transform: translateY(-50%);  /* центрируем только по вертикали */
+    max-height: 60vh;      /* ограничиваем высоту, чтобы не перекрывать шейкер */
+    padding: 10px;          /* уменьшаем padding */
+  }
+  
+  .fridge-menu__overlay {
+    width: 100%;
+  }
+  
+  .fridge-menu__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;              /* уменьшаем отступ */
+  }
+  
+  .fridge-menu__item {
+    padding: 6px;          /* уменьшаем padding */
+  }
+  
+  .fridge-menu__item img {
+    width: 35px;           /* уменьшаем размер иконок */
+    height: 35px;
+  }
+  
+  .fridge-menu__item-label {
+    font-size: 6px;        /* уменьшаем шрифт */
+  }
+  
+  .fridge-menu__title {
+    font-size: 10px;       /* уменьшаем заголовок */
+  }
+  
+  .fridge-menu__close {
+    width: 24px;           /* уменьшаем кнопку закрытия */
+    height: 24px;
+    font-size: 16px;
+  }
+  
+  .fridge-menu__header {
+    margin-bottom: 12px;   /* уменьшаем отступ */
+    padding-bottom: 10px;
+  }
+  
+  .pause-menu__content,
+  .recipes-menu__content {
+    min-width: 90vw;
+    max-width: 90vw;
+    padding: 16px;
+  }
+  
+  .pause-menu__title,
+  .recipes-menu__title {
+    font-size: 12px;
+  }
+  
+  .recipes-menu__item-image {
     width: 60px;
     height: 60px;
   }
   
-  .controls-on-table {
+  .recipes-menu__item-name {
+    font-size: 10px;
+  }
+  
+  .recipes-menu__item-hint {
+    font-size: 7px;
+  }
+}
+
+/* Промежуточные размеры между 768px и 480px */
+@media (max-width: 600px) {
+  .visitor__img {
+    width: clamp(200px, 40vw, 240px) !important;
+    height: clamp(200px, 40vw, 240px) !important;
+  }
+  
+  .speech-bubble {
+    min-width: clamp(110px, 32vw, 130px);
+    max-width: clamp(130px, 38vw, 150px);
+    padding: clamp(4px, 1vw, 6px);
+    bottom: clamp(85px, 13vh, 100px);
+  }
+  
+  .bar-fridge__icon {
+    width: clamp(55px, 13vw, 75px);
+  }
+  
+  .shaker {
+    width: clamp(55px, 13vw, 65px);
+    height: clamp(65px, 15vh, 80px);
+  }
+  
+  .shaker__icon {
+    width: clamp(45px, 11vw, 55px);
+    height: clamp(45px, 11vw, 55px);
+  }
+  
+  .beer-tap__icon {
+    width: clamp(60px, 13vw, 75px);
+  }
+  
+  .tray-container {
+    width: clamp(85px, 21vw, 100px);
+    height: clamp(70px, 14vh, 85px);
+  }
+  
+  .tray__icon {
+    width: clamp(85px, 21vw, 100px);
+  }
+  
+  .shaker-ingredients-panel {
+    min-width: clamp(110px, 28vw, 130px);
+    max-width: clamp(120px, 32vw, 150px);
+    bottom: clamp(80px, 13vh, 95px);
+  }
+}
+
+/* Очень маленькие экраны (телефоны в портретной ориентации) */
+@media (max-width: 480px) {
+  .page {
+    padding: 2px;
+  }
+  
+  .topbar {
+    padding: 4px 6px;
+    margin-bottom: 2px;
+  }
+  
+  .brand {
+    font-size: 7px;
+  }
+  
+  .brand__subtitle {
+    font-size: 6px;
+  }
+  
+  .hud {
+    gap: 2px;
+  }
+  
+  .hud__item {
+    min-width: 45px;
+    padding: 2px 4px;
+  }
+  
+  .label {
+    font-size: 5px;
+  }
+  
+  .value {
+    font-size: 6px;
+  }
+  
+  .btn {
+    font-size: 6px;
+    padding: 3px 5px;
+    min-width: 50px;
+  }
+  
+  .game-area {
+    gap: 2px;
+    display: flex;
+    flex-direction: column;
+    overflow: visible; /* Разрешаем видимость статус-бара */
+  }
+  
+  /* Таверна и фон для маленьких экранов */
+  .tavern {
+    min-height: 0;
+    flex: 1 1 0; /* Может сжиматься, но имеет приоритет роста, но не занимает все пространство */
+    max-height: calc(100% - 50px); /* Оставляем место для статус-бара */
+    overflow: hidden;
+  }
+  
+  .visitor__img {
+    width: clamp(180px, 50vw, 200px) !important;
+    height: clamp(180px, 50vw, 200px) !important;
+    max-width: 100%;
+    max-height: 100%;
+  }
+  
+  .speech-bubble {
+    bottom: auto;
+    top: auto;
+    bottom: clamp(70px, 12vh, 90px);
+    left: clamp(8%, 12vw, 18%);
+    right: auto;
+    min-width: clamp(90px, 35vw, 120px);
+    max-width: clamp(100px, 40vw, 140px);
+    width: auto;
+    padding: clamp(2px, 0.8vw, 4px);
+    max-height: 18vh;
+    overflow-y: auto;
+    font-size: clamp(4px, 1.2vw, 6px);
+  }
+  
+  .speech-bubble__title {
+    font-size: clamp(4px, 1.3vw, 6px);
+  }
+  
+  .speech-bubble__hint {
+    font-size: clamp(3px, 1vw, 5px);
+  }
+  
+  .speech-bubble__timer {
+    font-size: clamp(4px, 1.3vw, 6px);
+  }
+  
+  .bar-fridge-container {
     bottom: 10px;
-    padding: 8px 12px;
-    gap: 8px;
+    left: 2px;
+  }
+  
+  .bar-fridge__icon {
+    width: clamp(45px, 15vw, 70px);
+  }
+  
+  .tray-container {
+    bottom: clamp(3px, 1vh, 8px);
+    width: clamp(70px, 22vw, 90px);       /* соответствуем размеру визуального подноса */
+    height: clamp(55px, 12vh, 75px);      /* уменьшаем высоту для точного позиционирования */
+  }
+  
+  .tray__icon {
+    width: clamp(70px, 22vw, 90px);
+  }
+  
+  .tray__drink {
+    bottom: 25px;
+    width: 35px;
+  }
+  
+  /* Бокал на подносе на очень маленьких экранах */
+  .tray-container .beer-tap__glass {
+    bottom: 24%;           /* поднимаем еще выше (два раза) - используем проценты для адаптивности */
+  }
+  
+  .shaker-container {
+    position: absolute;
+    bottom: clamp(15px, 3vh, 25px);
+    left: clamp(55%, 60vw, 65%);
+    right: auto;
+    transform: translateX(-50%);
+    z-index: 15;
+  }
+  
+  .shaker {
+    width: clamp(45px, 13vw, 60px);
+    height: clamp(55px, 14vh, 70px);
+  }
+  
+  .shaker__icon {
+    width: clamp(35px, 9vw, 50px);
+    height: clamp(35px, 9vw, 50px);
+  }
+  
+  .shaker__label {
+    font-size: 5px;
+  }
+  
+  .shake-progress {
+    height: 6px;
+  }
+  
+  .shake-progress__label {
+    font-size: 4px;
+  }
+  
+  .shaker-ingredients-panel {
+    bottom: auto;
+    top: auto;
+    bottom: clamp(75px, 13vh, 100px);
+    right: auto;
+    left: clamp(70%, 75vw, 80%);
+    min-width: clamp(90px, 28vw, 130px);
+    max-width: clamp(100px, 32vw, 150px);
+    width: auto;
+    padding: clamp(2px, 0.8vw, 5px);
+    max-height: 18vh;
+  }
+  
+  .shaker-ingredients-panel__title {
+    font-size: 5px;
+  }
+  
+  .shaker-ingredient-item img {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .shaker-ingredient-item__label {
+    font-size: 3px;
+  }
+  
+  .beer-tap-container {
+    bottom: clamp(25px, 5vh, 35px);
+    right: clamp(2px, 1vw, 5px);
+  }
+  
+  .beer-tap__icon {
+    width: clamp(50px, 15vw, 70px);
+  }
+  
+  .beer-glass-start {
+    bottom: 15px;
+    right: 65px;
+  }
+  
+  .beer-tap__glass {
+    width: clamp(22px, 7vw, 30px);
+    height: clamp(30px, 9vh, 40px);
+  }
+  
+  .beer-tap__glass[data-state="shandy"] {
+    width: clamp(30px, 9vw, 40px);
+    height: clamp(40px, 11vh, 50px);
+  }
+  
+  .ingredient-on-table img {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .ingredient-on-table .chip__label {
+    font-size: 5px;
+    padding: 2px 3px;
+  }
+  
+  .controls-on-table {
+    bottom: 1px;
+    padding: 3px 6px;
+  }
+  
+  .controls-on-table__serve {
+    padding: 4px 10px;
+    font-size: 6px;
+  }
+  
+  .status-bar {
+    padding: 3px 4px;
+    flex-shrink: 0 !important; /* Не даем статус-бару сжиматься */
+    flex-grow: 0 !important; /* Не даем статус-бару расти */
+    min-height: fit-content; /* Минимальная высота по содержимому */
+    display: block !important; /* Убеждаемся, что элемент отображается */
+    visibility: visible !important; /* Убеждаемся, что элемент виден */
+    opacity: 1 !important; /* Убеждаемся, что элемент не прозрачный */
+    max-height: none !important; /* Убираем ограничение высоты */
+  }
+  
+  .status {
+    font-size: 6px;
+    line-height: 1.3; /* Улучшаем читаемость */
+    word-wrap: break-word; /* Переносим длинные слова */
+  }
+  
+  .progress {
+    height: 5px;
+  }
+  
+  .fridge-menu__content {
+    width: 60vw;           /* уменьшаем ширину для очень маленьких экранов */
+    max-width: 220px;      /* ограничиваем максимальную ширину */
+    left: 5px;              /* позиционируем слева */
+    top: 50%;
+    transform: translateY(-50%);  /* центрируем только по вертикали */
+    max-height: 55vh;       /* ограничиваем высоту */
+    padding: 8px;           /* уменьшаем padding */
+  }
+  
+  .fridge-menu__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;              /* уменьшаем отступ */
+  }
+  
+  .fridge-menu__item {
+    padding: 4px;          /* уменьшаем padding */
+  }
+  
+  .fridge-menu__item img {
+    width: 28px;           /* уменьшаем размер иконок */
+    height: 28px;
+  }
+  
+  .fridge-menu__item-label {
+    font-size: 5px;        /* уменьшаем шрифт */
+  }
+  
+  .fridge-menu__title {
+    font-size: 8px;        /* уменьшаем заголовок */
+  }
+  
+  .fridge-menu__close {
+    width: 20px;           /* уменьшаем кнопку закрытия */
+    height: 20px;
+    font-size: 14px;
+  }
+  
+  .fridge-menu__header {
+    margin-bottom: 10px;   /* уменьшаем отступ */
+    padding-bottom: 8px;
+  }
+  
+  .pause-menu__content,
+  .recipes-menu__content {
+    min-width: 95vw;
+    max-width: 95vw;
+    padding: 12px;
+  }
+  
+  .pause-menu__title,
+  .recipes-menu__title {
+    font-size: 10px;
+  }
+  
+  .recipes-menu__item-image {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .recipes-menu__item-name {
+    font-size: 9px;
+  }
+  
+  .recipes-menu__item-hint {
+    font-size: 6px;
+  }
+}
+
+/* Горизонтальная ориентация на мобильных */
+@media (max-width: 768px) and (orientation: landscape) {
+  .tavern {
+    min-height: 300px;
+  }
+  
+  
+  .visitor__img {
+    width: 100px !important;
+    height: 100px !important;
+  }
+  
+  .shaker-ingredients-panel {
+    top: 5px;
+    bottom: auto;
+    right: 5px;
+    left: auto;
+    width: 200px;
+  }
+  
+  .bar-fridge-container {
+    bottom: 20px;
+  }
+  
+  .beer-tap-container {
+    bottom: 40px;
+  }
+  
+  .tray-container {
+    bottom: 10px;
+  }
+  
+  .shaker-container {
+    bottom: 30px;
   }
 }
 

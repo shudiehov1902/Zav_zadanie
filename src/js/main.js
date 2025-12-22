@@ -85,19 +85,62 @@ let state = {
   shakeAnimationId: null,
 };
 
-// Позиции посетителей у барной стойки (можно настроить)
+// Позиции посетителей у барной стойки (перед баром, но не на столе)
 const VISITOR_POSITIONS = [
-  { left: '12%', top: '40%' },
-  { left: '32%', top: '40%' },
-  { left: '54%', top: '40%' },
-  { left: '76%', top: '40%' },
+  { left: '50%', top: '-10%' }, // Центр, значительно выше середины экрана
 ];
+
+// Адаптивные позиции для мобильных устройств
+function getVisitorPositions() {
+  const isMobile = window.innerWidth <= 768;
+  const isSmallMobile = window.innerWidth <= 480;
+  
+  if (isSmallMobile) {
+    // Для очень маленьких экранов - один посетитель по центру, значительно выше
+    return [
+      { left: '50%', top: '12%' },
+    ];
+  } else if (isMobile) {
+    // Для мобильных - один посетитель по центру, значительно выше
+    return [
+      { left: '50%', top: '14%' },
+    ];
+  }
+  
+  // Для десктопов - используем стандартные позиции
+  return VISITOR_POSITIONS;
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
   attachControls();
   await loadData();
   hydrateProgress();
   startNewRun();
+  
+  // Обработчик изменения размера окна для адаптации на мобильных
+  let resizeTimeout;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      // Пересоздаем посетителей с новыми позициями при изменении размера
+      if (state.visitors.length > 0 && state.currentLevel) {
+        const activeVisitor = state.activeVisitor;
+        if (activeVisitor) {
+          const order = activeVisitor.order;
+          const positions = getVisitorPositions();
+          const position = positions[0] || VISITOR_POSITIONS[0];
+          
+          // Обновляем позицию текущего посетителя (всегда по центру)
+          activeVisitor.element.style.left = position.left || '50%';
+          activeVisitor.element.style.top = position.top;
+          // Transform будет установлен анимацией, не перезаписываем его если анимация активна
+          if (!activeVisitor.element.hasAttribute('data-animating')) {
+            activeVisitor.element.style.transform = 'translateX(-50%)';
+          }
+        }
+      }
+    }, 250);
+  });
 });
 
 function attachControls() {
@@ -136,6 +179,8 @@ function attachControls() {
     beerGlassEl.setAttribute('draggable', 'true');
     beerGlassEl.addEventListener('dragstart', handleBeerGlassDragStart);
     beerGlassEl.addEventListener('dragend', handleBeerGlassDragEnd);
+    // Добавляем поддержку touch-событий для мобильных
+    beerGlassEl.addEventListener('touchstart', handleBeerGlassTouchStart, { passive: false });
   }
   
   [beerTapContainerEl, trayContainerEl].forEach(zone => {
@@ -473,13 +518,21 @@ function spawnNextVisitor() {
   // Если уровень уже выполнен или время вышло — новых не спауним
   if (state.served >= state.currentLevel.target || state.timer <= 0) return;
 
+  // Удаляем старые speech-bubble из .tavern перед созданием нового посетителя
+  const tavernEl = document.querySelector('.tavern');
+  if (tavernEl) {
+    const oldBubbles = tavernEl.querySelectorAll('.speech-bubble');
+    oldBubbles.forEach(bubble => bubble.remove());
+  }
+
   visitorsContainerEl.innerHTML = '';
   state.visitors = [];
 
   const orders = [...state.currentLevel.orders];
   const randomIndex = Math.floor(Math.random() * orders.length);
   const order = orders[randomIndex];
-  const position = VISITOR_POSITIONS[0];
+  const positions = getVisitorPositions();
+  const position = positions[0] || VISITOR_POSITIONS[0];
 
   const visitor = createVisitor(order, 0, position);
   state.visitors.push(visitor);
@@ -495,8 +548,17 @@ function createVisitor(order, index, position) {
   const hintEl = bubbleEl.querySelector('.speech-bubble__hint');
   const avatarImg = clone.querySelector('.visitor__img');
   
-  visitorEl.style.left = position.left;
+  // Устанавливаем позицию (left всегда 50% для центрирования)
+  visitorEl.style.left = position.left || '50%';
   visitorEl.style.top = position.top;
+  
+  // Помечаем, что анимация активна
+  visitorEl.setAttribute('data-animating', 'true');
+  
+  // После завершения анимации убираем флаг
+  setTimeout(() => {
+    visitorEl.removeAttribute('data-animating');
+  }, 1200);
 
   // Назначаем случайного персонажа и картинку
   const character = getRandomVisitorCharacter();
@@ -509,6 +571,13 @@ function createVisitor(order, index, position) {
   titleEl.textContent = order.name.toUpperCase();
   hintEl.textContent = order.shortHint;
   bubbleEl.dataset.orderId = order.name;
+  
+  // Удаляем speech-bubble из visitor и перемещаем его в .tavern для независимого позиционирования
+  bubbleEl.remove();
+  const tavernEl = document.querySelector('.tavern');
+  if (tavernEl) {
+    tavernEl.appendChild(bubbleEl);
+  }
   
   const visitor = {
     element: visitorEl,
@@ -688,10 +757,18 @@ function handleTouchStart(e) {
   const element = e.currentTarget;
   const rect = element.getBoundingClientRect();
   
+  // Сохраняем родительский элемент для возврата
+  const originalParent = element.parentElement;
+  const originalNextSibling = element.nextSibling;
+  
+  // Перемещаем элемент в body, чтобы он не обрезался меню
+  document.body.appendChild(element);
+  
   element.style.position = 'fixed';
   element.style.left = touch.clientX - rect.width / 2 + 'px';
   element.style.top = touch.clientY - rect.height / 2 + 'px';
-  element.style.zIndex = '1000';
+  element.style.zIndex = '3000';  // выше меню (1000) и паузы (2000)
+  element.classList.add('dragging');
   draggedElement = element;
   
   const handleTouchMove = (ev) => {
@@ -708,12 +785,27 @@ function handleTouchStart(e) {
       } else {
         shakerEl.classList.remove('drag-over');
       }
+      
+      // Проверка наведения на бокал пива (для создания shandy)
+      if (beerGlassEl) {
+        const beerGlassRect = beerGlassEl.getBoundingClientRect();
+        if (t.clientX >= beerGlassRect.left && t.clientX <= beerGlassRect.right &&
+            t.clientY >= beerGlassRect.top && t.clientY <= beerGlassRect.bottom &&
+            beerGlassEl.dataset.state === 'full') {
+          beerGlassEl.style.filter = 'drop-shadow(0 0 12px rgba(241, 179, 63, 0.8))';
+        } else {
+          beerGlassEl.style.filter = '';
+        }
+      }
     }
   };
   
   const handleTouchEnd = (ev) => {
     const shakerRect = shakerEl.getBoundingClientRect();
+    const beerGlassRect = beerGlassEl?.getBoundingClientRect();
     const touchEnd = ev.changedTouches[0];
+    
+    let handled = false;
     
     // Проверяем, что элемент является ингредиентом из меню холодильника
     if (touchEnd.clientX >= shakerRect.left && touchEnd.clientX <= shakerRect.right &&
@@ -721,20 +813,70 @@ function handleTouchStart(e) {
       // Проверяем, что элемент имеет класс fridge-menu__item (ингредиент из меню)
       if (element.classList.contains('fridge-menu__item') && element.dataset.id) {
         addIngredientToShaker(element.dataset.id);
+        handled = true;
       } else {
         status('Only ingredients can be added to the shaker!', true);
       }
     }
     
+    // Проверяем, перетащили ли ингредиент на бокал пива (для создания shandy)
+    if (!handled && beerGlassRect && beerGlassEl && 
+        touchEnd.clientX >= beerGlassRect.left && touchEnd.clientX <= beerGlassRect.right &&
+        touchEnd.clientY >= beerGlassRect.top && touchEnd.clientY <= beerGlassRect.bottom) {
+      // Проверяем, что элемент является ингредиентом из меню
+      if (element.classList.contains('fridge-menu__item') && element.dataset.id) {
+        const ingredientId = element.dataset.id.toLowerCase();
+        // Проверяем, что это кола (coke или cola)
+        if (ingredientId === 'coke' || ingredientId === 'cola') {
+          // Проверяем, что бокал полный (содержит пиво)
+          if (beerGlassEl.dataset.state === 'full') {
+            // Превращаем пиво в shandy
+            beerGlassEl.src = './src/assets/icons/shandy.png';
+            beerGlassEl.dataset.state = 'shandy';
+            beerGlassEl.style.filter = '';
+            // Скрываем trash/коктейль с подноса при создании shandy
+            hideTrayDrink();
+            status('Shandy created! Beer + Cola', false);
+            handled = true;
+          } else {
+            status('Fill the glass with beer first!', true);
+          }
+        } else {
+          status('Only cola can be mixed with beer!', true);
+        }
+      }
+    }
+    
+    // Возвращаем элемент обратно в меню
+    element.classList.remove('dragging');
     element.style.position = '';
     element.style.left = '';
     element.style.top = '';
     element.style.zIndex = '';
     
+    // Возвращаем элемент в исходное место
+    if (!handled) {
+      if (originalNextSibling) {
+        originalParent.insertBefore(element, originalNextSibling);
+      } else {
+        originalParent.appendChild(element);
+      }
+    } else {
+      // Если ингредиент был использован, возвращаем его в меню
+      if (originalNextSibling) {
+        originalParent.insertBefore(element, originalNextSibling);
+      } else {
+        originalParent.appendChild(element);
+      }
+    }
+    
     document.removeEventListener('touchmove', handleTouchMove);
     document.removeEventListener('touchend', handleTouchEnd);
     draggedElement = null;
     shakerEl.classList.remove('drag-over');
+    if (beerGlassEl) {
+      beerGlassEl.style.filter = '';
+    }
   };
   
   document.addEventListener('touchmove', handleTouchMove, { passive: false });
@@ -1022,6 +1164,104 @@ function handleBeerGlassDrop(e) {
     beerGlassEl.style.position = '';
     status('Glass placed on the tray.', false);
   }
+}
+
+// Обработчик touch-событий для бокала пива на мобильных
+function handleBeerGlassTouchStart(e) {
+  if (!beerGlassEl) return;
+  
+  const touch = e.touches[0];
+  const element = beerGlassEl;
+  const rect = element.getBoundingClientRect();
+  
+  // Сохраняем родительский элемент для возврата
+  const originalParent = element.parentElement;
+  const originalNextSibling = element.nextSibling;
+  
+  // Перемещаем элемент в body, чтобы он не обрезался
+  document.body.appendChild(element);
+  
+  element.style.position = 'fixed';
+  element.style.left = touch.clientX - rect.width / 2 + 'px';
+  element.style.top = touch.clientY - rect.height / 2 + 'px';
+  element.style.zIndex = '3000';
+  element.classList.add('dragging');
+  
+  const handleTouchMove = (ev) => {
+    if (ev.touches.length > 0) {
+      const t = ev.touches[0];
+      element.style.left = t.clientX - rect.width / 2 + 'px';
+      element.style.top = t.clientY - rect.height / 2 + 'px';
+      
+      // Проверка наведения на кран и поднос
+      const tapRect = beerTapContainerEl?.getBoundingClientRect();
+      const trayRect = trayContainerEl?.getBoundingClientRect();
+      
+      if (tapRect && t.clientX >= tapRect.left && t.clientX <= tapRect.right &&
+          t.clientY >= tapRect.top && t.clientY <= tapRect.bottom) {
+        beerTapContainerEl.style.filter = 'drop-shadow(0 0 12px rgba(241, 179, 63, 0.8))';
+      } else {
+        beerTapContainerEl.style.filter = '';
+      }
+      
+      if (trayRect && t.clientX >= trayRect.left && t.clientX <= trayRect.right &&
+          t.clientY >= trayRect.top && t.clientY <= trayRect.bottom) {
+        trayContainerEl.style.filter = 'drop-shadow(0 0 12px rgba(241, 179, 63, 0.8))';
+      } else {
+        trayContainerEl.style.filter = '';
+      }
+    }
+  };
+  
+  const handleTouchEnd = (ev) => {
+    const touchEnd = ev.changedTouches[0];
+    let dropped = false;
+    
+    // Проверяем, куда был сброшен бокал
+    const tapRect = beerTapContainerEl?.getBoundingClientRect();
+    const trayRect = trayContainerEl?.getBoundingClientRect();
+    
+    if (tapRect && touchEnd.clientX >= tapRect.left && touchEnd.clientX <= tapRect.right &&
+        touchEnd.clientY >= tapRect.top && touchEnd.clientY <= tapRect.bottom) {
+      // Перемещаем бокал под кран
+      beerTapContainerEl.appendChild(element);
+      element.style.position = 'static';
+      status('Glass moved under the tap.', false);
+      dropped = true;
+    } else if (trayRect && touchEnd.clientX >= trayRect.left && touchEnd.clientX <= trayRect.right &&
+               touchEnd.clientY >= trayRect.top && touchEnd.clientY <= trayRect.bottom) {
+      // Ставим бокал на поднос
+      trayContainerEl.appendChild(element);
+      element.style.position = '';
+      status('Glass placed on the tray.', false);
+      dropped = true;
+    }
+    
+    // Если не сбросили в нужное место, возвращаем в исходное
+    if (!dropped) {
+      if (originalNextSibling) {
+        originalParent.insertBefore(element, originalNextSibling);
+      } else {
+        originalParent.appendChild(element);
+      }
+    }
+    
+    // Очищаем стили
+    element.classList.remove('dragging');
+    element.style.position = '';
+    element.style.left = '';
+    element.style.top = '';
+    element.style.zIndex = '';
+    beerTapContainerEl.style.filter = '';
+    trayContainerEl.style.filter = '';
+    
+    document.removeEventListener('touchmove', handleTouchMove);
+    document.removeEventListener('touchend', handleTouchEnd);
+  };
+  
+  document.addEventListener('touchmove', handleTouchMove, { passive: false });
+  document.addEventListener('touchend', handleTouchEnd, { once: true });
+  e.preventDefault();
 }
 
 // Обработчик смешивания: перетаскивание ингредиента (колы) на полный бокал пива
