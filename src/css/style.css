@@ -167,7 +167,7 @@ body {
   overflow: hidden;
 }
 
-/* Таверна - основной контейнер */
+/* Таверна - основной контейнер (вьюпорт) */
 .tavern {
   position: relative;
   min-height: 500px;
@@ -178,6 +178,21 @@ body {
   width: 100%;
   max-width: 100%;
   min-height: 0; /* важно для flex-контейнеров */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* Внутренний слой фиксированного "игрового" размера, который масштабируется под любое окно */
+.tavern__content {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1280px;   /* базовая ширина макета игры */
+  height: 720px;   /* базовая высота макета игры */
+  transform: translateX(-50%) scale(1);
+  transform-origin: top center;
+  z-index: 5; /* выше фона */
 }
 
 .tavern__background {
@@ -376,7 +391,7 @@ body {
 .bar-fridge-container {
   position: absolute;
   bottom: 60px;
-  left: 40px;
+  left: 80px;          /* чуть дальше от центра, шире композиция */
   z-index: 15;
   cursor: pointer;
   transition: transform 150ms ease;
@@ -387,7 +402,7 @@ body {
 }
 
 .bar-fridge__icon {
-  width: clamp(60px, 15vw, 180px);  /* увеличен размер холодильника */
+  width: clamp(80px, 18vw, 220px);  /* чуть крупнее на больших экранах */
   height: auto;
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
@@ -930,28 +945,28 @@ body {
   border: 1px solid rgba(255,255,255,0.1);
 }
 
-/* Шейкер на столе (рядом с подносом, чуть правее центра) */
+/* Шейкер на столе (рядом с подносом, правее центра) */
 .shaker-container {
   position: absolute;
-  bottom: 70px; /* опускаем чуть ниже */
-  left: 60%; /* ближе к центру, рядом с подносом */
+  bottom: 72px; /* чуть выше от края стола */
+  left: 58%;    /* немного ближе к правому краю, расширяем размещение приборов */
   z-index: 15;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 /* Поднос для готовых напитков в центре стола */
 .tray-container {
   position: absolute;
-  bottom: 40px;
+  bottom: 42px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 14;        /* над столом, но под всплывающими окнами */
   pointer-events: auto; /* нужна, чтобы можно было дропать бокал/напиток на поднос */
-  width: 260px;       /* соответствуем размеру визуального подноса */
-  height: 200px;      /* уменьшаем высоту, чтобы соответствовать визуальному подносу */
+  width: 320px;       /* шире поднос на больших экранах */
+  height: 220px;      /* немного выше зона подноса */
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -959,7 +974,7 @@ body {
 
 .tray__icon {
   position: relative;
-  width: 260px;       /* поднос */
+  width: 320px;       /* поднос на всю зону */
   height: auto;
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
@@ -972,7 +987,7 @@ body {
   bottom: 70px;              /* высота напитка над подносом, подгони при необходимости */
   left: 50%;
   transform: translateX(-50%);
-  width: 80px;
+  width: 110px;              /* делаем коктейли крупнее на подносе на десктопе */
   height: auto;
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
@@ -993,7 +1008,7 @@ body {
 .beer-tap-container {
   position: absolute;
   bottom: 120px;  /* поднимаем кран выше, как на скрине */
-  right: 120px;   /* смещаем кран левее, ближе к центру */
+  right: 160px;   /* чуть дальше от центра, чтобы расширить композицию */
   z-index: 15;
   display: flex;
   flex-direction: column;
@@ -1001,8 +1016,17 @@ body {
   gap: 8px;
 }
 
+/* Когда бокал стоит под краном внутри контейнера крана,
+   позиционируем его абсолютно, чтобы кран не "подскакивал" вверх */
+.beer-tap-container .beer-tap__glass {
+  position: absolute;
+  bottom: -10px;         /* ставим бокал на стол, чуть ниже низа контейнера */
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 .beer-tap__icon {
-  width: 180px;
+  width: 210px;      /* немного крупнее кран */
   height: auto;
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
@@ -1012,8 +1036,8 @@ body {
 }
 
 .beer-tap__glass {
-  width: 64px;
-  height: 80px;  /* фиксированная высота для одинакового размера пива и shandy */
+  width: 80px;
+  height: 100px;  /* чуть крупнее бокал на стойке */
   object-fit: contain;  /* сохраняем пропорции, но вписываем в заданный размер */
   image-rendering: pixelated;
   filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6));
@@ -1042,8 +1066,8 @@ body {
 
 .shaker {
   position: relative;
-  width: 140px;
-  height: 170px;
+  width: 170px;   /* увеличиваем базовый размер шейкера на десктопе */
+  height: 200px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1091,8 +1115,8 @@ body {
 }
 
 .shaker__icon {
-  width: 120px;
-  height: 120px;
+  width: 150px;
+  height: 150px;
   object-fit: contain;
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
@@ -1380,7 +1404,7 @@ body {
   background: rgba(27, 20, 36, 0.9);
   border: 2px solid var(--border);
   border-radius: 8px;
-  padding: 10px;
+  padding: 7px;
   z-index: 100;
   position: relative;
   flex-shrink: 0 !important; /* Не даем статус-бару сжиматься */
@@ -1392,7 +1416,7 @@ body {
 }
 
 .status {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--muted);
   margin-bottom: 8px;
   text-align: center;
@@ -1476,45 +1500,45 @@ body {
   .topbar {
     flex-direction: row;
     align-items: center;
-    padding: 6px 8px;
-    margin-bottom: 4px;
+    padding: 2px 4px;
+    margin-bottom: 1px;
     flex-wrap: wrap;
   }
   
   .brand {
-    font-size: 8px;
+    font-size: 6px;
   }
   
   .brand__subtitle {
-    font-size: 7px;
+    font-size: 5px;
   }
   
   .hud {
     width: 100%;
     justify-content: space-between;
-    gap: 3px;
+    gap: 2px;
     flex-wrap: wrap;
   }
   
   .hud__item {
-    min-width: 50px;
-    padding: 3px 5px;
+    min-width: 40px;
+    padding: 1px 3px;
     flex: 1 1 auto;
   }
   
   .label {
-    font-size: 6px;
+    font-size: 4px;
   }
   
   .value {
-    font-size: 7px;
+    font-size: 5px;
   }
   
   .btn {
-    font-size: 7px;
-    padding: 4px 6px;
+    font-size: 5px;
+    padding: 2px 4px;
     flex: 1 1 auto;
-    min-width: 60px;
+    min-width: 48px;
   }
   
   /* Игровая область */
@@ -1531,7 +1555,7 @@ body {
   .tavern {
     min-height: 0;
     flex: 1 1 0; /* Может сжиматься, но имеет приоритет роста, но не занимает все пространство */
-    max-height: calc(100% - 60px); /* Оставляем место для статус-бара */
+    max-height: calc(100% - 45px); /* Оставляем место для статус-бара (уменьшено с 60px) */
     overflow: hidden;
   }
   
@@ -1756,8 +1780,8 @@ body {
   
   /* Статус бар */
   .status-bar {
-    padding: 4px 6px;
-    margin-top: 2px;
+    padding: 2px 3px;
+    margin-top: 1px;
     flex-shrink: 0 !important; /* Не даем статус-бару сжиматься */
     flex-grow: 0 !important; /* Не даем статус-бару расти */
     min-height: fit-content; /* Минимальная высота по содержимому */
@@ -1768,14 +1792,14 @@ body {
   }
   
   .status {
-    font-size: 7px;
-    margin-bottom: 4px;
-    line-height: 1.3; /* Улучшаем читаемость */
+    font-size: 5px;
+    margin-bottom: 2px;
+    line-height: 1.2; /* Улучшаем читаемость */
     word-wrap: break-word; /* Переносим длинные слова */
   }
   
   .progress {
-    height: 6px;
+    height: 4px;
   }
   
   /* Модальные окна */
@@ -1900,6 +1924,72 @@ body {
   }
 }
 
+/* Очень маленькие экраны типа iPhone SE (375px) */
+@media (max-width: 400px) {
+  .page {
+    padding: 1px;
+  }
+  
+  .topbar {
+    padding: 2px 3px;
+    margin-bottom: 0;
+  }
+  
+  .brand {
+    font-size: 5px;
+  }
+  
+  .brand__subtitle {
+    font-size: 4px;
+  }
+  
+  .hud {
+    gap: 1px;
+  }
+  
+  .hud__item {
+    min-width: 35px;
+    padding: 1px 2px;
+  }
+  
+  .label {
+    font-size: 3px;
+  }
+  
+  .value {
+    font-size: 4px;
+  }
+  
+  .btn {
+    font-size: 4px;
+    padding: 1px 3px;
+    min-width: 40px;
+  }
+  
+  .game-area {
+    gap: 1px;
+  }
+  
+  .tavern {
+    max-height: calc(100% - 30px); /* Еще меньше места для статус-бара */
+  }
+  
+  .status-bar {
+    padding: 1px 2px;
+    margin-top: 0;
+  }
+  
+  .status {
+    font-size: 3px;
+    margin-bottom: 1px;
+    line-height: 1.1;
+  }
+  
+  .progress {
+    height: 2px;
+  }
+}
+
 /* Очень маленькие экраны (телефоны в портретной ориентации) */
 @media (max-width: 480px) {
   .page {
@@ -1907,16 +1997,16 @@ body {
   }
   
   .topbar {
-    padding: 4px 6px;
-    margin-bottom: 2px;
+    padding: 3px 4px;
+    margin-bottom: 1px;
   }
   
   .brand {
-    font-size: 7px;
+    font-size: 6px;
   }
   
   .brand__subtitle {
-    font-size: 6px;
+    font-size: 5px;
   }
   
   .hud {
@@ -1924,22 +2014,22 @@ body {
   }
   
   .hud__item {
-    min-width: 45px;
-    padding: 2px 4px;
+    min-width: 42px;
+    padding: 1px 3px;
   }
   
   .label {
-    font-size: 5px;
+    font-size: 4px;
   }
   
   .value {
-    font-size: 6px;
+    font-size: 5px;
   }
   
   .btn {
-    font-size: 6px;
-    padding: 3px 5px;
-    min-width: 50px;
+    font-size: 5px;
+    padding: 2px 4px;
+    min-width: 46px;
   }
   
   .game-area {
@@ -1953,7 +2043,7 @@ body {
   .tavern {
     min-height: 0;
     flex: 1 1 0; /* Может сжиматься, но имеет приоритет роста, но не занимает все пространство */
-    max-height: calc(100% - 50px); /* Оставляем место для статус-бара */
+    max-height: calc(100% - 35px); /* Оставляем место для статус-бара (уменьшено с 50px) */
     overflow: hidden;
   }
   
@@ -2122,7 +2212,8 @@ body {
   }
   
   .status-bar {
-    padding: 3px 4px;
+    padding: 1px 2px;
+    margin-top: 0;
     flex-shrink: 0 !important; /* Не даем статус-бару сжиматься */
     flex-grow: 0 !important; /* Не даем статус-бару расти */
     min-height: fit-content; /* Минимальная высота по содержимому */
@@ -2133,13 +2224,14 @@ body {
   }
   
   .status {
-    font-size: 6px;
-    line-height: 1.3; /* Улучшаем читаемость */
+    font-size: 4px;
+    margin-bottom: 1px;
+    line-height: 1.2; /* Улучшаем читаемость */
     word-wrap: break-word; /* Переносим длинные слова */
   }
   
   .progress {
-    height: 5px;
+    height: 3px;
   }
   
   .fridge-menu__content {
@@ -2211,40 +2303,134 @@ body {
   }
 }
 
-/* Горизонтальная ориентация на мобильных */
-@media (max-width: 768px) and (orientation: landscape) {
+/* Горизонтальная ориентация на мобильных и небольших экранах (включая 12 Pro, S20 Ultra и т.п.) */
+@media (max-width: 1100px) and (orientation: landscape) {
   .tavern {
     min-height: 300px;
   }
-  
-  
+
+  /* Делаем HUD и статус-бар компактнее, как на мобильных */
+  .topbar {
+    padding: 2px 4px;
+    margin-bottom: 1px;
+  }
+
+  .brand {
+    font-size: 6px;
+  }
+
+  .brand__subtitle {
+    font-size: 5px;
+  }
+
+  .hud {
+    gap: 2px;
+  }
+
+  .hud__item {
+    padding: 1px 3px;
+  }
+
+  .btn {
+    font-size: 5px;
+    padding: 2px 4px;
+  }
+
+  .status-bar {
+    padding: 2px 3px;
+  }
+
+  .status {
+    font-size: 5px;
+  }
+
+  /* Посетитель чуть крупнее */
   .visitor__img {
-    width: 100px !important;
-    height: 100px !important;
+    width: 220px !important;
+    height: 220px !important;
   }
-  
-  .shaker-ingredients-panel {
-    top: 5px;
+
+  /* Окошко с заказом чуть выше */
+  .speech-bubble {
     bottom: auto;
-    right: 5px;
-    left: auto;
-    width: 200px;
+    top: 12%;
   }
-  
+
+  /* Приборы на стойке крупнее и шире расставлены */
   .bar-fridge-container {
-    bottom: 20px;
+    bottom: 18px;
+    left: 6%;
   }
-  
-  .beer-tap-container {
-    bottom: 40px;
+
+  .bar-fridge__icon {
+    width: clamp(90px, 16vw, 140px);
   }
-  
+
   .tray-container {
-    bottom: 10px;
+    bottom: 14px;
+    width: clamp(200px, 28vw, 260px);
+    height: clamp(150px, 22vh, 200px);
   }
-  
+
+  .tray__icon {
+    width: clamp(200px, 28vw, 260px);
+  }
+
+  .tray__drink {
+    bottom: 32px;
+    width: clamp(80px, 12vw, 110px);  /* увеличенный размер коктейлей на подносе */
+  }
+
+  .beer-tap-container {
+    bottom: 34px;
+    right: 7%;
+  }
+
+  .beer-tap__icon {
+    width: clamp(120px, 18vw, 170px);
+  }
+
+  .beer-glass-start {
+    bottom: 24px;
+    right: 18%;
+  }
+
+  .beer-tap__glass {
+    width: 70px;
+    height: 95px;
+  }
+
+  .beer-tap__glass[data-state="shandy"] {
+    width: 90px;
+    height: 120px;
+  }
+
+  .tray-container .beer-tap__glass {
+    bottom: 33%;
+  }
+
   .shaker-container {
-    bottom: 30px;
+    bottom: 28px;
+    left: 56%;
+  }
+
+  .shaker {
+    width: 130px;
+    height: 165px;
+  }
+
+  .shaker__icon {
+    width: 110px;
+    height: 110px;
+  }
+
+  .shaker-ingredients-panel {
+    top: 6%;
+    bottom: auto;
+    right: 6%;
+    left: auto;
+    min-width: 220px;
+    max-width: 260px;
   }
 }
 

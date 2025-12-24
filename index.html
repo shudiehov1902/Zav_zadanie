@@ -50,59 +50,62 @@
         <div class="tavern__background" id="tavern-bg">
           <!-- Фон таверны -->
         </div>
-        
-        <!-- Посетители с диалоговыми окнами -->
-        <div class="visitors" id="visitors-container">
-          <!-- Посетители будут добавлены через JS -->
-        </div>
 
-        <!-- Холодильник слева на стойке -->
-        <div class="bar-fridge-container">
-          <img src="./src/assets/icons/barfridge.png" alt="Bar fridge" class="bar-fridge__icon" id="bar-fridge" draggable="false">
-        </div>
+        <!-- Внутренний слой таверны фиксированного размера, который масштабируется под любое окно -->
+        <div class="tavern__content">
+          <!-- Посетители с диалоговыми окнами -->
+          <div class="visitors" id="visitors-container">
+            <!-- Посетители будут добавлены через JS -->
+          </div>
 
-        <!-- Поднос для готовых напитков (в центре стола) -->
-        <div class="tray-container">
-          <img src="./src/assets/icons/server.png" alt="Serving tray" class="tray__icon" id="serving-tray" draggable="false">
-          <img src="" alt="" class="tray__drink" id="tray-drink" style="display:none" draggable="false">
-        </div>
+          <!-- Холодильник слева на стойке -->
+          <div class="bar-fridge-container">
+            <img src="./src/assets/icons/barfridge.png" alt="Bar fridge" class="bar-fridge__icon" id="bar-fridge" draggable="false">
+          </div>
 
-        <!-- Шейкер на столе -->
-        <div class="shaker-container">
-          <div class="shaker" id="shaker" 
-               ondrop="event.preventDefault(); handleDrop(event)" 
-               ondragover="event.preventDefault()"
-               draggable="false">
-            <img src="./src/assets/icons/Shaker.png" alt="Shaker" class="shaker__icon" id="shaker-icon">
-            <div class="shaker__label">Drop ingredients</div>
-            <div class="shake-progress">
-              <div class="shake-progress__bar" id="shake-progress-bar"></div>
-              <div class="shake-progress__label" id="shake-progress-label">0%</div>
+          <!-- Поднос для готовых напитков (в центре стола) -->
+          <div class="tray-container">
+            <img src="./src/assets/icons/server.png" alt="Serving tray" class="tray__icon" id="serving-tray" draggable="false">
+            <img src="" alt="" class="tray__drink" id="tray-drink" style="display:none" draggable="false">
+          </div>
+
+          <!-- Шейкер на столе -->
+          <div class="shaker-container">
+            <div class="shaker" id="shaker" 
+                 ondrop="event.preventDefault(); handleDrop(event)" 
+                 ondragover="event.preventDefault()"
+                 draggable="false">
+              <img src="./src/assets/icons/Shaker.png" alt="Shaker" class="shaker__icon" id="shaker-icon">
+              <div class="shaker__label">Drop ingredients</div>
+              <div class="shake-progress">
+                <div class="shake-progress__bar" id="shake-progress-bar"></div>
+                <div class="shake-progress__label" id="shake-progress-label">0%</div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Окно ингредиентов в шейкере -->
-        <div class="shaker-ingredients-panel" id="shaker-ingredients-panel">
-          <div class="shaker-ingredients-panel__title">Ingredients in Shaker</div>
-          <div class="shaker-ingredients-panel__content" id="shaker-content">
-            <div class="shaker-ingredients-panel__empty">Drop ingredients here</div>
+          <!-- Окно ингредиентов в шейкере -->
+          <div class="shaker-ingredients-panel" id="shaker-ingredients-panel">
+            <div class="shaker-ingredients-panel__title">Ingredients in Shaker</div>
+            <div class="shaker-ingredients-panel__content" id="shaker-content">
+              <div class="shaker-ingredients-panel__empty">Drop ingredients here</div>
+            </div>
           </div>
-        </div>
 
-        <!-- Пивной кран справа на стойке -->
-        <div class="beer-tap-container">
-          <img src="./src/assets/icons/beerTap.png" alt="Beer tap" class="beer-tap__icon" id="beer-tap" draggable="false">
-        </div>
+          <!-- Пивной кран справа на стойке -->
+          <div class="beer-tap-container">
+            <img src="./src/assets/icons/beerTap.png" alt="Beer tap" class="beer-tap__icon" id="beer-tap" draggable="false">
+          </div>
 
-        <!-- Стартовая позиция бокала на столе (игрок сам перетаскивает его под кран) -->
-        <div class="beer-glass-start">
-          <img src="./src/assets/icons/EmptyPintOfBeer.png" alt="Beer glass" class="beer-tap__glass" id="beer-glass" data-state="empty">
-        </div>
+          <!-- Стартовая позиция бокала на столе (игрок сам перетаскивает его под кран) -->
+          <div class="beer-glass-start">
+            <img src="./src/assets/icons/EmptyPintOfBeer.png" alt="Beer glass" class="beer-tap__glass" id="beer-glass" data-state="empty">
+          </div>
 
-        <!-- Кнопка подачи напитка под барной стойкой -->
-        <div class="controls-on-table">
-          <button id="btn-serve" class="btn btn--primary controls-on-table__serve">Serve</button>
+          <!-- Кнопка подачи напитка под барной стойкой -->
+          <div class="controls-on-table">
+            <button id="btn-serve" class="btn btn--primary controls-on-table__serve">Serve</button>
+          </div>
         </div>
       </section>
 

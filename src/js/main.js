@@ -46,6 +46,29 @@ const recipesMenuCloseEl = document.getElementById('recipes-menu-close');
 const recipesMenuListEl = document.getElementById('recipes-menu-list');
 
 const STORAGE_KEY = 'tavern-tapper-progress';
+
+// Базовое "виртуальное" разрешение игровой сцены, под которое верстался макет
+const TAVERN_BASE_WIDTH = 1280;
+const TAVERN_BASE_HEIGHT = 720;
+
+// Масштабирование внутреннего слоя таверны под любое окно
+function updateTavernScale() {
+  const tavernEl = document.querySelector('.tavern');
+  if (!tavernEl) return;
+  const contentEl = tavernEl.querySelector('.tavern__content');
+  if (!contentEl) return;
+
+  const availableWidth = tavernEl.clientWidth;
+  const availableHeight = tavernEl.clientHeight;
+  if (!availableWidth || !availableHeight) return;
+
+  const scale = Math.min(
+    availableWidth / TAVERN_BASE_WIDTH,
+    availableHeight / TAVERN_BASE_HEIGHT
+  );
+
+  contentEl.style.transform = `translateX(-50%) scale(${scale})`;
+}
 const VISITOR_TEMPLATE = document.getElementById('visitor-template');
 const INGREDIENT_TEMPLATE = document.getElementById('ingredient-chip');
 
@@ -86,8 +109,10 @@ let state = {
 };
 
 // Позиции посетителей у барной стойки (перед баром, но не на столе)
+// Немного опускаем по сравнению с предыдущим вариантом, чтобы на всех экранах
+// посетитель был чуть ниже, но всё ещё выше досок стола.
 const VISITOR_POSITIONS = [
-  { left: '50%', top: '-10%' }, // Центр, значительно выше середины экрана
+  { left: '50%', top: '4%' }, // Центр, немного выше середины верхней части сцены
 ];
 
 // Адаптивные позиции для мобильных устройств
@@ -96,14 +121,14 @@ function getVisitorPositions() {
   const isSmallMobile = window.innerWidth <= 480;
   
   if (isSmallMobile) {
-    // Для очень маленьких экранов - один посетитель по центру, значительно выше
+    // Для очень маленьких экранов - один посетитель по центру, чуть ниже чем раньше
     return [
-      { left: '50%', top: '12%' },
+      { left: '50%', top: '20%' },
     ];
   } else if (isMobile) {
-    // Для мобильных - один посетитель по центру, значительно выше
+    // Для мобильных - один посетитель по центру, тоже чуть ниже
     return [
-      { left: '50%', top: '14%' },
+      { left: '50%', top: '22%' },
     ];
   }
   
@@ -112,6 +137,9 @@ function getVisitorPositions() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Сразу подгоняем масштаб под текущее окно
+  updateTavernScale();
+
   attachControls();
   await loadData();
   hydrateProgress();
@@ -122,6 +150,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
+      // Пересчитываем общий масштаб "сцены" таверны
+      updateTavernScale();
+
       // Пересоздаем посетителей с новыми позициями при изменении размера
       if (state.visitors.length > 0 && state.currentLevel) {
         const activeVisitor = state.activeVisitor;
@@ -572,10 +603,14 @@ function createVisitor(order, index, position) {
   hintEl.textContent = order.shortHint;
   bubbleEl.dataset.orderId = order.name;
   
-  // Удаляем speech-bubble из visitor и перемещаем его в .tavern для независимого позиционирования
+  // Удаляем speech-bubble из visitor и перемещаем его в .tavern__content для независимого позиционирования,
+  // но вместе с общим масштабированием сцены
   bubbleEl.remove();
   const tavernEl = document.querySelector('.tavern');
-  if (tavernEl) {
+  const tavernContentEl = tavernEl?.querySelector('.tavern__content');
+  if (tavernContentEl) {
+    tavernContentEl.appendChild(bubbleEl);
+  } else if (tavernEl) {
     tavernEl.appendChild(bubbleEl);
   }
   
@@ -1117,21 +1152,27 @@ function handleBeerTap() {
 
 // Проверка, что бокал стоит непосредственно под краном
 function isGlassUnderTap() {
-  if (!beerTapEl || !beerGlassEl) return false;
+  // Используем контейнер крана (включает и кран, и область под ним),
+  // чтобы зона попадания была стабильной и совпадала с визуальной.
+  if (!beerTapContainerEl || !beerGlassEl) return false;
   
-  const tapRect = beerTapEl.getBoundingClientRect();
+  const tapRect = beerTapContainerEl.getBoundingClientRect();
   const glassRect = beerGlassEl.getBoundingClientRect();
   
   const glassCenterX = glassRect.left + glassRect.width / 2;
-  const glassTopY = glassRect.top;
+  const glassBottomY = glassRect.bottom;
   
+  // Делаем горизонтальный допуск немного шире крана
   const withinX =
-    glassCenterX >= tapRect.left - 20 &&
-    glassCenterX <= tapRect.right + 20;
+    glassCenterX >= tapRect.left - 30 &&
+    glassCenterX <= tapRect.right + 30;
   
+  // Вертикально считаем, что бокал "под краном", если его низ
+  // находится в нижней половине контейнера и немного ниже
+  const tapMiddleY = tapRect.top + tapRect.height * 0.5;
   const withinY =
-    glassTopY >= tapRect.bottom - 40 &&
-    glassTopY <= tapRect.bottom + 80;
+    glassBottomY >= tapMiddleY &&
+    glassBottomY <= tapRect.bottom + 40;
   
   return withinX && withinY;
 }
@@ -1156,7 +1197,8 @@ function handleBeerGlassDrop(e) {
   if (target === beerTapContainerEl) {
     // Перемещаем бокал под кран
     beerTapContainerEl.appendChild(beerGlassEl);
-    beerGlassEl.style.position = 'static';
+    // Используем позиционирование из CSS (.beer-tap-container .beer-tap__glass)
+    beerGlassEl.style.position = '';
     status('Glass moved under the tap.', false);
   } else if (target === trayContainerEl) {
     // Ставим бокал на поднос
@@ -1225,7 +1267,8 @@ function handleBeerGlassTouchStart(e) {
         touchEnd.clientY >= tapRect.top && touchEnd.clientY <= tapRect.bottom) {
       // Перемещаем бокал под кран
       beerTapContainerEl.appendChild(element);
-      element.style.position = 'static';
+      // Используем позиционирование из CSS (.beer-tap-container .beer-tap__glass)
+      element.style.position = '';
       status('Glass moved under the tap.', false);
       dropped = true;
     } else if (trayRect && touchEnd.clientX >= trayRect.left && touchEnd.clientX <= trayRect.right &&
