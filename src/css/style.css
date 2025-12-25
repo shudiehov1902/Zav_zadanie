@@ -4,9 +4,30 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* блокируем прокрутку страницы, игра всегда внутри экрана */
-  -webkit-overflow-scrolling: touch; /* плавная прокрутка на iOS */
-  touch-action: manipulation; /* предотвращаем двойной тап для зума */
+  overflow: hidden;
+  -webkit-overflow-scrolling: touch;
+  touch-action: manipulation;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+html:fullscreen,
+html:-webkit-full-screen,
+html:-moz-full-screen,
+html:-ms-fullscreen {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body:fullscreen,
+body:-webkit-full-screen,
+body:-moz-full-screen,
+body:-ms-fullscreen {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
 :root {
@@ -1909,13 +1930,13 @@ body {
   }
   
   .ingredient-on-table img {
-    width: 48px;
-    height: 48px;
+    width: 70px;
+    height: 70px;
   }
   
   .ingredient-on-table .chip__label {
-    font-size: 7px;
-    padding: 2px 5px;
+    font-size: 9px;
+    padding: 4px 8px;
   }
   
   /* Кнопки управления */
@@ -1926,8 +1947,9 @@ body {
   }
   
   .controls-on-table__serve {
-    padding: 6px 12px;
-    font-size: 7px;
+    padding: 18px 36px;
+    font-size: 14px;
+    min-height: 50px;
   }
   
   /* Статус бар */
@@ -1975,16 +1997,16 @@ body {
   }
   
   .fridge-menu__item {
-    padding: 6px;          /* уменьшаем padding */
+    padding: 10px;
   }
   
   .fridge-menu__item img {
-    width: 35px;           /* уменьшаем размер иконок */
-    height: 35px;
+    width: 65px;
+    height: 65px;
   }
   
   .fridge-menu__item-label {
-    font-size: 6px;        /* уменьшаем шрифт */
+    font-size: 8px;
   }
   
   .fridge-menu__title {
@@ -2353,13 +2375,13 @@ body {
   }
   
   .ingredient-on-table img {
-    width: 35px;
-    height: 35px;
+    width: 64px;
+    height: 64px;
   }
   
   .ingredient-on-table .chip__label {
-    font-size: 5px;
-    padding: 2px 3px;
+    font-size: 8px;
+    padding: 4px 7px;
   }
   
   .controls-on-table {
@@ -2368,8 +2390,9 @@ body {
   }
   
   .controls-on-table__serve {
-    padding: 4px 10px;
-    font-size: 6px;
+    padding: 16px 32px;
+    font-size: 12px;
+    min-height: 48px;
   }
   
   .status-bar {
@@ -2411,16 +2434,16 @@ body {
   }
   
   .fridge-menu__item {
-    padding: 4px;          /* уменьшаем padding */
+    padding: 8px;
   }
   
   .fridge-menu__item img {
-    width: 28px;           /* уменьшаем размер иконок */
-    height: 28px;
+    width: 55px;
+    height: 55px;
   }
   
   .fridge-menu__item-label {
-    font-size: 5px;        /* уменьшаем шрифт */
+    font-size: 7px;
   }
   
   .fridge-menu__title {

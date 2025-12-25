@@ -22,6 +22,7 @@ const btnServe = document.getElementById('btn-serve');
 const btnHint = document.getElementById('btn-hint');
 const btnReset = document.getElementById('btn-reset');
 const btnPause = document.getElementById('btn-pause');
+const btnFullscreen = document.getElementById('btn-fullscreen');
 const btnRotate = null; 
 const btnShake = null;
 const pourSpeedInput = null;
@@ -96,9 +97,9 @@ let state = {
   timer: 0,
   timerId: null,
   served: 0,
-  bestTime: null, 
+  bestTime: null,
   levelStats: {}, 
-  servedSet: new Set(), 
+  servedSet: new Set(),
   usedOrdersInLevel: new Set(), 
   runs: 0,
   currentDifficulty: 1, 
@@ -133,7 +134,7 @@ function getVisitorPositions() {
       { left: '50%', top: '22%' },
     ];
   }
-
+  
   return VISITOR_POSITIONS;
 }
 
@@ -162,6 +163,104 @@ function checkOrientation() {
   }
 }
 
+let resizeHandlerAdded = false;
+
+function hideMobileAddressBar() {
+  if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+    setTimeout(() => {
+      window.scrollTo(0, 1);
+    }, 100);
+    
+    const viewportHeight = window.innerHeight;
+    document.documentElement.style.height = `${viewportHeight}px`;
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.height = `${viewportHeight}px`;
+    document.body.style.overflow = 'hidden';
+    
+    if (!resizeHandlerAdded) {
+      resizeHandlerAdded = true;
+      window.addEventListener('resize', () => {
+        const currentHeight = window.innerHeight;
+        document.documentElement.style.height = `${currentHeight}px`;
+        document.body.style.height = `${currentHeight}px`;
+      });
+    }
+  }
+}
+
+async function requestFullscreen() {
+  try {
+    const element = document.documentElement;
+    
+    if (element.requestFullscreen) {
+      await element.requestFullscreen();
+    } else if (element.webkitRequestFullscreen) {
+      await element.webkitRequestFullscreen();
+    } else if (element.webkitRequestFullScreen) {
+      await element.webkitRequestFullScreen();
+    } else if (element.mozRequestFullScreen) {
+      await element.mozRequestFullScreen();
+    } else if (element.msRequestFullscreen) {
+      await element.msRequestFullscreen();
+    } else {
+      hideMobileAddressBar();
+    }
+    
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      hideMobileAddressBar();
+      
+      if (screen.orientation && screen.orientation.lock) {
+        try {
+          await screen.orientation.lock('landscape');
+        } catch (e) {
+          console.log('Orientation lock failed:', e);
+        }
+      }
+    }
+  } catch (err) {
+    console.log('Fullscreen request failed:', err);
+    hideMobileAddressBar();
+  }
+}
+
+function isFullscreen() {
+  return !!(document.fullscreenElement || 
+            document.webkitFullscreenElement || 
+            document.mozFullScreenElement || 
+            document.msFullscreenElement);
+}
+
+function exitFullscreen() {
+  if (document.exitFullscreen) {
+    document.exitFullscreen();
+  } else if (document.webkitExitFullscreen) {
+    document.webkitExitFullscreen();
+  } else if (document.mozCancelFullScreen) {
+    document.mozCancelFullScreen();
+  } else if (document.msExitFullscreen) {
+    document.msExitFullscreen();
+  }
+}
+
+function toggleFullscreen() {
+  if (isFullscreen()) {
+    exitFullscreen();
+  } else {
+    requestFullscreen();
+  }
+}
+
+function updateFullscreenButton() {
+  if (!btnFullscreen) return;
+  if (isFullscreen()) {
+    btnFullscreen.textContent = '⛶';
+    btnFullscreen.title = 'Exit Fullscreen';
+  } else {
+    btnFullscreen.textContent = '⛶';
+    btnFullscreen.title = 'Enter Fullscreen';
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   
   checkOrientation();
@@ -173,6 +272,53 @@ document.addEventListener('DOMContentLoaded', async () => {
   attachControls();
   await loadData();
   hydrateProgress();
+  
+  hideMobileAddressBar();
+  
+  setTimeout(async () => {
+    if (!isFullscreen()) {
+      await requestFullscreen();
+    }
+  }, 500);
+  
+  let lastTouchY = 0;
+  window.addEventListener('touchstart', (e) => {
+    lastTouchY = e.touches[0].clientY;
+    hideMobileAddressBar();
+  });
+  
+  window.addEventListener('touchmove', (e) => {
+    const currentY = e.touches[0].clientY;
+    if (Math.abs(currentY - lastTouchY) > 10) {
+      hideMobileAddressBar();
+    }
+  });
+  
+  window.addEventListener('scroll', () => {
+    hideMobileAddressBar();
+  });
+  
+  window.addEventListener('resize', () => {
+    hideMobileAddressBar();
+  });
+  
+  document.addEventListener('fullscreenchange', () => {
+    updateFullscreenButton();
+  });
+  
+  document.addEventListener('webkitfullscreenchange', () => {
+    updateFullscreenButton();
+  });
+  
+  document.addEventListener('mozfullscreenchange', () => {
+    updateFullscreenButton();
+  });
+  
+  document.addEventListener('MSFullscreenChange', () => {
+    updateFullscreenButton();
+  });
+  
+  updateFullscreenButton();
 
   if (state.servedSet.size === 0 && state.runs === 0) {
   startNewRun();
@@ -206,7 +352,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           const order = activeVisitor.order;
           const positions = getVisitorPositions();
           const position = positions[0] || VISITOR_POSITIONS[0];
-
+          
           activeVisitor.element.style.left = position.left || '50%';
           activeVisitor.element.style.top = position.top;
           
@@ -231,7 +377,8 @@ function attachControls() {
   });
   btnHint?.addEventListener('click', showCurrentHint);
   btnPause?.addEventListener('click', togglePause);
-
+  btnFullscreen?.addEventListener('click', toggleFullscreen);
+  
   pauseMenuCloseEl?.addEventListener('click', closePauseMenu);
   pauseMenuResumeEl?.addEventListener('click', closePauseMenu);
   pauseMenuRestartEl?.addEventListener('click', () => {
@@ -239,15 +386,15 @@ function attachControls() {
     startLevel();
   });
   pauseMenuEl?.querySelector('.pause-menu__overlay')?.addEventListener('click', closePauseMenu);
-
+  
   barFridgeEl?.addEventListener('click', toggleFridgeMenu);
   fridgeMenuCloseEl?.addEventListener('click', closeFridgeMenu);
   fridgeMenuEl?.querySelector('.fridge-menu__overlay')?.addEventListener('click', closeFridgeMenu);
-
+  
   btnRecipes?.addEventListener('click', openRecipesMenu);
   recipesMenuCloseEl?.addEventListener('click', closeRecipesMenu);
   recipesMenuEl?.querySelector('.recipes-menu__overlay')?.addEventListener('click', closeRecipesMenu);
-
+  
   winMenuRestartEl?.addEventListener('click', () => {
     closeWinMenu();
     state.servedSet.clear();
@@ -270,7 +417,7 @@ function attachControls() {
   loseMenuEl?.querySelector('.lose-menu__overlay')?.addEventListener('click', closeLoseMenu);
 
   beerTapEl?.addEventListener('click', handleBeerTap);
-
+  
   if (beerGlassEl) {
     beerGlassEl.setAttribute('draggable', 'false');
     setupBeerGlassDragging();
@@ -291,7 +438,7 @@ function attachControls() {
     
     beerGlassEl.addEventListener('drop', handleIngredientOnBeerGlass);
   }
-
+  
   shakerEl?.addEventListener('dragover', (e) => {
     e.preventDefault();
     shakerEl.classList.add('drag-over');
@@ -300,9 +447,9 @@ function attachControls() {
   shakerEl?.addEventListener('dragleave', () => {
     shakerEl.classList.remove('drag-over');
   });
-
+  
   setupShakerShaking();
-
+  
   window.handleDrop = function(e) {
     e.preventDefault();
     shakerEl?.classList.remove('drag-over');
@@ -457,7 +604,7 @@ function setupShakerShaking() {
     const deltaX = currentX - originalPosition.left;
     const deltaY = currentY - originalPosition.top;
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-
+    
     const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
     shakerContainer.style.transform = `rotate(${angle}deg)`;
 
@@ -512,7 +659,7 @@ function setupShakerShaking() {
       }
     }
   });
-
+  
   shakerEl.addEventListener('touchstart', (e) => {
     if (state.currentDrink.length === 0) {
       status('Add ingredients to shaker first!', true);
@@ -563,7 +710,7 @@ function setupShakerShaking() {
     const deltaX = currentX - originalPosition.left;
     const deltaY = currentY - originalPosition.top;
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-
+    
     const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
     shakerContainer.style.transform = `rotate(${angle}deg)`;
 
@@ -643,7 +790,7 @@ function updateShakeProgress(distance) {
       shakeProgressLabelEl.textContent = 'READY!';
       shakeProgressLabelEl.style.color = 'var(--success)';
       state.isShaken = true; 
-
+      
       if (!wasComplete && state.currentDrink.length > 0) {
         showDrinkOnTray();
         
@@ -681,8 +828,15 @@ function hydrateProgress() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
     state.runs = saved.runs || 0;
-    state.bestTime = saved.bestTime ?? null;
-    state.levelStats = saved.levelStats || {}; 
+    
+    if (state.runs === 0) {
+      state.bestTime = null;
+      state.levelStats = {};
+    } else {
+      state.bestTime = saved.bestTime ?? null;
+      state.levelStats = saved.levelStats || {};
+    }
+    
     state.servedSet = new Set(saved.servedSet || []);
     state.runStartTime = saved.runStartTime || null; 
 
@@ -720,7 +874,7 @@ function startNewRun() {
   if (!gameData.levels.length) return;
   state.runs += 1;
   state.served = 0;
-  state.servedSet = new Set(); 
+  state.servedSet = new Set();
   state.usedOrdersInLevel.clear(); 
   state.currentDifficulty = 1; 
   state.runStartTime = Date.now(); 
@@ -732,7 +886,7 @@ function startNewRun() {
 function startLevel() {
   clearTimer();
   if (!gameData.levels.length) return;
-
+  
   const completedLevels = state.servedSet.size;
 
   if (completedLevels === 0) {
@@ -765,7 +919,7 @@ function startLevel() {
     startNewRun();
     return;
   }
-
+  
   const randomIndex = Math.floor(Math.random() * levelsToChoose.length);
   state.currentLevel = levelsToChoose[randomIndex];
 
@@ -784,7 +938,7 @@ function startLevel() {
   ordersEl.textContent = `0/${state.currentLevel.target}`;
   const difficulty = state.currentLevel.difficulty || 1;
   levelEl.textContent = `Dif ${difficulty} Lv.${state.currentLevel.id}`;
-
+  
   renderBestTime();
 
   if (pourSpeedInput) {
@@ -851,12 +1005,12 @@ function createVisitor(order, index, position) {
   const titleEl = bubbleEl.querySelector('.speech-bubble__title');
   const hintEl = bubbleEl.querySelector('.speech-bubble__hint');
   const avatarImg = clone.querySelector('.visitor__img');
-
+  
   visitorEl.style.left = position.left || '50%';
   visitorEl.style.top = position.top;
-
+  
   visitorEl.setAttribute('data-animating', 'true');
-
+  
   setTimeout(() => {
     visitorEl.removeAttribute('data-animating');
   }, 1200);
@@ -871,7 +1025,7 @@ function createVisitor(order, index, position) {
   titleEl.textContent = order.name.toUpperCase();
   hintEl.textContent = order.shortHint;
   bubbleEl.dataset.orderId = order.name;
-
+  
   bubbleEl.remove();
   const tavernEl = document.querySelector('.tavern');
   const tavernContentEl = tavernEl?.querySelector('.tavern__content');
@@ -953,13 +1107,13 @@ function renderIngredients() {
   if (!fridgeMenuGridEl) return;
   
   fridgeMenuGridEl.innerHTML = '';
-
+  
   if (!state.currentLevel || !state.currentLevel.ingredients) {
     return;
   }
-
+  
   const allIngredients = new Map();
-
+  
   gameData.levels.forEach(level => {
     if (level.ingredients) {
       level.ingredients.forEach(ing => {
@@ -969,7 +1123,7 @@ function renderIngredients() {
       });
     }
   });
-
+  
   allIngredients.forEach((ing) => {
     const item = document.createElement('div');
     item.className = 'fridge-menu__item';
@@ -988,7 +1142,7 @@ function renderIngredients() {
     
     item.appendChild(img);
     item.appendChild(label);
-
+    
     item.draggable = false;
     setupIngredientDragging(item, ing);
     
@@ -1040,10 +1194,10 @@ function handleTouchStart(e) {
   const touch = e.touches[0];
   const element = e.currentTarget;
   const rect = element.getBoundingClientRect();
-
+  
   const originalParent = element.parentElement;
   const originalNextSibling = element.nextSibling;
-
+  
   document.body.appendChild(element);
   
   element.style.position = 'fixed';
@@ -1058,7 +1212,7 @@ function handleTouchStart(e) {
       const t = ev.touches[0];
       element.style.left = t.clientX - rect.width / 2 + 'px';
       element.style.top = t.clientY - rect.height / 2 + 'px';
-
+      
       const shakerRect = shakerEl.getBoundingClientRect();
       if (t.clientX >= shakerRect.left && t.clientX <= shakerRect.right &&
           t.clientY >= shakerRect.top && t.clientY <= shakerRect.bottom) {
@@ -1066,7 +1220,7 @@ function handleTouchStart(e) {
       } else {
         shakerEl.classList.remove('drag-over');
       }
-
+      
       if (beerGlassEl) {
         const beerGlassRect = beerGlassEl.getBoundingClientRect();
         if (t.clientX >= beerGlassRect.left && t.clientX <= beerGlassRect.right &&
@@ -1086,7 +1240,7 @@ function handleTouchStart(e) {
     const touchEnd = ev.changedTouches[0];
     
     let handled = false;
-
+    
     if (touchEnd.clientX >= shakerRect.left && touchEnd.clientX <= shakerRect.right &&
         touchEnd.clientY >= shakerRect.top && touchEnd.clientY <= shakerRect.bottom) {
       
@@ -1097,7 +1251,7 @@ function handleTouchStart(e) {
         status('Only ingredients can be added to the shaker!', true);
       }
     }
-
+    
     if (!handled && beerGlassRect && beerGlassEl && 
         touchEnd.clientX >= beerGlassRect.left && touchEnd.clientX <= beerGlassRect.right &&
         touchEnd.clientY >= beerGlassRect.top && touchEnd.clientY <= beerGlassRect.bottom) {
@@ -1124,13 +1278,13 @@ function handleTouchStart(e) {
         }
       }
     }
-
+    
     element.classList.remove('dragging');
     element.style.position = '';
     element.style.left = '';
     element.style.top = '';
     element.style.zIndex = '';
-
+    
     if (!handled) {
       if (originalNextSibling) {
         originalParent.insertBefore(element, originalNextSibling);
@@ -1604,7 +1758,7 @@ function addIngredientToShaker(ingredientId) {
     status('This item cannot be added to the shaker!', true);
     return;
   }
-
+  
   let ingredient = null;
   
   if (gameData.levels) {
@@ -1615,12 +1769,12 @@ function addIngredientToShaker(ingredientId) {
       }
     }
   }
-
+  
   if (!ingredient) {
     status('Only ingredients can be added to the shaker!', true);
     return;
   }
-
+  
   if (state.currentDrink.length === 0) {
     hideTrayDrink();
     state.isShaken = false; 
@@ -1717,7 +1871,7 @@ function renderShaker() {
     item.appendChild(removeBtn);
     shakerContentEl.appendChild(item);
   });
-
+  
   const shakeInfo = document.createElement('div');
   shakeInfo.className = 'shaker-ingredients-panel__shake-info';
   shakeInfo.textContent = `Set shake power: ${state.pourSpeed} (${getPowerLabel(state.pourSpeed).split('(')[0].trim()})`;
@@ -1743,7 +1897,7 @@ function clearShaker() {
   shakerContentEl.innerHTML = '';
   shakerEl?.classList.remove('shaking');
   shakerEl?.classList.remove('dragging');
-
+  
   hideTrayDrink();
   
   if (shakeProgressBarEl) {
@@ -1783,7 +1937,7 @@ function getTraySpriteForOrder(order) {
   if (name.includes('dragon') && name.includes('breath')) {
     return 'dragonsbreath.png';
   }
-
+  
   if (name.includes('lager') || name.includes('beer') || name.includes('pint')) {
     return 'FullPintOfBeer.png';
   }
@@ -1793,7 +1947,7 @@ function getTraySpriteForOrder(order) {
 
 function handleBeerTap() {
   if (!beerGlassEl) return;
-
+  
   if (!isGlassUnderTap()) {
     status('Place the glass under the tap first!', true);
     return;
@@ -1823,11 +1977,11 @@ function isGlassUnderTap() {
   
   const glassCenterX = glassRect.left + glassRect.width / 2;
   const glassBottomY = glassRect.bottom;
-
+  
   const withinX =
     glassCenterX >= tapRect.left - 30 &&
     glassCenterX <= tapRect.right + 30;
-
+  
   const tapMiddleY = tapRect.top + tapRect.height * 0.5;
   const withinY =
     glassBottomY >= tapMiddleY &&
@@ -2161,7 +2315,7 @@ function setupBeerGlassDragging() {
     const tapRect = beerTapContainerEl?.getBoundingClientRect();
     const trayRect = trayContainerEl?.getBoundingClientRect();
       let dropped = false;
-
+    
     if (tapRect && touchEnd.clientX >= tapRect.left && touchEnd.clientX <= tapRect.right &&
         touchEnd.clientY >= tapRect.top && touchEnd.clientY <= tapRect.bottom) {
       
@@ -2215,7 +2369,7 @@ function handleIngredientOnBeerGlass(e) {
   e.stopPropagation();
   
   if (!beerGlassEl) return;
-
+  
   if (beerGlassEl.dataset.state !== 'full') {
     status('Fill the glass with beer first!', true);
     beerGlassEl.style.filter = '';
@@ -2224,14 +2378,14 @@ function handleIngredientOnBeerGlass(e) {
   
   const ingredientId = e.dataTransfer.getData('text/plain');
   if (!ingredientId) return;
-
+  
   const ingredientIdLower = ingredientId.toLowerCase();
   if (ingredientIdLower !== 'coke' && ingredientIdLower !== 'cola') {
     status('Only cola can be mixed with beer!', true);
     beerGlassEl.style.filter = '';
     return;
   }
-
+  
   beerGlassEl.src = './src/assets/icons/shandy.png';
   beerGlassEl.dataset.state = 'shandy';
   beerGlassEl.style.filter = '';
@@ -2294,7 +2448,7 @@ function handleServe() {
         return;
       }
     }
-
+    
     state.served += 1;
     ordersEl.textContent = `${state.served}/${state.currentLevel.target}`;
     progressEl.style.width = Math.min(100, (state.served / state.currentLevel.target) * 100) + '%';
@@ -2304,7 +2458,7 @@ function handleServe() {
     state.activeVisitor.bubble.classList.add('served');
     
     status(`✓ ${state.activeOrder.name} served!`, false);
-
+    
     if (beerGlassEl) {
       beerGlassEl.src = './src/assets/icons/EmptyPintOfBeer.png';
       beerGlassEl.dataset.state = 'empty';
@@ -2315,7 +2469,7 @@ function handleServe() {
         beerGlassEl.style.position = '';
       }
     }
-
+    
     if (isShandy && trayDrinkEl) {
       trayDrinkEl.style.display = 'none';
     }
@@ -2353,7 +2507,7 @@ function handleServe() {
       status('Prepare a drink first!', true);
       return;
     }
-
+    
     if (state.shakeProgress < 100 && !state.isShaken) {
       status(`Shake the shaker more! (${Math.floor(state.shakeProgress)}%)`, true);
       return;
@@ -2405,7 +2559,7 @@ function handleServe() {
     } else {
       
       const matchedOrder = findMatchingRecipe(state.currentDrink);
-
+      
       hideTrayDrink();
       
       if (matchedOrder) {
@@ -2424,7 +2578,7 @@ function handleServe() {
 function findMatchingRecipe(drink) {
   if (!drink || drink.length === 0) return null;
   if (!gameData.levels) return null;
-
+  
   for (const level of gameData.levels) {
     if (!level.orders) continue;
     
@@ -2448,9 +2602,9 @@ function showTrayTrash() {
 
 function showDrinkOnTray() {
   if (!trayDrinkEl || !state.currentDrink || state.currentDrink.length === 0) return;
-
+  
   hideTrayDrink();
-
+  
   const matchedOrder = findMatchingRecipe(state.currentDrink);
   
   if (matchedOrder) {
@@ -2474,7 +2628,7 @@ function hideTrayDrink() {
 function validateRecipe(drink, order) {
   
   const requiredIngredients = order.ingredients || [];
-
+  
   if (requiredIngredients.length === 0) {
     console.warn(`Recipe "${order.name}" has no ingredients specified!`);
     return false;
@@ -2482,26 +2636,26 @@ function validateRecipe(drink, order) {
   
   const drinkIds = drink.map(ing => ing.id.toLowerCase()).sort();
   const requiredIds = requiredIngredients.map(ing => ing.toLowerCase()).sort();
-
+  
   console.log('=== Recipe Validation ===');
   console.log('Order:', order.name);
   console.log('Required ingredients:', requiredIds);
   console.log('Drink ingredients:', drinkIds);
-
+  
   for (const required of requiredIds) {
     if (!drinkIds.includes(required)) {
       console.log(`Missing ingredient: ${required}`);
       return false;
     }
   }
-
+  
   const extraIngredients = drinkIds.filter(id => !requiredIds.includes(id));
   if (extraIngredients.length > 0) {
     console.log(`Extra ingredients not allowed: ${extraIngredients.join(', ')}`);
     console.log(`Expected: ${requiredIds.join(', ')}, but got: ${drinkIds.join(', ')}`);
     return false;
   }
-
+  
   if (drinkIds.length !== requiredIds.length) {
     console.log(`Ingredient count mismatch: got ${drinkIds.length}, required ${requiredIds.length}`);
     return false;
@@ -2773,7 +2927,7 @@ function renderRecipes() {
   if (!recipesMenuListEl || !gameData.levels) return;
   
   recipesMenuListEl.innerHTML = '';
-
+  
   const allRecipes = new Map();
   
   gameData.levels.forEach(level => {
@@ -2793,22 +2947,22 @@ function renderRecipes() {
       }
     });
   });
-
+  
   const sortedRecipes = Array.from(allRecipes.values()).sort((a, b) => 
     a.name.localeCompare(b.name)
   );
-
+  
   sortedRecipes.forEach(recipe => {
     const recipeEl = document.createElement('div');
     recipeEl.className = 'recipes-menu__item';
-
+    
     const ingredients = extractIngredientsFromSteps(recipe.steps, recipe.ingredients);
-
+    
     const cocktailImage = getTraySpriteForOrder({ name: recipe.name });
     const cocktailImagePath = cocktailImage 
       ? `./src/assets/icons/${cocktailImage}` 
       : './src/assets/icons/FullPintOfBeer.png'; 
-
+    
     const headerEl = document.createElement('div');
     headerEl.className = 'recipes-menu__item-header';
     
@@ -2832,7 +2986,7 @@ function renderRecipes() {
     infoEl.appendChild(hintEl);
     headerEl.appendChild(imageEl);
     headerEl.appendChild(infoEl);
-
+    
     const ingredientsEl = document.createElement('div');
     ingredientsEl.className = 'recipes-menu__item-ingredients';
     
@@ -2895,7 +3049,7 @@ function extractIngredientsFromSteps(steps, recipeIngredients) {
     });
     return ingredients;
   }
-
+  
   if (!steps || steps.length === 0) return [];
   
   const ingredients = [];
@@ -2904,7 +3058,7 @@ function extractIngredientsFromSteps(steps, recipeIngredients) {
   
   steps.forEach(step => {
     const stepLower = step.toLowerCase();
-
+    
     if (stepLower.includes('blue mana syrup') || stepLower.includes('blue syrup')) {
       const normalizedIng = 'blueEssence';
       if (!ingredients.find(i => i.id === normalizedIng)) {
@@ -2961,7 +3115,7 @@ function extractIngredientsFromSteps(steps, recipeIngredients) {
         });
       }
     }
-
+    
     const ingredientPatterns = [
       /\b(gin|rum|vodka|whiskey|tequila|mezcal|lager|vermouth|campari|liqueur|espresso|bitters)\b/,
       /\b(soda|syrup|mint|lime|orange|lemon|pineapple|foam|cubes|white|beans|cola|ice|tonic)\b/,
@@ -2975,7 +3129,7 @@ function extractIngredientsFromSteps(steps, recipeIngredients) {
         if (!actions.includes(ing) && !glassware.includes(ing)) {
           
           const normalizedIng = ing === 'cubes' ? 'ice' : ing;
-
+          
           if (!ingredients.find(i => i.id === normalizedIng)) {
             
             let ingredientData = null;

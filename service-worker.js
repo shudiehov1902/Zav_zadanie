@@ -1,17 +1,29 @@
 const CACHE_NAME = 'tavern-tapper-v1';
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.webmanifest',
-  '/src/css/style.css',
-  '/src/js/main.js',
-  '/src/js/data/levels.json'
+  './',
+  './index.html',
+  './manifest.webmanifest',
+  './src/css/style.css',
+  './src/js/main.js',
+  './src/js/data/levels.json',
+  './src/js/iconMap.js',
+  './instructions.html'
 ];
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then(cache => {
+      return Promise.allSettled(
+        ASSETS.map(url => 
+          cache.add(url).catch(err => {
+            console.warn(`Failed to cache ${url}:`, err);
+            return null;
+          })
+        )
+      );
+    })
   );
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {
