@@ -1,8 +1,7 @@
 import { getIconPath } from './iconMap.js';
 
-// DOM элементы
 const visitorsContainerEl = document.getElementById('visitors-container');
-const ingredientGridEl = document.getElementById('ingredient-grid'); // больше не используется, но оставляем для совместимости
+const ingredientGridEl = document.getElementById('ingredient-grid'); 
 const shakerEl = document.getElementById('shaker');
 const barFridgeEl = document.getElementById('bar-fridge');
 const fridgeMenuEl = document.getElementById('fridge-menu');
@@ -23,7 +22,7 @@ const btnServe = document.getElementById('btn-serve');
 const btnHint = document.getElementById('btn-hint');
 const btnReset = document.getElementById('btn-reset');
 const btnPause = document.getElementById('btn-pause');
-const btnRotate = null; // кнопка поворота удалена из интерфейса
+const btnRotate = null; 
 const btnShake = null;
 const pourSpeedInput = null;
 const shakeIntensityEl = null;
@@ -44,14 +43,18 @@ const btnRecipes = document.getElementById('btn-recipes');
 const recipesMenuEl = document.getElementById('recipes-menu');
 const recipesMenuCloseEl = document.getElementById('recipes-menu-close');
 const recipesMenuListEl = document.getElementById('recipes-menu-list');
+const winMenuEl = document.getElementById('win-menu');
+const winMenuTimeEl = document.getElementById('win-menu-time');
+const winMenuRestartEl = document.getElementById('win-menu-restart');
+const loseMenuEl = document.getElementById('lose-menu');
+const loseMenuRestartEl = document.getElementById('lose-menu-restart');
+const orientationMessageEl = document.getElementById('orientation-message');
 
 const STORAGE_KEY = 'tavern-tapper-progress';
 
-// Базовое "виртуальное" разрешение игровой сцены, под которое верстался макет
 const TAVERN_BASE_WIDTH = 1280;
 const TAVERN_BASE_HEIGHT = 720;
 
-// Масштабирование внутреннего слоя таверны под любое окно
 function updateTavernScale() {
   const tavernEl = document.querySelector('.tavern');
   if (!tavernEl) return;
@@ -74,7 +77,6 @@ const INGREDIENT_TEMPLATE = document.getElementById('ingredient-chip');
 
 let gameData = { levels: [] };
 
-// Игровые персонажи, которые приходят к стойке
 const VISITOR_CHARACTERS = [
   { id: 'knight', icon: 'knight.png', label: 'Knight' },
   { id: 'witch', icon: 'witch2.png', label: 'Witch' },
@@ -94,77 +96,120 @@ let state = {
   timer: 0,
   timerId: null,
   served: 0,
-  bestTime: null,
-  servedSet: new Set(),
+  bestTime: null, 
+  levelStats: {}, 
+  servedSet: new Set(), 
+  usedOrdersInLevel: new Set(), 
   runs: 0,
-  currentDrink: [], // Ингредиенты в шейкере
+  currentDifficulty: 1, 
+  runStartTime: null, 
+  currentDrink: [], 
   rotation: 0,
   pourSpeed: 2,
   isShaking: false,
-  shakeProgress: 0, // Прогресс взбалтывания (0-100)
-  isShaken: false, // Флаг, что шейкер был взболтан до 100%
+  shakeProgress: 0, 
+  isShaken: false, 
   isDraggingShaker: false,
   lastShakePosition: { x: 0, y: 0 },
   shakeAnimationId: null,
 };
 
-// Позиции посетителей у барной стойки (перед баром, но не на столе)
-// Немного опускаем по сравнению с предыдущим вариантом, чтобы на всех экранах
-// посетитель был чуть ниже, но всё ещё выше досок стола.
 const VISITOR_POSITIONS = [
-  { left: '50%', top: '4%' }, // Центр, немного выше середины верхней части сцены
+  { left: '50%', top: '4%' }, 
 ];
 
-// Адаптивные позиции для мобильных устройств
 function getVisitorPositions() {
   const isMobile = window.innerWidth <= 768;
   const isSmallMobile = window.innerWidth <= 480;
   
   if (isSmallMobile) {
-    // Для очень маленьких экранов - один посетитель по центру, чуть ниже чем раньше
+    
     return [
       { left: '50%', top: '20%' },
     ];
   } else if (isMobile) {
-    // Для мобильных - один посетитель по центру, тоже чуть ниже
+    
     return [
       { left: '50%', top: '22%' },
     ];
   }
-  
-  // Для десктопов - используем стандартные позиции
+
   return VISITOR_POSITIONS;
 }
 
+function checkOrientation() {
+  if (!orientationMessageEl) return;
+
+  const isMobile = window.innerWidth < 769;
+  
+  if (isMobile) {
+    
+    const isPortrait = window.innerHeight > window.innerWidth;
+    
+    if (isPortrait) {
+      
+      orientationMessageEl.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    } else {
+      
+      orientationMessageEl.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+  } else {
+    
+    orientationMessageEl.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
-  // Сразу подгоняем масштаб под текущее окно
+  
+  checkOrientation();
+  window.addEventListener('orientationchange', checkOrientation);
+  window.addEventListener('resize', checkOrientation);
+
   updateTavernScale();
 
   attachControls();
   await loadData();
   hydrateProgress();
+
+  if (state.servedSet.size === 0 && state.runs === 0) {
   startNewRun();
-  
-  // Обработчик изменения размера окна для адаптации на мобильных
+  } else {
+
+    const completedLevels = state.servedSet.size;
+    if (completedLevels === 0) {
+      state.currentDifficulty = 1;
+    } else if (completedLevels === 1) {
+      state.currentDifficulty = 2;
+    } else if (completedLevels === 2) {
+      state.currentDifficulty = 3;
+    } else {
+      
+      showWinMessage();
+      return;
+    }
+    startLevel();
+  }
+
   let resizeTimeout;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
-      // Пересчитываем общий масштаб "сцены" таверны
+      
       updateTavernScale();
 
-      // Пересоздаем посетителей с новыми позициями при изменении размера
       if (state.visitors.length > 0 && state.currentLevel) {
         const activeVisitor = state.activeVisitor;
         if (activeVisitor) {
           const order = activeVisitor.order;
           const positions = getVisitorPositions();
           const position = positions[0] || VISITOR_POSITIONS[0];
-          
-          // Обновляем позицию текущего посетителя (всегда по центру)
+
           activeVisitor.element.style.left = position.left || '50%';
           activeVisitor.element.style.top = position.top;
-          // Transform будет установлен анимацией, не перезаписываем его если анимация активна
+          
           if (!activeVisitor.element.hasAttribute('data-animating')) {
             activeVisitor.element.style.transform = 'translateX(-50%)';
           }
@@ -176,14 +221,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function attachControls() {
   btnServe?.addEventListener('click', handleServe);
-  btnReset?.addEventListener('click', startLevel);
+  btnReset?.addEventListener('click', () => {
+    
+    state.servedSet.clear();
+    state.usedOrdersInLevel.clear();
+    state.currentDifficulty = 1;
+    state.runStartTime = null;
+    startNewRun();
+  });
   btnHint?.addEventListener('click', showCurrentHint);
   btnPause?.addEventListener('click', togglePause);
-  // Кнопка и функционал поворота отключены
-  
-  // Горячая клавиша R больше не используется для поворота
-  
-  // Обработчики для меню паузы
+
   pauseMenuCloseEl?.addEventListener('click', closePauseMenu);
   pauseMenuResumeEl?.addEventListener('click', closePauseMenu);
   pauseMenuRestartEl?.addEventListener('click', () => {
@@ -191,41 +239,47 @@ function attachControls() {
     startLevel();
   });
   pauseMenuEl?.querySelector('.pause-menu__overlay')?.addEventListener('click', closePauseMenu);
-  
-  // Обработчики для холодильника
+
   barFridgeEl?.addEventListener('click', toggleFridgeMenu);
   fridgeMenuCloseEl?.addEventListener('click', closeFridgeMenu);
   fridgeMenuEl?.querySelector('.fridge-menu__overlay')?.addEventListener('click', closeFridgeMenu);
-  
-  // Обработчики для меню рецептов
+
   btnRecipes?.addEventListener('click', openRecipesMenu);
   recipesMenuCloseEl?.addEventListener('click', closeRecipesMenu);
   recipesMenuEl?.querySelector('.recipes-menu__overlay')?.addEventListener('click', closeRecipesMenu);
-  
-  // Клик по пивному крану — наливаем или опустошаем бокал
-  beerTapEl?.addEventListener('click', handleBeerTap);
-  
-  // Перетаскивание бокала между краном и подносом
-  if (beerGlassEl) {
-    beerGlassEl.setAttribute('draggable', 'true');
-    beerGlassEl.addEventListener('dragstart', handleBeerGlassDragStart);
-    beerGlassEl.addEventListener('dragend', handleBeerGlassDragEnd);
-    // Добавляем поддержку touch-событий для мобильных
-    beerGlassEl.addEventListener('touchstart', handleBeerGlassTouchStart, { passive: false });
-  }
-  
-  [beerTapContainerEl, trayContainerEl].forEach(zone => {
-    zone?.addEventListener('dragover', (e) => {
-      e.preventDefault();
-    });
-    zone?.addEventListener('drop', handleBeerGlassDrop);
+
+  winMenuRestartEl?.addEventListener('click', () => {
+    closeWinMenu();
+    state.servedSet.clear();
+    state.usedOrdersInLevel.clear();
+    state.currentDifficulty = 1;
+    state.runStartTime = null;
+    startNewRun();
   });
-  
-  // Обработчик для смешивания напитков: перетаскивание ингредиентов на бокал
+  winMenuEl?.querySelector('.win-menu__overlay')?.addEventListener('click', closeWinMenu);
+
+  loseMenuRestartEl?.addEventListener('click', () => {
+    closeLoseMenu();
+    
+    state.servedSet.clear();
+    state.usedOrdersInLevel.clear();
+    state.currentDifficulty = 1;
+    state.runStartTime = null;
+    startNewRun();
+  });
+  loseMenuEl?.querySelector('.lose-menu__overlay')?.addEventListener('click', closeLoseMenu);
+
+  beerTapEl?.addEventListener('click', handleBeerTap);
+
+  if (beerGlassEl) {
+    beerGlassEl.setAttribute('draggable', 'false');
+    setupBeerGlassDragging();
+  }
+
   if (beerGlassEl) {
     beerGlassEl.addEventListener('dragover', (e) => {
       e.preventDefault();
-      // Показываем визуальную подсказку, что можно смешать
+      
       if (beerGlassEl.dataset.state === 'full') {
         beerGlassEl.style.filter = 'drop-shadow(0 0 12px rgba(241, 179, 63, 0.8))';
       }
@@ -237,8 +291,7 @@ function attachControls() {
     
     beerGlassEl.addEventListener('drop', handleIngredientOnBeerGlass);
   }
-  
-  // Обработчики для шейкера (drop ингредиентов)
+
   shakerEl?.addEventListener('dragover', (e) => {
     e.preventDefault();
     shakerEl.classList.add('drag-over');
@@ -247,23 +300,20 @@ function attachControls() {
   shakerEl?.addEventListener('dragleave', () => {
     shakerEl.classList.remove('drag-over');
   });
-  
-  // Обработчики для тряски шейкера мышью
+
   setupShakerShaking();
-  
-  // Глобальный обработчик drop
+
   window.handleDrop = function(e) {
     e.preventDefault();
     shakerEl?.classList.remove('drag-over');
     const ingredientId = e.dataTransfer.getData('text/plain');
     if (ingredientId) {
-      // Проверяем, что перетаскиваемый элемент является ингредиентом
-      // (имеет класс fridge-menu__item или является валидным ингредиентом)
+
       const draggedEl = draggedElement || document.querySelector(`[data-id="${ingredientId}"]`);
       if (draggedEl && draggedEl.classList.contains('fridge-menu__item')) {
         addIngredientToShaker(ingredientId);
       } else {
-        // Пытаемся добавить, но addIngredientToShaker проверит валидность
+        
         addIngredientToShaker(ingredientId);
       }
     }
@@ -273,45 +323,165 @@ function attachControls() {
 function setupShakerShaking() {
   if (!shakerEl) return;
   
-  let isMouseDown = false;
-  let lastX = 0;
-  let lastY = 0;
-  let shakeDistance = 0;
+  const shakerContainer = shakerEl.closest('.shaker-container');
+  if (!shakerContainer) return;
   
-  // Mouse events
+  let isMouseDown = false;
+  let startX = 0;
+  let startY = 0;
+  let currentX = 0;
+  let currentY = 0;
+  let lastMoveX = 0;
+  let lastMoveY = 0;
+  let shakeDistance = 0;
+  let originalPosition = null;
+  let originalTransform = null;
+  let returnAnimationId = null;
+
+  function saveOriginalPosition() {
+    const rect = shakerContainer.getBoundingClientRect();
+    const computedStyle = window.getComputedStyle(shakerContainer);
+    
+    originalPosition = {
+      left: rect.left,
+      top: rect.top,
+      width: rect.width,
+      height: rect.height
+    };
+    originalTransform = computedStyle.transform;
+  }
+
+  function returnToOriginalPosition() {
+    if (!originalPosition || !shakerContainer) return;
+
+    if (returnAnimationId) {
+      cancelAnimationFrame(returnAnimationId);
+    }
+    
+    const startLeft = parseFloat(shakerContainer.style.left) || originalPosition.left;
+    const startTop = parseFloat(shakerContainer.style.top) || originalPosition.top;
+
+    const currentTransform = shakerContainer.style.transform || '';
+    let startRotation = 0;
+    const rotateMatch = currentTransform.match(/rotate\(([^)]+)\)/);
+    if (rotateMatch) {
+      startRotation = parseFloat(rotateMatch[1]) || 0;
+    }
+    
+    const startSpeed = state.pourSpeed;
+    
+    const targetLeft = originalPosition.left;
+    const targetTop = originalPosition.top;
+    const targetRotation = 0;
+    const targetSpeed = 2; 
+    
+    const duration = 500; 
+    const startTime = performance.now();
+    
+    function animate(currentTime) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      const easeOut = 1 - Math.pow(1 - progress, 3);
+      
+      const currentLeft = startLeft + (targetLeft - startLeft) * easeOut;
+      const currentTop = startTop + (targetTop - startTop) * easeOut;
+      const currentRotation = startRotation + (targetRotation - startRotation) * easeOut;
+      const currentSpeed = startSpeed + (targetSpeed - startSpeed) * easeOut;
+      
+      shakerContainer.style.left = currentLeft + 'px';
+      shakerContainer.style.top = currentTop + 'px';
+      shakerContainer.style.transform = `rotate(${currentRotation}deg)`;
+      state.pourSpeed = Math.round(currentSpeed);
+      updateShakeIntensity();
+      
+      if (progress < 1) {
+        returnAnimationId = requestAnimationFrame(animate);
+      } else {
+        
+        shakerContainer.style.position = '';
+        shakerContainer.style.left = '';
+        shakerContainer.style.top = '';
+        shakerContainer.style.transform = '';
+        returnAnimationId = null;
+      }
+    }
+    
+    returnAnimationId = requestAnimationFrame(animate);
+  }
+
   shakerEl.addEventListener('mousedown', (e) => {
     if (state.currentDrink.length === 0) {
       status('Add ingredients to shaker first!', true);
       return;
     }
+
+    if (!originalPosition) {
+      saveOriginalPosition();
+    }
+    
     isMouseDown = true;
     state.isDraggingShaker = true;
     shakerEl.classList.add('dragging');
-    lastX = e.clientX;
-    lastY = e.clientY;
+    
+    const rect = shakerContainer.getBoundingClientRect();
+    startX = e.clientX - rect.left;
+    startY = e.clientY - rect.top;
+    currentX = e.clientX;
+    currentY = e.clientY;
+    lastMoveX = e.clientX;
+    lastMoveY = e.clientY;
     shakeDistance = 0;
+
+    shakerContainer.style.position = 'fixed';
+    shakerContainer.style.left = rect.left + 'px';
+    shakerContainer.style.top = rect.top + 'px';
+    shakerContainer.style.zIndex = '1000';
+    
     e.preventDefault();
   });
   
   document.addEventListener('mousemove', (e) => {
     if (!isMouseDown || !state.isDraggingShaker) return;
     
-    const deltaX = Math.abs(e.clientX - lastX);
-    const deltaY = Math.abs(e.clientY - lastY);
-    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    currentX = e.clientX;
+    currentY = e.clientY;
+
+    const rect = shakerContainer.getBoundingClientRect();
+    const newLeft = currentX - startX;
+    const newTop = currentY - startY;
     
-    if (distance > 5) { // Минимальное движение для засчета
-      shakeDistance += distance;
+    shakerContainer.style.left = newLeft + 'px';
+    shakerContainer.style.top = newTop + 'px';
+
+    const deltaX = currentX - originalPosition.left;
+    const deltaY = currentY - originalPosition.top;
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+    const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+    shakerContainer.style.transform = `rotate(${angle}deg)`;
+
+    const maxDistance = 300;
+    const normalizedDistance = Math.min(distance / maxDistance, 1);
+    state.pourSpeed = Math.max(1, Math.min(4, Math.round(1 + normalizedDistance * 3)));
+    updateShakeIntensity();
+
+    const moveDeltaX = Math.abs(e.clientX - lastMoveX);
+    const moveDeltaY = Math.abs(e.clientY - lastMoveY);
+    const moveDistance = Math.sqrt(moveDeltaX * moveDeltaX + moveDeltaY * moveDeltaY);
+    
+    if (moveDistance > 5) {
+      shakeDistance += moveDistance;
       updateShakeProgress(shakeDistance);
       
-      // Анимация тряски
       if (!shakerEl.classList.contains('shaking')) {
         shakerEl.classList.add('shaking');
       }
     }
     
-    lastX = e.clientX;
-    lastY = e.clientY;
+    lastMoveX = e.clientX;
+    lastMoveY = e.clientY;
+    e.preventDefault();
   });
   
   document.addEventListener('mouseup', () => {
@@ -320,14 +490,14 @@ function setupShakerShaking() {
       state.isDraggingShaker = false;
       shakerEl.classList.remove('dragging');
       shakerEl.classList.remove('shaking');
+
+      returnToOriginalPosition();
       
       if (state.shakeProgress >= 100) {
         state.isShaking = false;
         status('Shaker fully mixed! Ready to serve.');
-        // Показываем коктейль на подносе
         if (state.currentDrink.length > 0) {
           showDrinkOnTray();
-          // Сбрасываем прогресс после показа коктейля
           setTimeout(() => {
             state.shakeProgress = 0;
             if (shakeProgressBarEl) {
@@ -342,20 +512,37 @@ function setupShakerShaking() {
       }
     }
   });
-  
-  // Touch events для мобильных
+
   shakerEl.addEventListener('touchstart', (e) => {
     if (state.currentDrink.length === 0) {
       status('Add ingredients to shaker first!', true);
       return;
     }
+    
     const touch = e.touches[0];
+
+    if (!originalPosition) {
+      saveOriginalPosition();
+    }
+    
     isMouseDown = true;
     state.isDraggingShaker = true;
     shakerEl.classList.add('dragging');
-    lastX = touch.clientX;
-    lastY = touch.clientY;
+    
+    const rect = shakerContainer.getBoundingClientRect();
+    startX = touch.clientX - rect.left;
+    startY = touch.clientY - rect.top;
+    currentX = touch.clientX;
+    currentY = touch.clientY;
+    lastMoveX = touch.clientX;
+    lastMoveY = touch.clientY;
     shakeDistance = 0;
+
+    shakerContainer.style.position = 'fixed';
+    shakerContainer.style.left = rect.left + 'px';
+    shakerContainer.style.top = rect.top + 'px';
+    shakerContainer.style.zIndex = '1000';
+    
     e.preventDefault();
   });
   
@@ -363,12 +550,34 @@ function setupShakerShaking() {
     if (!isMouseDown || !state.isDraggingShaker) return;
     const touch = e.touches[0];
     
-    const deltaX = Math.abs(touch.clientX - lastX);
-    const deltaY = Math.abs(touch.clientY - lastY);
-    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    currentX = touch.clientX;
+    currentY = touch.clientY;
+
+    const rect = shakerContainer.getBoundingClientRect();
+    const newLeft = currentX - startX;
+    const newTop = currentY - startY;
     
-    if (distance > 5) {
-      shakeDistance += distance;
+    shakerContainer.style.left = newLeft + 'px';
+    shakerContainer.style.top = newTop + 'px';
+
+    const deltaX = currentX - originalPosition.left;
+    const deltaY = currentY - originalPosition.top;
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+    const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+    shakerContainer.style.transform = `rotate(${angle}deg)`;
+
+    const maxDistance = 300;
+    const normalizedDistance = Math.min(distance / maxDistance, 1);
+    state.pourSpeed = Math.max(1, Math.min(4, Math.round(1 + normalizedDistance * 3)));
+    updateShakeIntensity();
+
+    const moveDeltaX = Math.abs(touch.clientX - lastMoveX);
+    const moveDeltaY = Math.abs(touch.clientY - lastMoveY);
+    const moveDistance = Math.sqrt(moveDeltaX * moveDeltaX + moveDeltaY * moveDeltaY);
+    
+    if (moveDistance > 5) {
+      shakeDistance += moveDistance;
       updateShakeProgress(shakeDistance);
       
       if (!shakerEl.classList.contains('shaking')) {
@@ -376,8 +585,8 @@ function setupShakerShaking() {
       }
     }
     
-    lastX = touch.clientX;
-    lastY = touch.clientY;
+    lastMoveX = touch.clientX;
+    lastMoveY = touch.clientY;
     e.preventDefault();
   });
   
@@ -387,14 +596,14 @@ function setupShakerShaking() {
       state.isDraggingShaker = false;
       shakerEl.classList.remove('dragging');
       shakerEl.classList.remove('shaking');
+
+      returnToOriginalPosition();
       
       if (state.shakeProgress >= 100) {
         state.isShaking = false;
         status('Shaker fully mixed! Ready to serve.');
-        // Показываем коктейль на подносе
         if (state.currentDrink.length > 0) {
           showDrinkOnTray();
-          // Сбрасываем прогресс после показа коктейля
           setTimeout(() => {
             state.shakeProgress = 0;
             if (shakeProgressBarEl) {
@@ -409,11 +618,15 @@ function setupShakerShaking() {
       }
     }
   });
+
+  window.addEventListener('resize', () => {
+    originalPosition = null;
+  });
 }
 
 function updateShakeProgress(distance) {
-  // Накопление прогресса зависит от силы тряски (pourSpeed)
-  const progressPerPixel = 0.1 * state.pourSpeed; // Чем больше сила, тем быстрее накапливается
+  
+  const progressPerPixel = 0.1 * state.pourSpeed; 
   const wasComplete = state.shakeProgress >= 100;
   const newProgress = Math.min(100, state.shakeProgress + (distance * progressPerPixel / 10));
   
@@ -429,12 +642,11 @@ function updateShakeProgress(distance) {
     if (newProgress >= 100) {
       shakeProgressLabelEl.textContent = 'READY!';
       shakeProgressLabelEl.style.color = 'var(--success)';
-      state.isShaken = true; // Помечаем, что шейкер взболтан
-      
-      // Когда шейкер готов, автоматически показываем коктейль на подносе
+      state.isShaken = true; 
+
       if (!wasComplete && state.currentDrink.length > 0) {
         showDrinkOnTray();
-        // Сбрасываем прогресс после показа коктейля (но флаг isShaken остается true)
+        
         setTimeout(() => {
           state.shakeProgress = 0;
           if (shakeProgressBarEl) {
@@ -444,7 +656,7 @@ function updateShakeProgress(distance) {
             shakeProgressLabelEl.textContent = '0%';
             shakeProgressLabelEl.style.color = 'var(--text)';
           }
-        }, 500); // Небольшая задержка, чтобы игрок увидел "READY!"
+        }, 500); 
       }
     } else if (newProgress >= 75) {
       shakeProgressLabelEl.style.color = 'var(--accent)';
@@ -470,7 +682,21 @@ function hydrateProgress() {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
     state.runs = saved.runs || 0;
     state.bestTime = saved.bestTime ?? null;
+    state.levelStats = saved.levelStats || {}; 
     state.servedSet = new Set(saved.servedSet || []);
+    state.runStartTime = saved.runStartTime || null; 
+
+    const completedLevels = state.servedSet.size;
+    if (completedLevels === 0) {
+      state.currentDifficulty = 1;
+    } else if (completedLevels === 1) {
+      state.currentDifficulty = 2;
+    } else if (completedLevels === 2) {
+      state.currentDifficulty = 3;
+    } else {
+      state.currentDifficulty = 1; 
+    }
+    
     statRunsEl.textContent = state.runs.toString();
     renderBestTime();
   } catch (err) {
@@ -482,7 +708,10 @@ function persistProgress() {
   const payload = {
     runs: state.runs,
     bestTime: state.bestTime,
+    levelStats: state.levelStats, 
     servedSet: Array.from(state.servedSet),
+    currentDifficulty: state.currentDifficulty, 
+    runStartTime: state.runStartTime, 
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
 }
@@ -491,7 +720,10 @@ function startNewRun() {
   if (!gameData.levels.length) return;
   state.runs += 1;
   state.served = 0;
-  state.servedSet = new Set();
+  state.servedSet = new Set(); 
+  state.usedOrdersInLevel.clear(); 
+  state.currentDifficulty = 1; 
+  state.runStartTime = Date.now(); 
   statRunsEl.textContent = state.runs.toString();
   startLevel();
   persistProgress();
@@ -500,36 +732,67 @@ function startNewRun() {
 function startLevel() {
   clearTimer();
   if (!gameData.levels.length) return;
-  
-  const availableLevels = gameData.levels.filter(l => !state.servedSet.has(l.id));
-  if (availableLevels.length === 0) {
+
+  const completedLevels = state.servedSet.size;
+
+  if (completedLevels === 0) {
+    state.currentDifficulty = 1;
+  } else if (completedLevels === 1) {
+    state.currentDifficulty = 2;
+  } else if (completedLevels === 2) {
+    state.currentDifficulty = 3;
+  } else {
+    
+    showWinMessage();
+    return;
+  }
+
+  const availableLevels = gameData.levels.filter(l => {
+    const levelDifficulty = l.difficulty || 1;
+    return !state.servedSet.has(l.id) && levelDifficulty === state.currentDifficulty;
+  });
+
+  let levelsToChoose = availableLevels.length > 0 ? availableLevels : 
+    gameData.levels.filter(l => {
+      const levelDifficulty = l.difficulty || 1;
+      return levelDifficulty === state.currentDifficulty;
+    });
+
+  if (levelsToChoose.length === 0) {
     state.servedSet.clear();
+    state.usedOrdersInLevel.clear();
+    state.currentDifficulty = 1;
     startNewRun();
     return;
   }
+
+  const randomIndex = Math.floor(Math.random() * levelsToChoose.length);
+  state.currentLevel = levelsToChoose[randomIndex];
+
+  state.usedOrdersInLevel.clear();
   
-  const randomIndex = Math.floor(Math.random() * availableLevels.length);
-  state.currentLevel = availableLevels[randomIndex];
   state.timer = state.currentLevel.timeLimit;
   state.served = 0;
   state.currentDrink = [];
   state.rotation = 0;
   state.isShaking = false;
   state.shakeProgress = 0;
-  state.isShaken = false; // Сбрасываем флаг при старте уровня
+  state.isShaken = false; 
   state.isDraggingShaker = false;
-  state.pourSpeed = 2; // Сброс на среднюю силу
+  state.pourSpeed = 2; 
   
   ordersEl.textContent = `0/${state.currentLevel.target}`;
-  levelEl.textContent = `Lv.${state.currentLevel.id}`;
-  
-  // Обновляем слайдер
+  const difficulty = state.currentLevel.difficulty || 1;
+  levelEl.textContent = `Dif ${difficulty} Lv.${state.currentLevel.id}`;
+
+  renderBestTime();
+
   if (pourSpeedInput) {
     pourSpeedInput.value = state.pourSpeed;
   }
   
   renderVisitors();
-  renderIngredients(); // Показываем ВСЕ ингредиенты уровня
+  renderIngredients(); 
   clearShaker();
   updateShakeIntensity();
   tick();
@@ -537,7 +800,7 @@ function startLevel() {
 }
 
 function renderVisitors() {
-  // Очищаем и запускаем первую волну посетителей: по одному у стойки
+  
   visitorsContainerEl.innerHTML = '';
   state.visitors = [];
   spawnNextVisitor();
@@ -546,10 +809,8 @@ function renderVisitors() {
 function spawnNextVisitor() {
   if (!state.currentLevel) return;
 
-  // Если уровень уже выполнен или время вышло — новых не спауним
   if (state.served >= state.currentLevel.target || state.timer <= 0) return;
 
-  // Удаляем старые speech-bubble из .tavern перед созданием нового посетителя
   const tavernEl = document.querySelector('.tavern');
   if (tavernEl) {
     const oldBubbles = tavernEl.querySelectorAll('.speech-bubble');
@@ -559,9 +820,21 @@ function spawnNextVisitor() {
   visitorsContainerEl.innerHTML = '';
   state.visitors = [];
 
-  const orders = [...state.currentLevel.orders];
-  const randomIndex = Math.floor(Math.random() * orders.length);
-  const order = orders[randomIndex];
+  const allOrders = [...state.currentLevel.orders];
+  const availableOrders = allOrders.filter(order => !state.usedOrdersInLevel.has(order.name));
+
+  let ordersToChoose = availableOrders.length > 0 ? availableOrders : allOrders;
+
+  if (availableOrders.length === 0) {
+    state.usedOrdersInLevel.clear();
+    ordersToChoose = allOrders;
+  }
+
+  const randomIndex = Math.floor(Math.random() * ordersToChoose.length);
+  const order = ordersToChoose[randomIndex];
+
+  state.usedOrdersInLevel.add(order.name);
+  
   const positions = getVisitorPositions();
   const position = positions[0] || VISITOR_POSITIONS[0];
 
@@ -578,20 +851,16 @@ function createVisitor(order, index, position) {
   const titleEl = bubbleEl.querySelector('.speech-bubble__title');
   const hintEl = bubbleEl.querySelector('.speech-bubble__hint');
   const avatarImg = clone.querySelector('.visitor__img');
-  
-  // Устанавливаем позицию (left всегда 50% для центрирования)
+
   visitorEl.style.left = position.left || '50%';
   visitorEl.style.top = position.top;
-  
-  // Помечаем, что анимация активна
+
   visitorEl.setAttribute('data-animating', 'true');
-  
-  // После завершения анимации убираем флаг
+
   setTimeout(() => {
     visitorEl.removeAttribute('data-animating');
   }, 1200);
 
-  // Назначаем случайного персонажа и картинку
   const character = getRandomVisitorCharacter();
   visitorEl.dataset.characterId = character.id;
   if (avatarImg) {
@@ -602,9 +871,7 @@ function createVisitor(order, index, position) {
   titleEl.textContent = order.name.toUpperCase();
   hintEl.textContent = order.shortHint;
   bubbleEl.dataset.orderId = order.name;
-  
-  // Удаляем speech-bubble из visitor и перемещаем его в .tavern__content для независимого позиционирования,
-  // но вместе с общим масштабированием сцены
+
   bubbleEl.remove();
   const tavernEl = document.querySelector('.tavern');
   const tavernContentEl = tavernEl?.querySelector('.tavern__content');
@@ -639,7 +906,7 @@ function startVisitorTimer(visitor) {
       visitor.bubble.classList.add('expired');
       if (visitor === state.activeVisitor) {
         status('Order expired! Try next customer.', true);
-        // Убираем текущего гостя и вызываем следующего
+        
         setTimeout(() => {
           const el = visitor.element;
           if (el && el.parentElement === visitorsContainerEl) {
@@ -653,15 +920,7 @@ function startVisitorTimer(visitor) {
 }
 
 function updateVisitorTimer(visitor) {
-  const timerEl = visitor.bubble.querySelector('.speech-bubble__timer');
-  if (timerEl) {
-    timerEl.textContent = `TIME: ${formatTime(visitor.timer)}`;
-    if (visitor.timer < 10) {
-      timerEl.style.color = 'var(--danger)';
-    } else {
-      timerEl.style.color = 'var(--danger)';
-    }
-  }
+
 }
 
 function clearVisitorTimer(visitor) {
@@ -685,26 +944,22 @@ function activateVisitor(visitor) {
 }
 
 function activateNextVisitor() {
-  // Логика очереди больше не нужна, но оставляем функцию,
-  // чтобы не ломать возможные внешние вызовы. Просто спаун нового.
+
   spawnNextVisitor();
 }
 
 function renderIngredients() {
-  // Теперь ингредиенты отображаются в меню холодильника, а не на столе
+  
   if (!fridgeMenuGridEl) return;
   
   fridgeMenuGridEl.innerHTML = '';
-  
-  // Показываем ВСЕ ингредиенты уровня в меню холодильника
+
   if (!state.currentLevel || !state.currentLevel.ingredients) {
     return;
   }
-  
-  // Создаём список всех доступных ингредиентов для всех рецептов
+
   const allIngredients = new Map();
-  
-  // Собираем все ингредиенты из всех уровней
+
   gameData.levels.forEach(level => {
     if (level.ingredients) {
       level.ingredients.forEach(ing => {
@@ -714,8 +969,7 @@ function renderIngredients() {
       });
     }
   });
-  
-  // Отображаем все ингредиенты в меню холодильника
+
   allIngredients.forEach((ing) => {
     const item = document.createElement('div');
     item.className = 'fridge-menu__item';
@@ -734,14 +988,9 @@ function renderIngredients() {
     
     item.appendChild(img);
     item.appendChild(label);
-    
-    item.addEventListener('dragstart', handleDragStart);
-    item.addEventListener('dragend', handleDragEnd);
-    item.addEventListener('touchstart', handleTouchStart, { passive: false });
-    item.addEventListener('click', () => {
-      addIngredientToShaker(ing.id);
-      status(`Added ${ing.label} to shaker`);
-    });
+
+    item.draggable = false;
+    setupIngredientDragging(item, ing);
     
     fridgeMenuGridEl.appendChild(item);
   });
@@ -760,7 +1009,7 @@ function toggleFridgeMenu() {
 function openFridgeMenu() {
   if (!fridgeMenuEl) return;
   fridgeMenuEl.style.display = 'block';
-  renderIngredients(); // Обновляем список ингредиентов при открытии
+  renderIngredients(); 
   status('Fridge menu opened');
 }
 
@@ -791,18 +1040,16 @@ function handleTouchStart(e) {
   const touch = e.touches[0];
   const element = e.currentTarget;
   const rect = element.getBoundingClientRect();
-  
-  // Сохраняем родительский элемент для возврата
+
   const originalParent = element.parentElement;
   const originalNextSibling = element.nextSibling;
-  
-  // Перемещаем элемент в body, чтобы он не обрезался меню
+
   document.body.appendChild(element);
   
   element.style.position = 'fixed';
   element.style.left = touch.clientX - rect.width / 2 + 'px';
   element.style.top = touch.clientY - rect.height / 2 + 'px';
-  element.style.zIndex = '3000';  // выше меню (1000) и паузы (2000)
+  element.style.zIndex = '3000';  
   element.classList.add('dragging');
   draggedElement = element;
   
@@ -811,8 +1058,7 @@ function handleTouchStart(e) {
       const t = ev.touches[0];
       element.style.left = t.clientX - rect.width / 2 + 'px';
       element.style.top = t.clientY - rect.height / 2 + 'px';
-      
-      // Проверка наведения на шейкер
+
       const shakerRect = shakerEl.getBoundingClientRect();
       if (t.clientX >= shakerRect.left && t.clientX <= shakerRect.right &&
           t.clientY >= shakerRect.top && t.clientY <= shakerRect.bottom) {
@@ -820,8 +1066,7 @@ function handleTouchStart(e) {
       } else {
         shakerEl.classList.remove('drag-over');
       }
-      
-      // Проверка наведения на бокал пива (для создания shandy)
+
       if (beerGlassEl) {
         const beerGlassRect = beerGlassEl.getBoundingClientRect();
         if (t.clientX >= beerGlassRect.left && t.clientX <= beerGlassRect.right &&
@@ -841,11 +1086,10 @@ function handleTouchStart(e) {
     const touchEnd = ev.changedTouches[0];
     
     let handled = false;
-    
-    // Проверяем, что элемент является ингредиентом из меню холодильника
+
     if (touchEnd.clientX >= shakerRect.left && touchEnd.clientX <= shakerRect.right &&
         touchEnd.clientY >= shakerRect.top && touchEnd.clientY <= shakerRect.bottom) {
-      // Проверяем, что элемент имеет класс fridge-menu__item (ингредиент из меню)
+      
       if (element.classList.contains('fridge-menu__item') && element.dataset.id) {
         addIngredientToShaker(element.dataset.id);
         handled = true;
@@ -853,23 +1097,22 @@ function handleTouchStart(e) {
         status('Only ingredients can be added to the shaker!', true);
       }
     }
-    
-    // Проверяем, перетащили ли ингредиент на бокал пива (для создания shandy)
+
     if (!handled && beerGlassRect && beerGlassEl && 
         touchEnd.clientX >= beerGlassRect.left && touchEnd.clientX <= beerGlassRect.right &&
         touchEnd.clientY >= beerGlassRect.top && touchEnd.clientY <= beerGlassRect.bottom) {
-      // Проверяем, что элемент является ингредиентом из меню
+      
       if (element.classList.contains('fridge-menu__item') && element.dataset.id) {
         const ingredientId = element.dataset.id.toLowerCase();
-        // Проверяем, что это кола (coke или cola)
+        
         if (ingredientId === 'coke' || ingredientId === 'cola') {
-          // Проверяем, что бокал полный (содержит пиво)
+          
           if (beerGlassEl.dataset.state === 'full') {
-            // Превращаем пиво в shandy
+            
             beerGlassEl.src = './src/assets/icons/shandy.png';
             beerGlassEl.dataset.state = 'shandy';
             beerGlassEl.style.filter = '';
-            // Скрываем trash/коктейль с подноса при создании shandy
+            
             hideTrayDrink();
             status('Shandy created! Beer + Cola', false);
             handled = true;
@@ -881,15 +1124,13 @@ function handleTouchStart(e) {
         }
       }
     }
-    
-    // Возвращаем элемент обратно в меню
+
     element.classList.remove('dragging');
     element.style.position = '';
     element.style.left = '';
     element.style.top = '';
     element.style.zIndex = '';
-    
-    // Возвращаем элемент в исходное место
+
     if (!handled) {
       if (originalNextSibling) {
         originalParent.insertBefore(element, originalNextSibling);
@@ -897,7 +1138,7 @@ function handleTouchStart(e) {
         originalParent.appendChild(element);
       }
     } else {
-      // Если ингредиент был использован, возвращаем его в меню
+      
       if (originalNextSibling) {
         originalParent.insertBefore(element, originalNextSibling);
       } else {
@@ -919,15 +1160,451 @@ function handleTouchStart(e) {
   e.preventDefault();
 }
 
+function setupIngredientDragging(item, ingredient) {
+  if (!item || !ingredient) return;
+  
+  let isMouseDown = false;
+  let hasMoved = false; 
+  let currentX = 0;
+  let currentY = 0;
+  let lastMoveX = 0;
+  let lastMoveY = 0;
+  let startDragX = 0;
+  let startDragY = 0;
+  let originalPosition = null;
+  let ghostElement = null;
+  let returnAnimationId = null;
+
+  function saveOriginalPosition() {
+    const rect = item.getBoundingClientRect();
+    originalPosition = {
+      left: rect.left,
+      top: rect.top,
+      width: rect.width,
+      height: rect.height
+    };
+  }
+
+  function createGhostElement() {
+    if (ghostElement) return ghostElement;
+    
+    const img = item.querySelector('img');
+    if (!img) return null;
+    
+    ghostElement = document.createElement('img');
+    ghostElement.src = img.src;
+    ghostElement.alt = img.alt;
+    ghostElement.style.position = 'fixed';
+    ghostElement.style.width = '80px';
+    ghostElement.style.height = '80px';
+    ghostElement.style.pointerEvents = 'none';
+    ghostElement.style.zIndex = '3000';
+    ghostElement.style.imageRendering = 'pixelated';
+    ghostElement.style.imageRendering = '-moz-crisp-edges';
+    ghostElement.style.imageRendering = 'crisp-edges';
+    ghostElement.style.filter = 'drop-shadow(0 4px 8px rgba(0,0,0,0.6))';
+    ghostElement.style.opacity = '0.9';
+    ghostElement.style.transition = 'none';
+    
+    document.body.appendChild(ghostElement);
+    return ghostElement;
+  }
+
+  function removeGhostElement() {
+    if (ghostElement && ghostElement.parentElement) {
+      ghostElement.parentElement.removeChild(ghostElement);
+    }
+    ghostElement = null;
+  }
+
+  function returnToOriginalPosition() {
+    if (!originalPosition || !ghostElement) return;
+
+    if (returnAnimationId) {
+      cancelAnimationFrame(returnAnimationId);
+    }
+    
+    const startLeft = parseFloat(ghostElement.style.left) || originalPosition.left;
+    const startTop = parseFloat(ghostElement.style.top) || originalPosition.top;
+
+    const currentTransform = ghostElement.style.transform || '';
+    let startRotation = 0;
+    const rotateMatch = currentTransform.match(/rotate\(([^)]+)\)/);
+    if (rotateMatch) {
+      startRotation = parseFloat(rotateMatch[1]) || 0;
+    }
+    
+    const startSpeed = state.pourSpeed;
+    
+    const targetLeft = originalPosition.left;
+    const targetTop = originalPosition.top;
+    const targetRotation = 0;
+    const targetSpeed = 2; 
+    
+    const duration = 500; 
+    const startTime = performance.now();
+    
+    function animate(currentTime) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      const easeOut = 1 - Math.pow(1 - progress, 3);
+      
+      const currentLeft = startLeft + (targetLeft - startLeft) * easeOut;
+      const currentTop = startTop + (targetTop - startTop) * easeOut;
+      const currentRotation = startRotation + (targetRotation - startRotation) * easeOut;
+      const currentSpeed = startSpeed + (targetSpeed - startSpeed) * easeOut;
+      
+      ghostElement.style.left = currentLeft + 'px';
+      ghostElement.style.top = currentTop + 'px';
+      ghostElement.style.transform = `rotate(${currentRotation}deg)`;
+      state.pourSpeed = Math.round(currentSpeed);
+      updateShakeIntensity();
+      
+      if (progress < 1) {
+        returnAnimationId = requestAnimationFrame(animate);
+      } else {
+        
+        removeGhostElement();
+        returnAnimationId = null;
+      }
+    }
+    
+    returnAnimationId = requestAnimationFrame(animate);
+  }
+
+  item.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    hasMoved = false;
+
+    if (!originalPosition) {
+      saveOriginalPosition();
+    }
+
+    const ghost = createGhostElement();
+    if (!ghost) return;
+    
+    isMouseDown = true;
+    item.classList.add('dragging');
+    
+    const rect = item.getBoundingClientRect();
+    const imgRect = item.querySelector('img')?.getBoundingClientRect() || rect;
+
+    currentX = e.clientX;
+    currentY = e.clientY;
+    startDragX = e.clientX;
+    startDragY = e.clientY;
+    lastMoveX = e.clientX;
+    lastMoveY = e.clientY;
+    
+    ghost.style.left = (e.clientX - 40) + 'px';
+    ghost.style.top = (e.clientY - 40) + 'px';
+    
+    const handleMouseMove = (e) => {
+      if (!isMouseDown || !ghost) return;
+
+      const dragDeltaX = Math.abs(e.clientX - startDragX);
+      const dragDeltaY = Math.abs(e.clientY - startDragY);
+      const dragDistance = Math.sqrt(dragDeltaX * dragDeltaX + dragDeltaY * dragDeltaY);
+      
+      if (dragDistance > 5) {
+        hasMoved = true; 
+      }
+      
+      currentX = e.clientX;
+      currentY = e.clientY;
+
+      ghost.style.left = (currentX - 40) + 'px';
+      ghost.style.top = (currentY - 40) + 'px';
+
+      const deltaX = currentX - startDragX;
+      const deltaY = currentY - startDragY;
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+      const moveDeltaX = currentX - lastMoveX;
+      const moveDeltaY = currentY - lastMoveY;
+      const moveDistance = Math.sqrt(moveDeltaX * moveDeltaX + moveDeltaY * moveDeltaY);
+      
+      let angle = 0;
+      if (moveDistance > 0.5) {
+        
+        angle = Math.atan2(moveDeltaY, moveDeltaX) * (180 / Math.PI);
+      } else {
+        
+        angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+      }
+      
+      ghost.style.transform = `rotate(${angle}deg)`;
+
+      const maxDistance = 300;
+      const normalizedDistance = Math.min(distance / maxDistance, 1);
+      state.pourSpeed = Math.max(1, Math.min(4, Math.round(1 + normalizedDistance * 3)));
+      updateShakeIntensity();
+
+      const shakerRect = shakerEl.getBoundingClientRect();
+      if (currentX >= shakerRect.left && currentX <= shakerRect.right &&
+          currentY >= shakerRect.top && currentY <= shakerRect.bottom) {
+        shakerEl.classList.add('drag-over');
+      } else {
+        shakerEl.classList.remove('drag-over');
+      }
+
+      if (beerGlassEl) {
+        const beerGlassRect = beerGlassEl.getBoundingClientRect();
+        if (currentX >= beerGlassRect.left && currentX <= beerGlassRect.right &&
+            currentY >= beerGlassRect.top && currentY <= beerGlassRect.bottom &&
+            beerGlassEl.dataset.state === 'full') {
+          beerGlassEl.style.filter = 'drop-shadow(0 0 12px rgba(241, 179, 63, 0.8))';
+        } else {
+          beerGlassEl.style.filter = '';
+        }
+      }
+      
+      lastMoveX = currentX;
+      lastMoveY = currentY;
+      e.preventDefault();
+    };
+    
+    const handleMouseUp = (e) => {
+      if (!isMouseDown) return;
+      
+      isMouseDown = false;
+      item.classList.remove('dragging');
+      
+      const shakerRect = shakerEl.getBoundingClientRect();
+      const beerGlassRect = beerGlassEl?.getBoundingClientRect();
+      let handled = false;
+
+      if (!hasMoved && item.dataset.id) {
+        addIngredientToShaker(item.dataset.id);
+        handled = true;
+      } else {
+        
+        if (currentX >= shakerRect.left && currentX <= shakerRect.right &&
+            currentY >= shakerRect.top && currentY <= shakerRect.bottom) {
+          if (item.dataset.id) {
+            addIngredientToShaker(item.dataset.id);
+            handled = true;
+          }
+        }
+
+        if (!handled && beerGlassRect && beerGlassEl && 
+            currentX >= beerGlassRect.left && currentX <= beerGlassRect.right &&
+            currentY >= beerGlassRect.top && currentY <= beerGlassRect.bottom) {
+          if (item.dataset.id) {
+            const ingredientId = item.dataset.id.toLowerCase();
+            if (ingredientId === 'coke' || ingredientId === 'cola') {
+              if (beerGlassEl.dataset.state === 'full') {
+                beerGlassEl.src = './src/assets/icons/shandy.png';
+                beerGlassEl.dataset.state = 'shandy';
+                beerGlassEl.style.filter = '';
+                hideTrayDrink();
+                status('Shandy created! Beer + Cola', false);
+                handled = true;
+              } else {
+                status('Fill the glass with beer first!', true);
+              }
+            } else {
+              status('Only cola can be mixed with beer!', true);
+            }
+          }
+        }
+      }
+      
+      shakerEl.classList.remove('drag-over');
+      if (beerGlassEl) {
+        beerGlassEl.style.filter = '';
+      }
+
+      if (!handled) {
+        returnToOriginalPosition();
+      } else {
+        
+        removeGhostElement();
+        originalPosition = null; 
+      }
+      
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  });
+
+  item.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const touch = e.touches[0];
+
+    hasMoved = false;
+
+    if (!originalPosition) {
+      saveOriginalPosition();
+    }
+
+    const ghost = createGhostElement();
+    if (!ghost) return;
+    
+    isMouseDown = true;
+    item.classList.add('dragging');
+    
+    currentX = touch.clientX;
+    currentY = touch.clientY;
+    startDragX = touch.clientX;
+    startDragY = touch.clientY;
+    lastMoveX = touch.clientX;
+    lastMoveY = touch.clientY;
+    
+    ghost.style.left = (touch.clientX - 40) + 'px';
+    ghost.style.top = (touch.clientY - 40) + 'px';
+    
+    const handleTouchMove = (ev) => {
+      if (!isMouseDown || !ghost) return;
+      const t = ev.touches[0];
+
+      const dragDeltaX = Math.abs(t.clientX - startDragX);
+      const dragDeltaY = Math.abs(t.clientY - startDragY);
+      const dragDistance = Math.sqrt(dragDeltaX * dragDeltaX + dragDeltaY * dragDeltaY);
+      
+      if (dragDistance > 5) {
+        hasMoved = true; 
+      }
+      
+      currentX = t.clientX;
+      currentY = t.clientY;
+
+      ghost.style.left = (currentX - 40) + 'px';
+      ghost.style.top = (currentY - 40) + 'px';
+
+      const deltaX = currentX - startDragX;
+      const deltaY = currentY - startDragY;
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+      const moveDeltaX = currentX - lastMoveX;
+      const moveDeltaY = currentY - lastMoveY;
+      const moveDistance = Math.sqrt(moveDeltaX * moveDeltaX + moveDeltaY * moveDeltaY);
+      
+      let angle = 0;
+      if (moveDistance > 0.5) {
+        
+        angle = Math.atan2(moveDeltaY, moveDeltaX) * (180 / Math.PI);
+      } else {
+        
+        angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+      }
+      
+      ghost.style.transform = `rotate(${angle}deg)`;
+
+      const maxDistance = 300;
+      const normalizedDistance = Math.min(distance / maxDistance, 1);
+      state.pourSpeed = Math.max(1, Math.min(4, Math.round(1 + normalizedDistance * 3)));
+      updateShakeIntensity();
+
+      const shakerRect = shakerEl.getBoundingClientRect();
+      if (currentX >= shakerRect.left && currentX <= shakerRect.right &&
+          currentY >= shakerRect.top && currentY <= shakerRect.bottom) {
+        shakerEl.classList.add('drag-over');
+      } else {
+        shakerEl.classList.remove('drag-over');
+      }
+
+      if (beerGlassEl) {
+        const beerGlassRect = beerGlassEl.getBoundingClientRect();
+        if (currentX >= beerGlassRect.left && currentX <= beerGlassRect.right &&
+            currentY >= beerGlassRect.top && currentY <= beerGlassRect.bottom &&
+            beerGlassEl.dataset.state === 'full') {
+          beerGlassEl.style.filter = 'drop-shadow(0 0 12px rgba(241, 179, 63, 0.8))';
+        } else {
+          beerGlassEl.style.filter = '';
+        }
+      }
+      
+      lastMoveX = currentX;
+      lastMoveY = currentY;
+      ev.preventDefault();
+    };
+    
+    const handleTouchEnd = (ev) => {
+      if (!isMouseDown) return;
+      
+      isMouseDown = false;
+      item.classList.remove('dragging');
+      
+      const touchEnd = ev.changedTouches[0];
+      const shakerRect = shakerEl.getBoundingClientRect();
+      const beerGlassRect = beerGlassEl?.getBoundingClientRect();
+      let handled = false;
+
+      if (!hasMoved && item.dataset.id) {
+        addIngredientToShaker(item.dataset.id);
+        handled = true;
+      } else {
+        
+        if (touchEnd.clientX >= shakerRect.left && touchEnd.clientX <= shakerRect.right &&
+            touchEnd.clientY >= shakerRect.top && touchEnd.clientY <= shakerRect.bottom) {
+          if (item.dataset.id) {
+            addIngredientToShaker(item.dataset.id);
+            handled = true;
+          }
+        }
+
+        if (!handled && beerGlassRect && beerGlassEl && 
+            touchEnd.clientX >= beerGlassRect.left && touchEnd.clientX <= beerGlassRect.right &&
+            touchEnd.clientY >= beerGlassRect.top && touchEnd.clientY <= beerGlassRect.bottom) {
+          if (item.dataset.id) {
+            const ingredientId = item.dataset.id.toLowerCase();
+            if (ingredientId === 'coke' || ingredientId === 'cola') {
+              if (beerGlassEl.dataset.state === 'full') {
+                beerGlassEl.src = './src/assets/icons/shandy.png';
+                beerGlassEl.dataset.state = 'shandy';
+                beerGlassEl.style.filter = '';
+                hideTrayDrink();
+                status('Shandy created! Beer + Cola', false);
+                handled = true;
+              } else {
+                status('Fill the glass with beer first!', true);
+              }
+            } else {
+              status('Only cola can be mixed with beer!', true);
+            }
+          }
+        }
+      }
+      
+      shakerEl.classList.remove('drag-over');
+      if (beerGlassEl) {
+        beerGlassEl.style.filter = '';
+      }
+
+      if (!handled) {
+        returnToOriginalPosition();
+      } else {
+        
+        removeGhostElement();
+        originalPosition = null; 
+      }
+      
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+    
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', handleTouchEnd, { once: true });
+  });
+}
+
 function addIngredientToShaker(ingredientId) {
-  // Проверяем, что это не специальные элементы интерфейса
+  
   const forbiddenIds = ['beer-glass', 'fridge', 'tap', 'trash', 'shaker', 'tray', 'server'];
   if (forbiddenIds.includes(ingredientId)) {
     status('This item cannot be added to the shaker!', true);
     return;
   }
-  
-  // Ищем ингредиент во всех уровнях, а не только в текущем
+
   let ingredient = null;
   
   if (gameData.levels) {
@@ -938,17 +1615,15 @@ function addIngredientToShaker(ingredientId) {
       }
     }
   }
-  
-  // Если ингредиент не найден в списке ингредиентов, не добавляем его
+
   if (!ingredient) {
     status('Only ingredients can be added to the shaker!', true);
     return;
   }
-  
-  // Если добавляем первый ингредиент в пустой шейкер, скрываем предыдущий напиток с подноса
+
   if (state.currentDrink.length === 0) {
     hideTrayDrink();
-    state.isShaken = false; // Сбрасываем флаг при добавлении нового ингредиента
+    state.isShaken = false; 
   }
   
   state.currentDrink.push({
@@ -1004,8 +1679,6 @@ function updateShakeIntensity() {
   }
 }
 
-// Функция handleShake больше не нужна, тряска происходит через drag
-
 function renderShaker() {
   shakerContentEl.innerHTML = '';
   
@@ -1044,8 +1717,7 @@ function renderShaker() {
     item.appendChild(removeBtn);
     shakerContentEl.appendChild(item);
   });
-  
-  // Добавляем подсказку о силе тряски
+
   const shakeInfo = document.createElement('div');
   shakeInfo.className = 'shaker-ingredients-panel__shake-info';
   shakeInfo.textContent = `Set shake power: ${state.pourSpeed} (${getPowerLabel(state.pourSpeed).split('(')[0].trim()})`;
@@ -1066,13 +1738,12 @@ function clearShaker() {
   state.rotation = 0;
   state.isShaking = false;
   state.shakeProgress = 0;
-  state.isShaken = false; // Сбрасываем флаг при очистке шейкера
+  state.isShaken = false; 
   state.isDraggingShaker = false;
   shakerContentEl.innerHTML = '';
   shakerEl?.classList.remove('shaking');
   shakerEl?.classList.remove('dragging');
-  
-  // Скрываем коктейль с подноса при очистке шейкера
+
   hideTrayDrink();
   
   if (shakeProgressBarEl) {
@@ -1084,7 +1755,6 @@ function clearShaker() {
   }
 }
 
-// Показ готового напитка на подносе в зависимости от заказа
 function showTrayDrink(order) {
   if (!trayDrinkEl || !order) return;
   
@@ -1096,7 +1766,6 @@ function showTrayDrink(order) {
   trayDrinkEl.style.display = 'block';
 }
 
-// Подбор подходящей иконки напитка
 function getTraySpriteForOrder(order) {
   if (!order || !order.name) return null;
   
@@ -1110,14 +1779,11 @@ function getTraySpriteForOrder(order) {
   if (name.includes('coke') || name.includes('cola')) return 'coke.png';
   if (name.includes('old fashioned')) return 'oldfashioned.png';
   if (name.includes('mana elixir')) return 'ManaElixir.png';
-  // Проверка для Dragon's Breath (разные варианты написания с апострофом или без)
-  // Проверяем наличие обоих слов "dragon" и "breath" в названии
-  // Учитываем возможные варианты: "dragon's breath", "dragons breath", "dragon breath"
+
   if (name.includes('dragon') && name.includes('breath')) {
     return 'dragonsbreath.png';
   }
-  
-  // Для пива и прочих напитков по умолчанию используем полный бокал
+
   if (name.includes('lager') || name.includes('beer') || name.includes('pint')) {
     return 'FullPintOfBeer.png';
   }
@@ -1125,11 +1791,9 @@ function getTraySpriteForOrder(order) {
   return null;
 }
 
-// Простая логика пивного крана: по клику наполняем или опустошаем бокал.
 function handleBeerTap() {
   if (!beerGlassEl) return;
-  
-  // Проверяем, стоит ли бокал под краном.
+
   if (!isGlassUnderTap()) {
     status('Place the glass under the tap first!', true);
     return;
@@ -1144,16 +1808,14 @@ function handleBeerTap() {
   } else {
     beerGlassEl.src = './src/assets/icons/FullPintOfBeer.png';
     beerGlassEl.dataset.state = 'full';
-    // Скрываем trash/коктейль с подноса при наливании пива
+    
     hideTrayDrink();
     status('Beer poured!', false);
   }
 }
 
-// Проверка, что бокал стоит непосредственно под краном
 function isGlassUnderTap() {
-  // Используем контейнер крана (включает и кран, и область под ним),
-  // чтобы зона попадания была стабильной и совпадала с визуальной.
+
   if (!beerTapContainerEl || !beerGlassEl) return false;
   
   const tapRect = beerTapContainerEl.getBoundingClientRect();
@@ -1161,14 +1823,11 @@ function isGlassUnderTap() {
   
   const glassCenterX = glassRect.left + glassRect.width / 2;
   const glassBottomY = glassRect.bottom;
-  
-  // Делаем горизонтальный допуск немного шире крана
+
   const withinX =
     glassCenterX >= tapRect.left - 30 &&
     glassCenterX <= tapRect.right + 30;
-  
-  // Вертикально считаем, что бокал "под краном", если его низ
-  // находится в нижней половине контейнера и немного ниже
+
   const tapMiddleY = tapRect.top + tapRect.height * 0.5;
   const withinY =
     glassBottomY >= tapMiddleY &&
@@ -1177,126 +1836,366 @@ function isGlassUnderTap() {
   return withinX && withinY;
 }
 
-// Drag & drop бокала между краном и подносом
-function handleBeerGlassDragStart(e) {
-  e.dataTransfer.setData('text/plain', 'beer-glass');
-  beerGlassEl?.classList.add('dragging');
-}
-
-function handleBeerGlassDragEnd() {
-  beerGlassEl?.classList.remove('dragging');
-}
-
-function handleBeerGlassDrop(e) {
-  e.preventDefault();
-  const type = e.dataTransfer.getData('text/plain');
-  if (type !== 'beer-glass' || !beerGlassEl) return;
-  
-  const target = e.currentTarget;
-  
-  if (target === beerTapContainerEl) {
-    // Перемещаем бокал под кран
-    beerTapContainerEl.appendChild(beerGlassEl);
-    // Используем позиционирование из CSS (.beer-tap-container .beer-tap__glass)
-    beerGlassEl.style.position = '';
-    status('Glass moved under the tap.', false);
-  } else if (target === trayContainerEl) {
-    // Ставим бокал на поднос
-    trayContainerEl.appendChild(beerGlassEl);
-    beerGlassEl.style.position = '';
-    status('Glass placed on the tray.', false);
-  }
-}
-
-// Обработчик touch-событий для бокала пива на мобильных
-function handleBeerGlassTouchStart(e) {
+function setupBeerGlassDragging() {
   if (!beerGlassEl) return;
   
-  const touch = e.touches[0];
-  const element = beerGlassEl;
-  const rect = element.getBoundingClientRect();
-  
-  // Сохраняем родительский элемент для возврата
-  const originalParent = element.parentElement;
-  const originalNextSibling = element.nextSibling;
-  
-  // Перемещаем элемент в body, чтобы он не обрезался
-  document.body.appendChild(element);
-  
-  element.style.position = 'fixed';
-  element.style.left = touch.clientX - rect.width / 2 + 'px';
-  element.style.top = touch.clientY - rect.height / 2 + 'px';
-  element.style.zIndex = '3000';
-  element.classList.add('dragging');
-  
-  const handleTouchMove = (ev) => {
-    if (ev.touches.length > 0) {
-      const t = ev.touches[0];
-      element.style.left = t.clientX - rect.width / 2 + 'px';
-      element.style.top = t.clientY - rect.height / 2 + 'px';
+  let isMouseDown = false;
+  let currentX = 0;
+  let currentY = 0;
+  let lastMoveX = 0;
+  let lastMoveY = 0;
+  let startDragX = 0;
+  let startDragY = 0;
+  let originalPosition = null;
+  let originalParent = null;
+  let originalNextSibling = null;
+  let returnAnimationId = null;
+
+  function saveOriginalPosition() {
+    const rect = beerGlassEl.getBoundingClientRect();
+    originalPosition = {
+      left: rect.left,
+      top: rect.top,
+      width: rect.width,
+      height: rect.height
+    };
+    originalParent = beerGlassEl.parentElement;
+    originalNextSibling = beerGlassEl.nextSibling;
+  }
+
+  function returnToOriginalPosition() {
+    if (!originalPosition || !beerGlassEl || !originalParent) return;
+
+    if (returnAnimationId) {
+      cancelAnimationFrame(returnAnimationId);
+    }
+    
+    const startLeft = parseFloat(beerGlassEl.style.left) || originalPosition.left;
+    const startTop = parseFloat(beerGlassEl.style.top) || originalPosition.top;
+
+    const currentTransform = beerGlassEl.style.transform || '';
+    let startRotation = 0;
+    const rotateMatch = currentTransform.match(/rotate\(([^)]+)\)/);
+    if (rotateMatch) {
+      startRotation = parseFloat(rotateMatch[1]) || 0;
+    }
+    
+    const startSpeed = state.pourSpeed;
+    
+    const targetLeft = originalPosition.left;
+    const targetTop = originalPosition.top;
+    const targetRotation = 0;
+    const targetSpeed = 2; 
+    
+    const duration = 500; 
+    const startTime = performance.now();
+    
+    function animate(currentTime) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      const easeOut = 1 - Math.pow(1 - progress, 3);
       
-      // Проверка наведения на кран и поднос
+      const currentLeft = startLeft + (targetLeft - startLeft) * easeOut;
+      const currentTop = startTop + (targetTop - startTop) * easeOut;
+      const currentRotation = startRotation + (targetRotation - startRotation) * easeOut;
+      const currentSpeed = startSpeed + (targetSpeed - startSpeed) * easeOut;
+      
+      beerGlassEl.style.left = currentLeft + 'px';
+      beerGlassEl.style.top = currentTop + 'px';
+      beerGlassEl.style.transform = `rotate(${currentRotation}deg)`;
+      state.pourSpeed = Math.round(currentSpeed);
+      updateShakeIntensity();
+      
+      if (progress < 1) {
+        returnAnimationId = requestAnimationFrame(animate);
+      } else {
+        
+        beerGlassEl.style.position = '';
+        beerGlassEl.style.left = '';
+        beerGlassEl.style.top = '';
+        beerGlassEl.style.transform = '';
+
+        if (originalNextSibling) {
+          originalParent.insertBefore(beerGlassEl, originalNextSibling);
+        } else {
+          originalParent.appendChild(beerGlassEl);
+        }
+        
+        returnAnimationId = null;
+      }
+    }
+    
+    returnAnimationId = requestAnimationFrame(animate);
+  }
+
+  beerGlassEl.addEventListener('mousedown', (e) => {
+  e.preventDefault();
+    e.stopPropagation();
+
+    if (!originalPosition) {
+      saveOriginalPosition();
+    }
+    
+    isMouseDown = true;
+    beerGlassEl.classList.add('dragging');
+    
+    const rect = beerGlassEl.getBoundingClientRect();
+    startDragX = e.clientX;
+    startDragY = e.clientY;
+    currentX = e.clientX;
+    currentY = e.clientY;
+    lastMoveX = e.clientX;
+    lastMoveY = e.clientY;
+
+    document.body.appendChild(beerGlassEl);
+
+    beerGlassEl.style.position = 'fixed';
+    beerGlassEl.style.left = rect.left + 'px';
+    beerGlassEl.style.top = rect.top + 'px';
+    beerGlassEl.style.zIndex = '1000';
+    
+    const handleMouseMove = (e) => {
+      if (!isMouseDown) return;
+      
+      currentX = e.clientX;
+      currentY = e.clientY;
+
+      const rect = beerGlassEl.getBoundingClientRect();
+      const newLeft = currentX - rect.width / 2;
+      const newTop = currentY - rect.height / 2;
+      
+      beerGlassEl.style.left = newLeft + 'px';
+      beerGlassEl.style.top = newTop + 'px';
+
+      const deltaX = currentX - startDragX;
+      const deltaY = currentY - startDragY;
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+      const moveDeltaX = currentX - lastMoveX;
+      const moveDeltaY = currentY - lastMoveY;
+      const moveDistance = Math.sqrt(moveDeltaX * moveDeltaX + moveDeltaY * moveDeltaY);
+      
+      let angle = 0;
+      if (moveDistance > 0.5) {
+        angle = Math.atan2(moveDeltaY, moveDeltaX) * (180 / Math.PI);
+      } else {
+        angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+      }
+      
+      beerGlassEl.style.transform = `rotate(${angle}deg)`;
+
+      const maxDistance = 300;
+      const normalizedDistance = Math.min(distance / maxDistance, 1);
+      state.pourSpeed = Math.max(1, Math.min(4, Math.round(1 + normalizedDistance * 3)));
+      updateShakeIntensity();
+
       const tapRect = beerTapContainerEl?.getBoundingClientRect();
       const trayRect = trayContainerEl?.getBoundingClientRect();
       
-      if (tapRect && t.clientX >= tapRect.left && t.clientX <= tapRect.right &&
-          t.clientY >= tapRect.top && t.clientY <= tapRect.bottom) {
+      if (tapRect && currentX >= tapRect.left && currentX <= tapRect.right &&
+          currentY >= tapRect.top && currentY <= tapRect.bottom) {
         beerTapContainerEl.style.filter = 'drop-shadow(0 0 12px rgba(241, 179, 63, 0.8))';
       } else {
         beerTapContainerEl.style.filter = '';
       }
       
-      if (trayRect && t.clientX >= trayRect.left && t.clientX <= trayRect.right &&
-          t.clientY >= trayRect.top && t.clientY <= trayRect.bottom) {
+      if (trayRect && currentX >= trayRect.left && currentX <= trayRect.right &&
+          currentY >= trayRect.top && currentY <= trayRect.bottom) {
         trayContainerEl.style.filter = 'drop-shadow(0 0 12px rgba(241, 179, 63, 0.8))';
       } else {
         trayContainerEl.style.filter = '';
       }
+      
+      lastMoveX = currentX;
+      lastMoveY = currentY;
+      e.preventDefault();
+    };
+    
+    const handleMouseUp = (e) => {
+      if (!isMouseDown) return;
+      
+      isMouseDown = false;
+      beerGlassEl.classList.remove('dragging');
+      
+      const tapRect = beerTapContainerEl?.getBoundingClientRect();
+      const trayRect = trayContainerEl?.getBoundingClientRect();
+      let dropped = false;
+
+      if (tapRect && currentX >= tapRect.left && currentX <= tapRect.right &&
+          currentY >= tapRect.top && currentY <= tapRect.bottom) {
+    
+    beerTapContainerEl.appendChild(beerGlassEl);
+        
+    beerGlassEl.style.position = '';
+        beerGlassEl.style.left = '';
+        beerGlassEl.style.top = '';
+        beerGlassEl.style.transform = '';
+        beerGlassEl.style.zIndex = '';
+    status('Glass moved under the tap.', false);
+        dropped = true;
+        originalPosition = null; 
+      } else if (trayRect && currentX >= trayRect.left && currentX <= trayRect.right &&
+                 currentY >= trayRect.top && currentY <= trayRect.bottom) {
+    
+    trayContainerEl.appendChild(beerGlassEl);
+        
+    beerGlassEl.style.position = '';
+        beerGlassEl.style.left = '';
+        beerGlassEl.style.top = '';
+        beerGlassEl.style.transform = '';
+        beerGlassEl.style.zIndex = '';
+    status('Glass placed on the tray.', false);
+        dropped = true;
+        originalPosition = null; 
+      }
+      
+      beerTapContainerEl.style.filter = '';
+      trayContainerEl.style.filter = '';
+
+      if (!dropped) {
+        returnToOriginalPosition();
+      }
+      
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  });
+
+  beerGlassEl.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  
+  const touch = e.touches[0];
+
+    if (!originalPosition) {
+      saveOriginalPosition();
     }
+    
+    isMouseDown = true;
+    beerGlassEl.classList.add('dragging');
+    
+    const rect = beerGlassEl.getBoundingClientRect();
+    startDragX = touch.clientX;
+    startDragY = touch.clientY;
+    currentX = touch.clientX;
+    currentY = touch.clientY;
+    lastMoveX = touch.clientX;
+    lastMoveY = touch.clientY;
+
+    document.body.appendChild(beerGlassEl);
+
+    beerGlassEl.style.position = 'fixed';
+    beerGlassEl.style.left = rect.left + 'px';
+    beerGlassEl.style.top = rect.top + 'px';
+    beerGlassEl.style.zIndex = '1000';
+  
+  const handleTouchMove = (ev) => {
+      if (!isMouseDown) return;
+      const t = ev.touches[0];
+      
+      currentX = t.clientX;
+      currentY = t.clientY;
+
+      const rect = beerGlassEl.getBoundingClientRect();
+      const newLeft = currentX - rect.width / 2;
+      const newTop = currentY - rect.height / 2;
+      
+      beerGlassEl.style.left = newLeft + 'px';
+      beerGlassEl.style.top = newTop + 'px';
+
+      const deltaX = currentX - startDragX;
+      const deltaY = currentY - startDragY;
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+      const moveDeltaX = currentX - lastMoveX;
+      const moveDeltaY = currentY - lastMoveY;
+      const moveDistance = Math.sqrt(moveDeltaX * moveDeltaX + moveDeltaY * moveDeltaY);
+      
+      let angle = 0;
+      if (moveDistance > 0.5) {
+        angle = Math.atan2(moveDeltaY, moveDeltaX) * (180 / Math.PI);
+      } else {
+        angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+      }
+      
+      beerGlassEl.style.transform = `rotate(${angle}deg)`;
+
+      const maxDistance = 300;
+      const normalizedDistance = Math.min(distance / maxDistance, 1);
+      state.pourSpeed = Math.max(1, Math.min(4, Math.round(1 + normalizedDistance * 3)));
+      updateShakeIntensity();
+
+      const tapRect = beerTapContainerEl?.getBoundingClientRect();
+      const trayRect = trayContainerEl?.getBoundingClientRect();
+      
+      if (tapRect && currentX >= tapRect.left && currentX <= tapRect.right &&
+          currentY >= tapRect.top && currentY <= tapRect.bottom) {
+        beerTapContainerEl.style.filter = 'drop-shadow(0 0 12px rgba(241, 179, 63, 0.8))';
+      } else {
+        beerTapContainerEl.style.filter = '';
+      }
+      
+      if (trayRect && currentX >= trayRect.left && currentX <= trayRect.right &&
+          currentY >= trayRect.top && currentY <= trayRect.bottom) {
+        trayContainerEl.style.filter = 'drop-shadow(0 0 12px rgba(241, 179, 63, 0.8))';
+      } else {
+        trayContainerEl.style.filter = '';
+      }
+      
+      lastMoveX = currentX;
+      lastMoveY = currentY;
+      ev.preventDefault();
   };
   
   const handleTouchEnd = (ev) => {
-    const touchEnd = ev.changedTouches[0];
-    let dropped = false;
+      if (!isMouseDown) return;
     
-    // Проверяем, куда был сброшен бокал
+      isMouseDown = false;
+      beerGlassEl.classList.remove('dragging');
+      
+      const touchEnd = ev.changedTouches[0];
     const tapRect = beerTapContainerEl?.getBoundingClientRect();
     const trayRect = trayContainerEl?.getBoundingClientRect();
-    
+      let dropped = false;
+
     if (tapRect && touchEnd.clientX >= tapRect.left && touchEnd.clientX <= tapRect.right &&
         touchEnd.clientY >= tapRect.top && touchEnd.clientY <= tapRect.bottom) {
-      // Перемещаем бокал под кран
-      beerTapContainerEl.appendChild(element);
-      // Используем позиционирование из CSS (.beer-tap-container .beer-tap__glass)
-      element.style.position = '';
+      
+        beerTapContainerEl.appendChild(beerGlassEl);
+        
+        beerGlassEl.style.position = '';
+        beerGlassEl.style.left = '';
+        beerGlassEl.style.top = '';
+        beerGlassEl.style.transform = '';
+        beerGlassEl.style.zIndex = '';
       status('Glass moved under the tap.', false);
       dropped = true;
+        originalPosition = null; 
     } else if (trayRect && touchEnd.clientX >= trayRect.left && touchEnd.clientX <= trayRect.right &&
                touchEnd.clientY >= trayRect.top && touchEnd.clientY <= trayRect.bottom) {
-      // Ставим бокал на поднос
-      trayContainerEl.appendChild(element);
-      element.style.position = '';
+      
+        trayContainerEl.appendChild(beerGlassEl);
+        
+        beerGlassEl.style.position = '';
+        beerGlassEl.style.left = '';
+        beerGlassEl.style.top = '';
+        beerGlassEl.style.transform = '';
+        beerGlassEl.style.zIndex = '';
       status('Glass placed on the tray.', false);
       dropped = true;
-    }
-    
-    // Если не сбросили в нужное место, возвращаем в исходное
-    if (!dropped) {
-      if (originalNextSibling) {
-        originalParent.insertBefore(element, originalNextSibling);
-      } else {
-        originalParent.appendChild(element);
+        originalPosition = null; 
       }
-    }
-    
-    // Очищаем стили
-    element.classList.remove('dragging');
-    element.style.position = '';
-    element.style.left = '';
-    element.style.top = '';
-    element.style.zIndex = '';
+      
     beerTapContainerEl.style.filter = '';
     trayContainerEl.style.filter = '';
+
+      if (!dropped) {
+        returnToOriginalPosition();
+      }
     
     document.removeEventListener('touchmove', handleTouchMove);
     document.removeEventListener('touchend', handleTouchEnd);
@@ -1304,17 +2203,19 @@ function handleBeerGlassTouchStart(e) {
   
   document.addEventListener('touchmove', handleTouchMove, { passive: false });
   document.addEventListener('touchend', handleTouchEnd, { once: true });
-  e.preventDefault();
+  });
+
+  window.addEventListener('resize', () => {
+    originalPosition = null;
+  });
 }
 
-// Обработчик смешивания: перетаскивание ингредиента (колы) на полный бокал пива
 function handleIngredientOnBeerGlass(e) {
   e.preventDefault();
   e.stopPropagation();
   
   if (!beerGlassEl) return;
-  
-  // Проверяем, что бокал полный (содержит пиво)
+
   if (beerGlassEl.dataset.state !== 'full') {
     status('Fill the glass with beer first!', true);
     beerGlassEl.style.filter = '';
@@ -1323,20 +2224,18 @@ function handleIngredientOnBeerGlass(e) {
   
   const ingredientId = e.dataTransfer.getData('text/plain');
   if (!ingredientId) return;
-  
-  // Проверяем, что это кола (coke или cola)
+
   const ingredientIdLower = ingredientId.toLowerCase();
   if (ingredientIdLower !== 'coke' && ingredientIdLower !== 'cola') {
     status('Only cola can be mixed with beer!', true);
     beerGlassEl.style.filter = '';
     return;
   }
-  
-  // Превращаем пиво в shandy
+
   beerGlassEl.src = './src/assets/icons/shandy.png';
   beerGlassEl.dataset.state = 'shandy';
   beerGlassEl.style.filter = '';
-  // Скрываем trash/коктейль с подноса при создании shandy
+  
   hideTrayDrink();
   status('Shandy created! Beer + Cola', false);
 }
@@ -1355,18 +2254,18 @@ function isShandyOrder(order) {
 
 function isFullBeerGlassOnTray() {
   if (!beerGlassEl) return false;
-  // Проверяем, что бокал находится на подносе
+  
   const isOnTray = trayContainerEl && trayContainerEl.contains(beerGlassEl);
-  // Проверяем, что бокал полный (пиво)
+  
   const isFull = beerGlassEl.dataset.state === 'full';
   return isOnTray && isFull;
 }
 
 function isShandyOnTray() {
   if (!beerGlassEl) return false;
-  // Проверяем, что бокал находится на подносе
+  
   const isOnTray = trayContainerEl && trayContainerEl.contains(beerGlassEl);
-  // Проверяем, что бокал содержит shandy
+  
   const isShandy = beerGlassEl.dataset.state === 'shandy';
   return isOnTray && isShandy;
 }
@@ -1381,22 +2280,21 @@ function handleServe() {
   const isShandy = isShandyOrder(state.activeOrder);
   
   if (isBeer || isShandy) {
-    // Для пива или shandy проверяем, есть ли нужный напиток на подносе
+    
     if (isShandy) {
-      // Для shandy проверяем, что на подносе shandy
+      
       if (!isShandyOnTray()) {
         status('Place shandy on the tray first!', true);
         return;
       }
     } else {
-      // Для пива проверяем, что на подносе полный бокал пива
+      
       if (!isFullBeerGlassOnTray()) {
         status('Place a full beer glass on the tray first!', true);
         return;
       }
     }
-    
-    // Пиво готово к подаче
+
     state.served += 1;
     ordersEl.textContent = `${state.served}/${state.currentLevel.target}`;
     progressEl.style.width = Math.min(100, (state.served / state.currentLevel.target) * 100) + '%';
@@ -1406,20 +2304,18 @@ function handleServe() {
     state.activeVisitor.bubble.classList.add('served');
     
     status(`✓ ${state.activeOrder.name} served!`, false);
-    
-    // Очищаем бокал после подачи
+
     if (beerGlassEl) {
       beerGlassEl.src = './src/assets/icons/EmptyPintOfBeer.png';
       beerGlassEl.dataset.state = 'empty';
-      // Возвращаем бокал на стартовую позицию
+      
       const beerGlassStartEl = document.querySelector('.beer-glass-start');
       if (beerGlassStartEl) {
         beerGlassStartEl.appendChild(beerGlassEl);
         beerGlassEl.style.position = '';
       }
     }
-    
-    // Если это был shandy, также очищаем его с подноса
+
     if (isShandy && trayDrinkEl) {
       trayDrinkEl.style.display = 'none';
     }
@@ -1428,11 +2324,17 @@ function handleServe() {
       const elapsed = state.currentLevel.timeLimit - state.timer;
       state.servedSet.add(state.currentLevel.id);
       updateBest(elapsed);
-      status('Level complete! Starting next level...');
+
+      if (state.servedSet.size >= 3) {
+        status('Level complete!', false);
+        setTimeout(() => showWinMessage(), 1500);
+      } else {
+        status('Level complete! Starting next level...', false);
       setTimeout(() => startLevel(), 1500);
+      }
     } else {
       setTimeout(() => {
-        // Заменяем текущего гостя новым у стойки
+        
         const active = state.activeVisitor;
         if (active) {
           const el = active.element;
@@ -1446,13 +2348,12 @@ function handleServe() {
     
     persistProgress();
   } else {
-    // Для коктейлей проверяем шейкер как раньше
+    
     if (state.currentDrink.length === 0) {
       status('Prepare a drink first!', true);
       return;
     }
-    
-    // Проверяем, что шейкер был взболтан (либо прогресс 100%, либо флаг isShaken)
+
     if (state.shakeProgress < 100 && !state.isShaken) {
       status(`Shake the shaker more! (${Math.floor(state.shakeProgress)}%)`, true);
       return;
@@ -1461,8 +2362,7 @@ function handleServe() {
     const isValid = validateRecipe(state.currentDrink, state.activeOrder);
     
     if (isValid) {
-      // Ингредиенты подходят к текущему заказу - успешная подача
-      // Коктейль уже показан на подносе после взбалтывания, просто скрываем его
+
       hideTrayDrink();
       state.served += 1;
       ordersEl.textContent = `${state.served}/${state.currentLevel.target}`;
@@ -1479,11 +2379,17 @@ function handleServe() {
         const elapsed = state.currentLevel.timeLimit - state.timer;
         state.servedSet.add(state.currentLevel.id);
         updateBest(elapsed);
-        status('Level complete! Starting next level...');
+
+        if (state.servedSet.size >= 3) {
+          status('Level complete!', false);
+          setTimeout(() => showWinMessage(), 1500);
+        } else {
+          status('Level complete! Starting next level...', false);
         setTimeout(() => startLevel(), 1500);
+        }
       } else {
         setTimeout(() => {
-          // Заменяем текущего гостя новым у стойки
+          
           const active = state.activeVisitor;
           if (active) {
             const el = active.element;
@@ -1497,18 +2403,17 @@ function handleServe() {
       
       persistProgress();
     } else {
-      // Рецепт невалиден для текущего заказа - проверяем, подходят ли ингредиенты к какому-то рецепту
-      const matchedOrder = findMatchingRecipe(state.currentDrink);
       
-      // Коктейль уже показан на подносе после взбалтывания, просто скрываем его
+      const matchedOrder = findMatchingRecipe(state.currentDrink);
+
       hideTrayDrink();
       
       if (matchedOrder) {
-        // Ингредиенты подходят к какому-то рецепту, но не к текущему заказу
+        
         status(`Wrong order! You made ${matchedOrder.name}, but customer wants ${state.activeOrder.name}.`, true);
         clearShaker();
       } else {
-        // Ингредиенты не подходят ни к одному рецепту - создали trash
+        
         status('Trash created! Ingredients don\'t match any recipe.', true);
         clearShaker();
       }
@@ -1516,27 +2421,24 @@ function handleServe() {
   }
 }
 
-// Находит рецепт, к которому подходят ингредиенты (если есть)
 function findMatchingRecipe(drink) {
   if (!drink || drink.length === 0) return null;
   if (!gameData.levels) return null;
-  
-  // Проверяем все рецепты во всех уровнях
+
   for (const level of gameData.levels) {
     if (!level.orders) continue;
     
     for (const order of level.orders) {
-      // Проверяем, подходит ли текущий набор ингредиентов к этому рецепту
+      
       if (validateRecipe(drink, order)) {
-        return order; // Нашли подходящий рецепт
+        return order; 
       }
     }
   }
   
-  return null; // Не подходит ни к одному рецепту
+  return null; 
 }
 
-// Показывает trash на подносе
 function showTrayTrash() {
   if (!trayDrinkEl) return;
   trayDrinkEl.src = './src/assets/icons/trash.png';
@@ -1544,40 +2446,35 @@ function showTrayTrash() {
   trayDrinkEl.style.display = 'block';
 }
 
-// Автоматически показывает коктейль на подносе после взбалтывания
 function showDrinkOnTray() {
   if (!trayDrinkEl || !state.currentDrink || state.currentDrink.length === 0) return;
-  
-  // Сначала скрываем предыдущий напиток (если был)
+
   hideTrayDrink();
-  
-  // Ищем подходящий рецепт
+
   const matchedOrder = findMatchingRecipe(state.currentDrink);
   
   if (matchedOrder) {
-    // Показываем найденный коктейль
+    
     showTrayDrink(matchedOrder);
-    // Показываем название коктейля в статусе
+    
     status(`Cocktail created: ${matchedOrder.name}`, false);
   } else {
-    // Показываем trash
+    
     showTrayTrash();
-    // Показываем в статусе, что создан trash
+    
     status('Trash created! Ingredients don\'t match any recipe.', true);
   }
 }
 
-// Скрывает коктейль с подноса
 function hideTrayDrink() {
   if (!trayDrinkEl) return;
   trayDrinkEl.style.display = 'none';
 }
 
 function validateRecipe(drink, order) {
-  // Используем явный список ингредиентов из рецепта
-  const requiredIngredients = order.ingredients || [];
   
-  // Если ингредиенты не указаны явно, возвращаем false (рецепт некорректный)
+  const requiredIngredients = order.ingredients || [];
+
   if (requiredIngredients.length === 0) {
     console.warn(`Recipe "${order.name}" has no ingredients specified!`);
     return false;
@@ -1585,30 +2482,26 @@ function validateRecipe(drink, order) {
   
   const drinkIds = drink.map(ing => ing.id.toLowerCase()).sort();
   const requiredIds = requiredIngredients.map(ing => ing.toLowerCase()).sort();
-  
-  // Отладочный вывод
+
   console.log('=== Recipe Validation ===');
   console.log('Order:', order.name);
   console.log('Required ingredients:', requiredIds);
   console.log('Drink ingredients:', drinkIds);
-  
-  // Проверяем, что все требуемые ингредиенты присутствуют
+
   for (const required of requiredIds) {
     if (!drinkIds.includes(required)) {
       console.log(`Missing ingredient: ${required}`);
       return false;
     }
   }
-  
-  // Проверяем лишние ингредиенты - не допускаем лишних вообще
+
   const extraIngredients = drinkIds.filter(id => !requiredIds.includes(id));
   if (extraIngredients.length > 0) {
     console.log(`Extra ingredients not allowed: ${extraIngredients.join(', ')}`);
     console.log(`Expected: ${requiredIds.join(', ')}, but got: ${drinkIds.join(', ')}`);
     return false;
   }
-  
-  // Проверяем, что количество ингредиентов точно соответствует требуемому
+
   if (drinkIds.length !== requiredIds.length) {
     console.log(`Ingredient count mismatch: got ${drinkIds.length}, required ${requiredIds.length}`);
     return false;
@@ -1617,21 +2510,69 @@ function validateRecipe(drink, order) {
   return true;
 }
 
+let lastHintClick = 0;
+let showingSolution = false;
+
 function showCurrentHint() {
   if (!state.activeOrder) {
     status('No active order', true);
     return;
   }
+  
+  const now = Date.now();
+  
+  if (now - lastHintClick < 2000 && !showingSolution) {
+    showingSolution = true;
+    showSolution();
+    lastHintClick = 0; 
+    return;
+  }
+  
+  showingSolution = false;
+  lastHintClick = now;
   const hint = state.activeOrder.hint || state.activeOrder.shortHint;
-  status(`Hint: ${hint}`);
+  status(`Hint: ${hint} (click again for solution)`, false);
+}
+
+function showSolution() {
+  if (!state.activeOrder) {
+    status('No active order', true);
+    return;
+  }
+  
+  if (state.activeOrder.ingredients && state.activeOrder.ingredients.length > 0) {
+    const ingredients = state.activeOrder.ingredients.map(ing => {
+      
+      let label = ing;
+      if (gameData.levels) {
+        for (const level of gameData.levels) {
+          if (level.ingredients) {
+            const ingredient = level.ingredients.find(i => i.id === ing);
+            if (ingredient) {
+              label = ingredient.label;
+              break;
+            }
+          }
+        }
+      }
+      return label;
+    }).join(', ');
+    status(`Solution: ${ingredients}`, false);
+  } else if (state.activeOrder.steps && state.activeOrder.steps.length > 0) {
+    
+    const steps = state.activeOrder.steps.join(' → ');
+    status(`Solution: ${steps}`, false);
+  } else {
+    status('No solution available for this order', true);
+  }
 }
 
 function togglePause() {
   if (!state.timerId) {
-    // Игра была на паузе, просто закрываем меню (игра возобновится автоматически)
+    
     closePauseMenu();
   } else {
-    // Ставим на паузу и открываем меню
+    
     clearTimer();
     state.visitors.forEach(v => clearVisitorTimer(v));
     openPauseMenu();
@@ -1648,7 +2589,7 @@ function openPauseMenu() {
 function closePauseMenu() {
   if (!pauseMenuEl) return;
   pauseMenuEl.style.display = 'none';
-  // При закрытии меню автоматически возобновляем игру
+  
   if (!state.timerId) {
     tick();
     state.visitors.forEach(v => startVisitorTimer(v));
@@ -1667,9 +2608,11 @@ function renderPauseMenuLevels() {
     if (state.currentLevel && state.currentLevel.id === level.id) {
       btn.classList.add('pause-menu__level-btn--active');
     }
-    btn.textContent = `Level ${level.id}: ${level.name}`;
+    
+    const difficulty = level.difficulty || 1;
+    btn.textContent = `Dif ${difficulty} Lv.${level.id}: ${level.name}`;
     btn.addEventListener('click', () => {
-      // Переключаемся на выбранный уровень
+      
       state.currentLevel = level;
       state.timer = level.timeLimit;
       state.served = 0;
@@ -1677,7 +2620,7 @@ function renderPauseMenuLevels() {
       state.shakeProgress = 0;
       
       ordersEl.textContent = `0/${level.target}`;
-      levelEl.textContent = `Lv.${level.id}`;
+      levelEl.textContent = `Dif ${difficulty} Lv.${level.id}`;
       
       renderVisitors();
       clearShaker();
@@ -1699,8 +2642,7 @@ function tick() {
     if (state.timer <= 0) {
       clearTimer();
       state.visitors.forEach(v => clearVisitorTimer(v));
-      status('Time up! Restarting level.', true);
-      setTimeout(() => startLevel(), 2000);
+      showLoseMenu();
     }
   }, 1000);
 }
@@ -1711,13 +2653,41 @@ function clearTimer() {
 }
 
 function updateBest(elapsed) {
+  if (!state.currentLevel) return;
+  
+  const levelId = state.currentLevel.id;
+
   if (state.bestTime === null || elapsed < state.bestTime) {
     state.bestTime = elapsed;
     renderBestTime();
   }
+
+  if (!state.levelStats[levelId]) {
+    state.levelStats[levelId] = {
+      plays: 0,
+      bestTime: null
+    };
+  }
+
+  state.levelStats[levelId].plays += 1;
+
+  if (state.levelStats[levelId].bestTime === null || elapsed < state.levelStats[levelId].bestTime) {
+    state.levelStats[levelId].bestTime = elapsed;
+  }
+
+  persistProgress();
 }
 
 function renderBestTime() {
+  
+  if (state.currentLevel) {
+    const levelStats = state.levelStats[state.currentLevel.id] || { plays: 0, bestTime: null };
+    if (levelStats.bestTime !== null) {
+      bestEl.textContent = formatTime(levelStats.bestTime);
+      return;
+    }
+  }
+  
   bestEl.textContent = state.bestTime == null ? '—' : formatTime(state.bestTime);
 }
 
@@ -1732,7 +2702,62 @@ function formatTime(sec) {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-// Меню рецептов
+function showWinMessage() {
+  if (!winMenuEl) return;
+
+  let totalTime = 0;
+  if (state.runStartTime) {
+    totalTime = Math.floor((Date.now() - state.runStartTime) / 1000);
+  } else {
+    
+    let estimatedTime = 0;
+    state.servedSet.forEach(levelId => {
+      const level = gameData.levels.find(l => l.id === levelId);
+      if (level) {
+        estimatedTime += level.timeLimit;
+      }
+    });
+    totalTime = estimatedTime;
+  }
+  
+  const formattedTime = formatTime(totalTime);
+
+  if (winMenuTimeEl) {
+    winMenuTimeEl.textContent = formattedTime;
+  }
+
+  if (state.bestTime === null || totalTime < state.bestTime) {
+    state.bestTime = totalTime;
+    renderBestTime();
+  }
+
+  clearTimer();
+  state.visitors.forEach(v => clearVisitorTimer(v));
+
+  winMenuEl.style.display = 'block';
+
+  persistProgress();
+}
+
+function closeWinMenu() {
+  if (!winMenuEl) return;
+  winMenuEl.style.display = 'none';
+}
+
+function showLoseMenu() {
+  if (!loseMenuEl) return;
+
+  clearTimer();
+  state.visitors.forEach(v => clearVisitorTimer(v));
+
+  loseMenuEl.style.display = 'block';
+}
+
+function closeLoseMenu() {
+  if (!loseMenuEl) return;
+  loseMenuEl.style.display = 'none';
+}
+
 function openRecipesMenu() {
   if (!recipesMenuEl) return;
   recipesMenuEl.style.display = 'block';
@@ -1748,15 +2773,14 @@ function renderRecipes() {
   if (!recipesMenuListEl || !gameData.levels) return;
   
   recipesMenuListEl.innerHTML = '';
-  
-  // Собираем все уникальные рецепты из всех уровней
+
   const allRecipes = new Map();
   
   gameData.levels.forEach(level => {
     if (!level.orders) return;
     
     level.orders.forEach(order => {
-      // Используем название коктейля как ключ, чтобы избежать дубликатов
+      
       const key = order.name.toLowerCase();
       if (!allRecipes.has(key)) {
         allRecipes.set(key, {
@@ -1769,27 +2793,22 @@ function renderRecipes() {
       }
     });
   });
-  
-  // Сортируем рецепты по названию
+
   const sortedRecipes = Array.from(allRecipes.values()).sort((a, b) => 
     a.name.localeCompare(b.name)
   );
-  
-  // Рендерим каждый рецепт
+
   sortedRecipes.forEach(recipe => {
     const recipeEl = document.createElement('div');
     recipeEl.className = 'recipes-menu__item';
-    
-    // Извлекаем ингредиенты из рецепта (используем поле ingredients, если есть)
+
     const ingredients = extractIngredientsFromSteps(recipe.steps, recipe.ingredients);
-    
-    // Получаем картинку готового коктейля
+
     const cocktailImage = getTraySpriteForOrder({ name: recipe.name });
     const cocktailImagePath = cocktailImage 
       ? `./src/assets/icons/${cocktailImage}` 
-      : './src/assets/icons/FullPintOfBeer.png'; // fallback
-    
-    // Заголовок рецепта с картинкой коктейля
+      : './src/assets/icons/FullPintOfBeer.png'; 
+
     const headerEl = document.createElement('div');
     headerEl.className = 'recipes-menu__item-header';
     
@@ -1813,8 +2832,7 @@ function renderRecipes() {
     infoEl.appendChild(hintEl);
     headerEl.appendChild(imageEl);
     headerEl.appendChild(infoEl);
-    
-    // Список ингредиентов
+
     const ingredientsEl = document.createElement('div');
     ingredientsEl.className = 'recipes-menu__item-ingredients';
     
@@ -1854,13 +2872,12 @@ function renderRecipes() {
   });
 }
 
-// Извлекает ингредиенты из рецепта (использует поле ingredients, если есть, иначе извлекает из steps)
 function extractIngredientsFromSteps(steps, recipeIngredients) {
-  // Если ингредиенты указаны явно в рецепте, используем их
+  
   if (recipeIngredients && recipeIngredients.length > 0) {
     const ingredients = [];
     recipeIngredients.forEach(ingId => {
-      // Ищем ингредиент в данных уровней для получения label
+      
       let ingredientData = null;
       if (gameData.levels) {
         for (const level of gameData.levels) {
@@ -1878,8 +2895,7 @@ function extractIngredientsFromSteps(steps, recipeIngredients) {
     });
     return ingredients;
   }
-  
-  // Иначе извлекаем из steps (старый способ для обратной совместимости)
+
   if (!steps || steps.length === 0) return [];
   
   const ingredients = [];
@@ -1888,9 +2904,7 @@ function extractIngredientsFromSteps(steps, recipeIngredients) {
   
   steps.forEach(step => {
     const stepLower = step.toLowerCase();
-    
-    // Паттерны для поиска ингредиентов
-    // Сначала проверяем специальные случаи (многословные ингредиенты)
+
     if (stepLower.includes('blue mana syrup') || stepLower.includes('blue syrup')) {
       const normalizedIng = 'blueEssence';
       if (!ingredients.find(i => i.id === normalizedIng)) {
@@ -1947,8 +2961,7 @@ function extractIngredientsFromSteps(steps, recipeIngredients) {
         });
       }
     }
-    
-    // Обычные паттерны для остальных ингредиентов
+
     const ingredientPatterns = [
       /\b(gin|rum|vodka|whiskey|tequila|mezcal|lager|vermouth|campari|liqueur|espresso|bitters)\b/,
       /\b(soda|syrup|mint|lime|orange|lemon|pineapple|foam|cubes|white|beans|cola|ice|tonic)\b/,
@@ -1958,14 +2971,13 @@ function extractIngredientsFromSteps(steps, recipeIngredients) {
       const match = stepLower.match(pattern);
       if (match) {
         const ing = match[1];
-        // Исключаем действия и посуду
+        
         if (!actions.includes(ing) && !glassware.includes(ing)) {
-          // Нормализуем "cubes" в "ice"
-          const normalizedIng = ing === 'cubes' ? 'ice' : ing;
           
-          // Проверяем, не добавлен ли уже этот ингредиент
+          const normalizedIng = ing === 'cubes' ? 'ice' : ing;
+
           if (!ingredients.find(i => i.id === normalizedIng)) {
-            // Ищем ингредиент в данных уровней для получения label
+            
             let ingredientData = null;
             if (gameData.levels) {
               for (const level of gameData.levels) {
@@ -1989,7 +3001,6 @@ function extractIngredientsFromSteps(steps, recipeIngredients) {
   return ingredients;
 }
 
-// Утилита для просмотра всех ингредиентов в холодильнике (доступна в консоли)
 window.showFridgeIngredients = function() {
   const allIngredients = new Map();
   

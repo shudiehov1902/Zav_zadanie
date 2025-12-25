@@ -3,6 +3,7 @@
     {
       "id": 1,
       "name": "First Shift",
+      "difficulty": 1,
       "timeLimit": 180,
       "target": 4,
       "ingredients": [
@@ -12,7 +13,12 @@
           "name": "Pint of Lager",
           "tags": ["beer", "easy"],
           "shortHint": "Take beer mug and fill it with lager",
-          "hint": "Take a clean mug, pour lager almost to the top and add a foam cap."
+          "hint": "Take a clean mug, pour lager almost to the top and add a foam cap.",
+          "steps": [
+            "Take beer mug",
+            "Fill with lager to ~90%",
+            "Add foam on top"
+          ]
         }
       ]
     },
@@ -20,6 +26,7 @@
     {
       "id": 2,
       "name": "Busy Taproom",
+      "difficulty": 1,
       "timeLimit": 170,
       "target": 5,
       "ingredients": [
@@ -29,8 +36,8 @@
         {
           "name": "Pint of Lager",
           "tags": ["beer", "easy"],
-          "shortHint": "Same simple lager as in Lv.1",
-          "hint": "Mug, lager to 90%, foam cap.",
+          "shortHint": "Take beer mug and fill it with lager",
+          "hint": "Take a clean mug, pour lager almost to the top and add a foam cap.",
           "steps": [
             "Take beer mug",
             "Fill with lager to ~90%",
@@ -54,6 +61,7 @@
     {
       "id": 3,
       "name": "Rum & Cola Night",
+      "difficulty": 1,
       "timeLimit": 170,
       "target": 6,
       "ingredients": [
@@ -66,8 +74,8 @@
         {
           "name": "Pint of Lager",
           "tags": ["beer", "easy"],
-          "shortHint": "Same simple lager as in Lv.1",
-          "hint": "Mug, lager to 90%, foam cap.",
+          "shortHint": "Take beer mug and fill it with lager",
+          "hint": "Take a clean mug, pour lager almost to the top and add a foam cap.",
           "steps": [
             "Take beer mug",
             "Fill with lager to ~90%",
@@ -105,6 +113,7 @@
     {
       "id": 4,
       "name": "Garden Mojitos",
+      "difficulty": 2,
       "timeLimit": 180,
       "target": 6,
       "ingredients": [
@@ -120,8 +129,8 @@
         {
           "name": "Pint of Lager",
           "tags": ["beer", "easy"],
-          "shortHint": "Same simple lager as in Lv.1",
-          "hint": "Mug, lager to 90%, foam cap.",
+          "shortHint": "Take beer mug and fill it with lager",
+          "hint": "Take a clean mug, pour lager almost to the top and add a foam cap.",
           "steps": [
             "Take beer mug",
             "Fill with lager to ~90%",
@@ -174,6 +183,7 @@
     {
       "id": 5,
       "name": "Clear & Bubbly",
+      "difficulty": 2,
       "timeLimit": 170,
       "target": 7,
       "ingredients": [
@@ -192,8 +202,8 @@
         {
           "name": "Pint of Lager",
           "tags": ["beer", "easy"],
-          "shortHint": "Same simple lager as in Lv.1",
-          "hint": "Mug, lager to 90%, foam cap.",
+          "shortHint": "Take beer mug and fill it with lager",
+          "hint": "Take a clean mug, pour lager almost to the top and add a foam cap.",
           "steps": [
             "Take beer mug",
             "Fill with lager to ~90%",
@@ -260,6 +270,7 @@
     {
       "id": 6,
       "name": "Old Classics",
+      "difficulty": 2,
       "timeLimit": 165,
       "target": 7,
       "ingredients": [
@@ -281,8 +292,8 @@
         {
           "name": "Pint of Lager",
           "tags": ["beer", "easy"],
-          "shortHint": "Same simple lager as in Lv.1",
-          "hint": "Mug, lager to 90%, foam cap.",
+          "shortHint": "Take beer mug and fill it with lager",
+          "hint": "Take a clean mug, pour lager almost to the top and add a foam cap.",
           "steps": [
             "Take beer mug",
             "Fill with lager to ~90%",
@@ -363,6 +374,7 @@
     {
       "id": 7,
       "name": "Negroni Ritual",
+      "difficulty": 2,
       "timeLimit": 160,
       "target": 8,
       "ingredients": [
@@ -385,8 +397,8 @@
         {
           "name": "Pint of Lager",
           "tags": ["beer", "easy"],
-          "shortHint": "Same simple lager as in Lv.1",
-          "hint": "Mug, lager to 90%, foam cap.",
+          "shortHint": "Take beer mug and fill it with lager",
+          "hint": "Take a clean mug, pour lager almost to the top and add a foam cap.",
           "steps": [
             "Take beer mug",
             "Fill with lager to ~90%",
@@ -463,8 +475,8 @@
         {
           "name": "Negroni",
           "tags": ["bitter", "classic"],
-          "shortHint": "Mix in shaker : gin, bitter, vermouth, ice, orange",
-          "hint": "Mix gin, bitter, vermouth, ice and orange in shaker, then serve.",
+          "shortHint": "Mix in shaker : gin, red bitter, vermouth, ice, orange",
+          "hint": "Mix gin, red bitter, vermouth, ice and orange in shaker, then serve.",
           "ingredients": ["ice", "gin", "bitter", "vermouth", "orange"],
           "steps": [
             "Add ice cubes",
@@ -480,6 +492,7 @@
     {
       "id": 8,
       "name": "Arcane Specials",
+      "difficulty": 3,
       "timeLimit": 150,
       "target": 9,
       "ingredients": [
@@ -504,8 +517,8 @@
         {
           "name": "Pint of Lager",
           "tags": ["beer", "easy"],
-          "shortHint": "Same simple lager as in Lv.1",
-          "hint": "Mug, lager to 90%, foam cap.",
+          "shortHint": "Take beer mug and fill it with lager",
+          "hint": "Take a clean mug, pour lager almost to the top and add a foam cap.",
           "steps": [
             "Take beer mug",
             "Fill with lager to ~90%",
@@ -582,8 +595,8 @@
         {
           "name": "Negroni",
           "tags": ["bitter", "classic"],
-          "shortHint": "Mix in shaker : gin, bitter, vermouth, ice, orange",
-          "hint": "Mix gin, bitter, vermouth, ice and orange in shaker, then serve.",
+          "shortHint": "Mix in shaker : gin, red bitter, vermouth, ice, orange",
+          "hint": "Mix gin, red bitter, vermouth, ice and orange in shaker, then serve.",
           "ingredients": ["ice", "gin", "bitter", "vermouth", "orange"],
           "steps": [
             "Add ice cubes",
@@ -616,7 +629,7 @@
           "steps": [
             "Add ice cubes",
             "Add rum",
-            "Add red bitter",
+            "Add bitter",
             "Add chiliSyrup",
             "Add lime wedge"
           ]

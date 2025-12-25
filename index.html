@@ -11,6 +11,15 @@
   <link rel="stylesheet" href="./src/css/style.css">
 </head>
 <body>
+  <!-- Сообщение о повороте экрана для мобильных устройств -->
+  <div class="orientation-message" id="orientation-message">
+    <div class="orientation-message__content">
+      <div class="orientation-message__icon">📱</div>
+      <div class="orientation-message__text">Please rotate your device to landscape mode</div>
+      <div class="orientation-message__subtext">This game is best played in landscape orientation</div>
+    </div>
+  </div>
+
   <div class="page">
     <header class="topbar">
       <div class="brand">
@@ -41,6 +50,7 @@
         <button id="btn-pause" class="btn btn--ghost">Pause</button>
         <button id="btn-hint" class="btn btn--ghost">Hint</button>
         <button id="btn-reset" class="btn btn--ghost">Restart</button>
+        <a href="instructions.html" class="btn btn--ghost" style="text-decoration: none; color: inherit;">Instructions</a>
       </nav>
     </header>
 
@@ -157,6 +167,43 @@
             <div class="pause-menu__actions">
               <button class="btn btn--primary" id="pause-menu-restart">Restart Level</button>
               <button class="btn btn--ghost" id="pause-menu-resume">Resume</button>
+              <a href="instructions.html" class="btn btn--ghost" style="text-decoration: none; color: inherit; text-align: center; display: block;">Instructions</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Модальное окно победы -->
+      <div class="win-menu" id="win-menu" style="display: none;">
+        <div class="win-menu__overlay"></div>
+        <div class="win-menu__content">
+          <div class="win-menu__header">
+            <h2 class="win-menu__title">🎉 YOU WON!</h2>
+          </div>
+          <div class="win-menu__body">
+            <div class="win-menu__message" id="win-menu-message">
+              Total time: <span id="win-menu-time">00:00</span>
+            </div>
+            <div class="win-menu__actions">
+              <button class="btn btn--primary" id="win-menu-restart">Restart</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Модальное окно проигрыша -->
+      <div class="lose-menu" id="lose-menu" style="display: none;">
+        <div class="lose-menu__overlay"></div>
+        <div class="lose-menu__content">
+          <div class="lose-menu__header">
+            <h2 class="lose-menu__title">💀 YOU LOST</h2>
+          </div>
+          <div class="lose-menu__body">
+            <div class="lose-menu__message">
+              Time's up! You didn't complete the level in time.
+            </div>
+            <div class="lose-menu__actions">
+              <button class="btn btn--primary" id="lose-menu-restart">Restart</button>
             </div>
           </div>
         </div>
