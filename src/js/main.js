@@ -23,6 +23,7 @@ const btnHint = document.getElementById('btn-hint');
 const btnReset = document.getElementById('btn-reset');
 const btnPause = document.getElementById('btn-pause');
 const btnFullscreen = document.getElementById('btn-fullscreen');
+const backgroundMusicEl = document.getElementById('background-music');
 const btnRotate = null; 
 const btnShake = null;
 const pourSpeedInput = null;
@@ -261,6 +262,24 @@ function updateFullscreenButton() {
   }
 }
 
+function startBackgroundMusic() {
+  if (!backgroundMusicEl) return;
+  
+  const playPromise = backgroundMusicEl.play();
+  
+  if (playPromise !== undefined) {
+    playPromise.catch(error => {
+      console.log('Music autoplay prevented:', error);
+    });
+  }
+}
+
+function stopBackgroundMusic() {
+  if (!backgroundMusicEl) return;
+  backgroundMusicEl.pause();
+  backgroundMusicEl.currentTime = 0;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   
   checkOrientation();
@@ -319,6 +338,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
   
   updateFullscreenButton();
+  
+  if (backgroundMusicEl) {
+    backgroundMusicEl.volume = 0.5;
+    
+    const startMusicOnInteraction = () => {
+      startBackgroundMusic();
+      document.removeEventListener('click', startMusicOnInteraction);
+      document.removeEventListener('touchstart', startMusicOnInteraction);
+    };
+    
+    document.addEventListener('click', startMusicOnInteraction, { once: true });
+    document.addEventListener('touchstart', startMusicOnInteraction, { once: true });
+  }
 
   if (state.servedSet.size === 0 && state.runs === 0) {
   startNewRun();

@@ -7,6 +7,7 @@ const ASSETS = [
   './src/js/main.js',
   './src/js/data/levels.json',
   './src/js/iconMap.js',
+  './src/assets/background-music.mp3',
   './instructions.html'
 ];
 
