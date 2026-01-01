@@ -1034,6 +1034,133 @@ body {
   font-family: 'Press Start 2P', cursive;
 }
 
+/* Модальное окно инструкций */
+.instructions-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: none;
+  pointer-events: none;
+}
+
+.instructions-menu__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  pointer-events: auto;
+}
+
+.instructions-menu__content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #2a1f3a;
+  border: 4px solid #4a3f5a;
+  border-radius: 0;
+  padding: 24px;
+  min-width: 500px;
+  max-width: 700px;
+  max-height: 80vh;
+  overflow-y: auto;
+  pointer-events: auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+.instructions-menu__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 3px solid #4a3f5a;
+}
+
+.instructions-menu__title {
+  font-size: 16px;
+  color: var(--accent);
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+  margin: 0;
+}
+
+.instructions-menu__close {
+  width: 32px;
+  height: 32px;
+  background: var(--danger);
+  border: 2px solid #1a1222;
+  border-radius: 0;
+  color: white;
+  font-size: 20px;
+  font-family: 'Press Start 2P', cursive;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 150ms ease;
+}
+
+.instructions-menu__close:hover {
+  transform: scale(1.1);
+}
+
+.instructions-menu__body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.instructions-menu__section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.instructions-menu__section-title {
+  font-size: 12px;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin: 0 0 12px 0;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+}
+
+.instructions-menu__subsection-title {
+  font-size: 10px;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin: 16px 0 10px 0;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+  font-family: 'Press Start 2P', cursive;
+}
+
+.instructions-menu__text {
+  font-size: 9px;
+  color: var(--text);
+  line-height: 1.6;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.8);
+  margin: 0 0 12px 0;
+}
+
+.instructions-menu__list {
+  font-size: 9px;
+  color: var(--text);
+  line-height: 1.8;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.8);
+  margin: 0 0 12px 0;
+  padding-left: 20px;
+  list-style-type: disc;
+}
+
+.instructions-menu__list li {
+  margin-bottom: 8px;
+}
+
+.instructions-menu__list li strong {
+  color: var(--accent);
+  font-weight: normal;
+}
+
 .ingredients-on-table::-webkit-scrollbar {
   height: 8px;
 }

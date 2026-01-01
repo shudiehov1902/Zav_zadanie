@@ -55,7 +55,7 @@
         <button id="btn-hint" class="btn btn--ghost">Hint</button>
         <button id="btn-reset" class="btn btn--ghost">Restart</button>
         <button id="btn-fullscreen" class="btn btn--ghost" title="Toggle Fullscreen">⛶</button>
-        <a href="instructions.html" class="btn btn--ghost" style="text-decoration: none; color: inherit;">Instructions</a>
+        <button id="btn-instructions" class="btn btn--ghost">Instructions</button>
       </nav>
     </header>
 
@@ -172,7 +172,7 @@
             <div class="pause-menu__actions">
               <button class="btn btn--primary" id="pause-menu-restart">Restart Level</button>
               <button class="btn btn--ghost" id="pause-menu-resume">Resume</button>
-              <a href="instructions.html" class="btn btn--ghost" style="text-decoration: none; color: inherit; text-align: center; display: block;">Instructions</a>
+              <button class="btn btn--ghost" id="pause-menu-instructions">Instructions</button>
             </div>
           </div>
         </div>
@@ -209,6 +209,93 @@
             </div>
             <div class="lose-menu__actions">
               <button class="btn btn--primary" id="lose-menu-restart">Restart</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Модальное окно инструкций -->
+      <div class="instructions-menu" id="instructions-menu" style="display: none;">
+        <div class="instructions-menu__overlay"></div>
+        <div class="instructions-menu__content">
+          <div class="instructions-menu__header">
+            <h2 class="instructions-menu__title">INSTRUCTIONS</h2>
+            <button class="instructions-menu__close" id="instructions-menu-close">×</button>
+          </div>
+          <div class="instructions-menu__body">
+            <div class="instructions-menu__section">
+              <h3 class="instructions-menu__section-title">Game Description</h3>
+              <p class="instructions-menu__text">
+                Tavern Tapper is a pixel-art bartending game where you play as a bartender serving drinks to customers. 
+                Your goal is to complete orders by mixing cocktails, pouring beer, and serving drinks within the time limit. 
+                The game features multiple levels with increasing difficulty, each requiring you to serve a certain number of drinks.
+              </p>
+              <p class="instructions-menu__text">
+                You'll progress through three levels per run: starting with difficulty 1, then difficulty 2, and finally difficulty 3. 
+                Complete all three levels to win the game!
+              </p>
+            </div>
+            
+            <div class="instructions-menu__section">
+              <h3 class="instructions-menu__section-title">How to Play</h3>
+              
+              <h4 class="instructions-menu__subsection-title">Basic Controls:</h4>
+              <ul class="instructions-menu__list">
+                <li><strong>Fridge:</strong> Click the fridge icon to open the ingredients menu</li>
+                <li><strong>Add Ingredients:</strong> Click on an ingredient to add it to the shaker, or drag it to the shaker</li>
+                <li><strong>Shake:</strong> Drag the shaker around to shake it. The speed and rotation change based on your movement</li>
+                <li><strong>Serve:</strong> Click the "Serve" button when the drink is ready</li>
+                <li><strong>Beer:</strong> Click the beer tap to fill the glass, then drag it to the tray</li>
+                <li><strong>Hint:</strong> Click the "Hint" button to see a hint. Click again quickly to see the solution</li>
+                <li><strong>Pause:</strong> Click "Pause" to pause the game and access the menu</li>
+                <li><strong>Restart:</strong> Click "Restart" to start a new game from the beginning</li>
+              </ul>
+              
+              <h4 class="instructions-menu__subsection-title">Game Mechanics:</h4>
+              <ul class="instructions-menu__list">
+                <li>Each level has a time limit and a target number of drinks to serve</li>
+                <li>Customers will appear with orders. Complete their orders to progress</li>
+                <li>For cocktails: Add ingredients to the shaker, shake it, then serve</li>
+                <li>For beer: Fill the glass from the tap and place it on the serving tray</li>
+                <li>Your best time for each level is tracked and displayed</li>
+              </ul>
+            </div>
+            
+            <div class="instructions-menu__section">
+              <h3 class="instructions-menu__section-title">📱 Mobile Instructions</h3>
+              <p class="instructions-menu__text">
+                On mobile devices, you can tap and drag ingredients and the shaker just like on desktop. 
+                The game is fully touch-optimized. Use your finger to drag the shaker around to shake cocktails, 
+                and tap ingredients to add them to the shaker. All controls work with touch gestures.
+              </p>
+            </div>
+            
+            <div class="instructions-menu__section">
+              <h3 class="instructions-menu__section-title">Tips & Strategies</h3>
+              <ul class="instructions-menu__list">
+                <li>Read the hints carefully - they tell you what ingredients are needed</li>
+                <li>Shake the shaker vigorously for better results</li>
+                <li>Pay attention to the order details in the speech bubble</li>
+                <li>Use the "Recipes" button to see all available cocktail recipes</li>
+                <li>Manage your time wisely - each level has a time limit</li>
+                <li>Practice makes perfect - try to beat your best time!</li>
+              </ul>
+            </div>
+            
+            <div class="instructions-menu__section">
+              <h3 class="instructions-menu__section-title">Game Menu</h3>
+              <p class="instructions-menu__text">
+                You can access the game menu at any time by clicking the "Pause" button. From the menu, you can:
+              </p>
+              <ul class="instructions-menu__list">
+                <li>Select different levels to play</li>
+                <li>Restart the current level</li>
+                <li>Resume the game</li>
+              </ul>
+              <p class="instructions-menu__text">
+                You can also restart the entire game at any time using the "Restart" button in the top bar, 
+                which will start a new run from difficulty 1.
+              </p>
             </div>
           </div>
         </div>

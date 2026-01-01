@@ -51,6 +51,10 @@ const winMenuRestartEl = document.getElementById('win-menu-restart');
 const loseMenuEl = document.getElementById('lose-menu');
 const loseMenuRestartEl = document.getElementById('lose-menu-restart');
 const orientationMessageEl = document.getElementById('orientation-message');
+const btnInstructions = document.getElementById('btn-instructions');
+const instructionsMenuEl = document.getElementById('instructions-menu');
+const instructionsMenuCloseEl = document.getElementById('instructions-menu-close');
+const pauseMenuInstructionsEl = document.getElementById('pause-menu-instructions');
 
 const STORAGE_KEY = 'tavern-tapper-progress';
 
@@ -426,6 +430,11 @@ function attachControls() {
   btnRecipes?.addEventListener('click', openRecipesMenu);
   recipesMenuCloseEl?.addEventListener('click', closeRecipesMenu);
   recipesMenuEl?.querySelector('.recipes-menu__overlay')?.addEventListener('click', closeRecipesMenu);
+  
+  btnInstructions?.addEventListener('click', openInstructionsMenu);
+  instructionsMenuCloseEl?.addEventListener('click', closeInstructionsMenu);
+  instructionsMenuEl?.querySelector('.instructions-menu__overlay')?.addEventListener('click', closeInstructionsMenu);
+  pauseMenuInstructionsEl?.addEventListener('click', openInstructionsMenu);
   
   winMenuRestartEl?.addEventListener('click', () => {
     closeWinMenu();
@@ -2953,6 +2962,16 @@ function openRecipesMenu() {
 function closeRecipesMenu() {
   if (!recipesMenuEl) return;
   recipesMenuEl.style.display = 'none';
+}
+
+function openInstructionsMenu() {
+  if (!instructionsMenuEl) return;
+  instructionsMenuEl.style.display = 'block';
+}
+
+function closeInstructionsMenu() {
+  if (!instructionsMenuEl) return;
+  instructionsMenuEl.style.display = 'none';
 }
 
 function renderRecipes() {
