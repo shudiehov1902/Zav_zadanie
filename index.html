@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="./src/css/style.css">
 </head>
 <body>
-  <!-- Сообщение о повороте экрана для мобильных устройств -->
+  <!-- Správa o otočení obrazovky pre mobilné zariadenia -->
   <div class="orientation-message" id="orientation-message">
     <div class="orientation-message__content">
       <div class="orientation-message__icon">📱</div>
@@ -60,31 +60,25 @@
     </header>
 
     <main class="game-area">
-      <!-- Таверна с посетителями и ингредиентами на столе -->
+      <!-- Tavern - hlavná herná scéna -->
       <section class="tavern">
         <div class="tavern__background" id="tavern-bg">
-          <!-- Фон таверны -->
         </div>
 
-        <!-- Внутренний слой таверны фиксированного размера, который масштабируется под любое окно -->
+        <!-- Vnútorná vrstva s pevnou veľkosťou (1280x720), škáluje sa podľa okna -->
         <div class="tavern__content">
-          <!-- Посетители с диалоговыми окнами -->
           <div class="visitors" id="visitors-container">
-            <!-- Посетители будут добавлены через JS -->
           </div>
 
-          <!-- Холодильник слева на стойке -->
           <div class="bar-fridge-container">
             <img src="./src/assets/icons/barfridge.png" alt="Bar fridge" class="bar-fridge__icon" id="bar-fridge" draggable="false">
           </div>
 
-          <!-- Поднос для готовых напитков (в центре стола) -->
           <div class="tray-container">
             <img src="./src/assets/icons/server.png" alt="Serving tray" class="tray__icon" id="serving-tray" draggable="false">
             <img src="" alt="" class="tray__drink" id="tray-drink" style="display:none" draggable="false">
           </div>
 
-          <!-- Шейкер на столе -->
           <div class="shaker-container">
             <div class="shaker" id="shaker" 
                  ondrop="event.preventDefault(); handleDrop(event)" 
@@ -99,7 +93,6 @@
             </div>
           </div>
 
-          <!-- Окно ингредиентов в шейкере -->
           <div class="shaker-ingredients-panel" id="shaker-ingredients-panel">
             <div class="shaker-ingredients-panel__title">Ingredients in Shaker</div>
             <div class="shaker-ingredients-panel__content" id="shaker-content">
@@ -107,24 +100,21 @@
             </div>
           </div>
 
-          <!-- Пивной кран справа на стойке -->
           <div class="beer-tap-container">
             <img src="./src/assets/icons/beerTap.png" alt="Beer tap" class="beer-tap__icon" id="beer-tap" draggable="false">
           </div>
 
-          <!-- Стартовая позиция бокала на столе (игрок сам перетаскивает его под кран) -->
           <div class="beer-glass-start">
             <img src="./src/assets/icons/EmptyPintOfBeer.png" alt="Beer glass" class="beer-tap__glass" id="beer-glass" data-state="empty">
           </div>
 
-          <!-- Кнопка подачи напитка под барной стойкой -->
           <div class="controls-on-table">
             <button id="btn-serve" class="btn btn--primary controls-on-table__serve">Serve</button>
           </div>
         </div>
       </section>
 
-      <!-- Модальное окно меню холодильника -->
+      <!-- Modálne okno menu chladničky -->
       <div class="fridge-menu" id="fridge-menu" style="display: none;">
         <div class="fridge-menu__overlay"></div>
         <div class="fridge-menu__content">
@@ -133,12 +123,11 @@
             <button class="fridge-menu__close" id="fridge-menu-close">×</button>
           </div>
           <div class="fridge-menu__grid" id="fridge-menu-grid">
-            <!-- Ингредиенты будут добавлены через JS -->
           </div>
         </div>
       </div>
 
-      <!-- Модальное окно рецептов -->
+      <!-- Modálne okno receptov -->
       <div class="recipes-menu" id="recipes-menu" style="display: none;">
         <div class="recipes-menu__overlay"></div>
         <div class="recipes-menu__content">
@@ -148,13 +137,12 @@
           </div>
           <div class="recipes-menu__body">
             <div class="recipes-menu__list" id="recipes-menu-list">
-              <!-- Рецепты будут добавлены через JS -->
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Модальное окно меню паузы -->
+      <!-- Modálne okno menu pauzy -->
       <div class="pause-menu" id="pause-menu" style="display: none;">
         <div class="pause-menu__overlay"></div>
         <div class="pause-menu__content">
@@ -166,7 +154,6 @@
             <div class="pause-menu__section">
               <h3 class="pause-menu__section-title">Select Level</h3>
               <div class="pause-menu__levels" id="pause-menu-levels">
-                <!-- Уровни будут добавлены через JS -->
               </div>
             </div>
             <div class="pause-menu__actions">
@@ -178,7 +165,7 @@
         </div>
       </div>
 
-      <!-- Модальное окно победы -->
+      <!-- Modálne okno víťazstva -->
       <div class="win-menu" id="win-menu" style="display: none;">
         <div class="win-menu__overlay"></div>
         <div class="win-menu__content">
@@ -196,7 +183,7 @@
         </div>
       </div>
 
-      <!-- Модальное окно проигрыша -->
+      <!-- Modálne okno prehry -->
       <div class="lose-menu" id="lose-menu" style="display: none;">
         <div class="lose-menu__overlay"></div>
         <div class="lose-menu__content">
@@ -214,7 +201,7 @@
         </div>
       </div>
 
-      <!-- Модальное окно инструкций -->
+      <!-- Modálne okno inštrukcií -->
       <div class="instructions-menu" id="instructions-menu" style="display: none;">
         <div class="instructions-menu__overlay"></div>
         <div class="instructions-menu__content">
@@ -301,7 +288,7 @@
         </div>
       </div>
 
-      <!-- Статус и информация -->
+      <!-- Status bar -->
       <div class="status-bar">
         <div class="status" id="status-line">Welcome to the tavern! Drag ingredients to the shaker.</div>
         <div class="progress">
@@ -310,7 +297,7 @@
       </div>
     </main>
 
-    <!-- Информационная панель (скрыта в игре, видна при печати) -->
+    <!-- Informačný panel (skrytý v hre, viditeľný pri tlači) -->
     <aside class="info-panel print-only">
       <h2>How to play</h2>
       <p>Drag ingredients from the table to the shaker. Shake the shaker to mix. Follow the orders shown in speech bubbles above customers. Rotate garnishes with R key or double tap. Adjust pour speed with the slider. Serve correct drinks before time runs out!</p>
@@ -322,7 +309,7 @@
     </aside>
   </div>
 
-  <!-- Шаблоны -->
+  <!-- Šablóny pre dynamické prvky -->
   <template id="visitor-template">
     <div class="visitor" style="left: 0; top: 0;">
       <div class="speech-bubble" data-order-id="">
@@ -340,7 +327,6 @@
 
   <template id="ingredient-chip">
     <div class="ingredient-on-table" draggable="true">
-      <!-- Иконка и текст будут добавлены через JS -->
     </div>
   </template>
 
