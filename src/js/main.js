@@ -102,6 +102,7 @@ function getRandomVisitorCharacter() {
 }
 let state = {
   currentLevel: null,
+  currentLevelId: null,
   activeOrder: null,
   activeVisitor: null,
   visitors: [],
@@ -865,6 +866,7 @@ function hydrateProgress() {
     
     state.servedSet = new Set(saved.servedSet || []);
     state.runStartTime = saved.runStartTime || null; 
+    state.currentLevelId = saved.currentLevelId || null;
 
     const completedLevels = state.servedSet.size;
     if (completedLevels === 0) {
@@ -892,6 +894,7 @@ function persistProgress() {
     levelStats: state.levelStats, 
     servedSet: Array.from(state.servedSet),
     currentDifficulty: state.currentDifficulty, 
+    currentLevelId: state.currentLevel ? state.currentLevel.id : null,
     runStartTime: state.runStartTime, 
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
@@ -904,6 +907,7 @@ function startNewRun() {
   state.servedSet = new Set();
   state.usedOrdersInLevel.clear(); 
   state.currentDifficulty = 1; 
+  state.currentLevelId = null;
   state.runStartTime = Date.now(); 
   statRunsEl.textContent = state.runs.toString();
   if (hudRunsEl) hudRunsEl.textContent = state.runs.toString();
@@ -948,8 +952,18 @@ function startLevel() {
     return;
   }
   
-  const randomIndex = Math.floor(Math.random() * levelsToChoose.length);
-  state.currentLevel = levelsToChoose[randomIndex];
+  let selectedLevel = null;
+  if (state.currentLevelId) {
+    selectedLevel = levelsToChoose.find(l => l.id === state.currentLevelId);
+  }
+  
+  if (!selectedLevel) {
+    const randomIndex = Math.floor(Math.random() * levelsToChoose.length);
+    selectedLevel = levelsToChoose[randomIndex];
+  }
+  
+  state.currentLevel = selectedLevel;
+  state.currentLevelId = selectedLevel.id;
 
   state.usedOrdersInLevel.clear();
   
