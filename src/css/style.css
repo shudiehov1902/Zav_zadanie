@@ -1028,6 +1028,84 @@ body {
   font-family: 'Press Start 2P', cursive;
 }
 
+/* Modálne okno Start */
+.start-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: none;
+  pointer-events: none;
+}
+
+.start-menu__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  pointer-events: auto;
+}
+
+.start-menu__content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #2a1f3a;
+  border: 4px solid var(--accent);
+  border-radius: 0;
+  padding: 32px;
+  min-width: 400px;
+  max-width: 500px;
+  box-shadow: 
+    0 0 0 2px #1a1222,
+    inset 0 0 0 1px rgba(255,255,255,0.1),
+    0 12px 24px rgba(0,0,0,0.9);
+  image-rendering: pixelated;
+  font-family: 'Press Start 2P', cursive;
+  pointer-events: auto;
+  text-align: center;
+}
+
+.start-menu__header {
+  margin-bottom: 24px;
+}
+
+.start-menu__title {
+  font-size: 18px;
+  color: var(--accent);
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+  margin: 0;
+}
+
+.start-menu__body {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.start-menu__message {
+  font-size: 10px;
+  color: var(--text);
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.8);
+  line-height: 1.6;
+}
+
+.start-menu__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+.start-menu__actions .btn {
+  padding: 16px 48px;
+  font-size: 12px;
+  min-width: 200px;
+  width: 100%;
+}
+
 /* Modálne okno inštrukcií */
 .instructions-menu {
   position: fixed;
@@ -2136,7 +2214,8 @@ body {
   .pause-menu__content,
   .recipes-menu__content,
   .win-menu__content,
-  .lose-menu__content {
+  .lose-menu__content,
+  .start-menu__content {
     min-width: 90vw;
     max-width: 90vw;
     padding: 16px;
@@ -2145,8 +2224,24 @@ body {
   .pause-menu__title,
   .recipes-menu__title,
   .win-menu__title,
-  .lose-menu__title {
+  .lose-menu__title,
+  .start-menu__title {
     font-size: 12px;
+  }
+  
+  .start-menu__message {
+    font-size: 8px;
+  }
+  
+  .start-menu__actions {
+    gap: 8px;
+  }
+  
+  .start-menu__actions .btn {
+    padding: 12px 32px;
+    font-size: 10px;
+    min-width: 160px;
+    width: 100%;
   }
   
   .win-menu__message,
@@ -2569,7 +2664,8 @@ body {
   .pause-menu__content,
   .recipes-menu__content,
   .win-menu__content,
-  .lose-menu__content {
+  .lose-menu__content,
+  .start-menu__content {
     min-width: 95vw;
     max-width: 95vw;
     padding: 12px;
@@ -2578,8 +2674,24 @@ body {
   .pause-menu__title,
   .recipes-menu__title,
   .win-menu__title,
-  .lose-menu__title {
+  .lose-menu__title,
+  .start-menu__title {
     font-size: 10px;
+  }
+  
+  .start-menu__message {
+    font-size: 7px;
+  }
+  
+  .start-menu__actions {
+    gap: 6px;
+  }
+  
+  .start-menu__actions .btn {
+    padding: 10px 24px;
+    font-size: 9px;
+    min-width: 140px;
+    width: 100%;
   }
   
   .win-menu__message,

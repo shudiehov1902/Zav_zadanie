@@ -56,6 +56,11 @@ const btnInstructions = document.getElementById('btn-instructions');
 const instructionsMenuEl = document.getElementById('instructions-menu');
 const instructionsMenuCloseEl = document.getElementById('instructions-menu-close');
 const pauseMenuInstructionsEl = document.getElementById('pause-menu-instructions');
+const startMenuEl = document.getElementById('start-menu');
+const startMenuStartEl = document.getElementById('start-menu-start');
+const startMenuTitleEl = document.getElementById('start-menu-title');
+const startMenuMessageEl = document.getElementById('start-menu-message');
+const startMenuActionsEl = document.getElementById('start-menu-actions');
 
 const STORAGE_KEY = 'tavern-tapper-progress';
 
@@ -350,24 +355,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.addEventListener('touchstart', startMusicOnInteraction, { once: true });
   }
 
-  if (state.servedSet.size === 0 && state.runs === 0) {
-  startNewRun();
-  } else {
-
-    const completedLevels = state.servedSet.size;
-    if (completedLevels === 0) {
-      state.currentDifficulty = 1;
-    } else if (completedLevels === 1) {
-      state.currentDifficulty = 2;
-    } else if (completedLevels === 2) {
-      state.currentDifficulty = 3;
-    } else {
-      
-      showWinMessage();
-      return;
-    }
-    startLevel();
-  }
+  
+  showStartMenu();
 
   let resizeTimeout;
   window.addEventListener('resize', () => {
@@ -429,6 +418,8 @@ function attachControls() {
   instructionsMenuCloseEl?.addEventListener('click', closeInstructionsMenu);
   instructionsMenuEl?.querySelector('.instructions-menu__overlay')?.addEventListener('click', closeInstructionsMenu);
   pauseMenuInstructionsEl?.addEventListener('click', openInstructionsMenu);
+  
+  startMenuStartEl?.addEventListener('click', handleStartGame);
   
   winMenuRestartEl?.addEventListener('click', () => {
     closeWinMenu();
@@ -2968,6 +2959,126 @@ function openInstructionsMenu() {
 function closeInstructionsMenu() {
   if (!instructionsMenuEl) return;
   instructionsMenuEl.style.display = 'none';
+}
+
+function showStartMenu() {
+  if (!startMenuEl) return;
+  
+  // Проверяем, есть ли сохраненный прогресс
+  const hasProgress = (state.servedSet && state.servedSet.size > 0) || (state.runs && state.runs > 0);
+  
+  if (hasProgress) {
+    // Показываем окно продолжения игры
+    if (startMenuTitleEl) startMenuTitleEl.textContent = 'TAVERN TAPPER';
+    if (startMenuMessageEl) {
+      const completedLevels = state.servedSet ? state.servedSet.size : 0;
+      startMenuMessageEl.textContent = `Do you want to continue?\nYou have completed ${completedLevels} level(s).`;
+    }
+    
+    // Очищаем действия и добавляем кнопки Continue и New Game
+    if (startMenuActionsEl) {
+      startMenuActionsEl.innerHTML = '';
+      const continueBtn = document.createElement('button');
+      continueBtn.className = 'btn btn--primary';
+      continueBtn.textContent = 'CONTINUE';
+      continueBtn.addEventListener('click', handleContinueGame);
+      const newGameBtn = document.createElement('button');
+      newGameBtn.className = 'btn btn--ghost';
+      newGameBtn.textContent = 'START NEW GAME';
+      newGameBtn.addEventListener('click', handleStartNewGame);
+      startMenuActionsEl.appendChild(continueBtn);
+      startMenuActionsEl.appendChild(newGameBtn);
+    }
+  } else {
+    // Показываем обычное окно начала игры
+    if (startMenuTitleEl) startMenuTitleEl.textContent = 'TAVERN TAPPER';
+    if (startMenuMessageEl) {
+      startMenuMessageEl.innerHTML = 'Welcome to the tavern!<br>Ready to serve drinks?';
+    }
+    
+    // Очищаем действия и добавляем кнопку Start
+    if (startMenuActionsEl) {
+      startMenuActionsEl.innerHTML = '';
+      const startBtn = document.createElement('button');
+      startBtn.className = 'btn btn--primary';
+      startBtn.id = 'start-menu-start';
+      startBtn.textContent = 'START';
+      startBtn.addEventListener('click', handleStartGame);
+      startMenuActionsEl.appendChild(startBtn);
+    }
+  }
+  
+  startMenuEl.style.display = 'block';
+}
+
+function closeStartMenu() {
+  if (!startMenuEl) return;
+  startMenuEl.style.display = 'none';
+}
+
+function handleStartGame() {
+  closeStartMenu();
+  
+  if (state.servedSet.size === 0 && state.runs === 0) {
+    startNewRun();
+  } else {
+    const completedLevels = state.servedSet.size;
+    if (completedLevels === 0) {
+      state.currentDifficulty = 1;
+    } else if (completedLevels === 1) {
+      state.currentDifficulty = 2;
+    } else if (completedLevels === 2) {
+      state.currentDifficulty = 3;
+    } else {
+      showWinMessage();
+      return;
+    }
+    startLevel();
+  }
+}
+
+function handleContinueGame() {
+  closeStartMenu();
+  
+  const completedLevels = state.servedSet ? state.servedSet.size : 0;
+  
+  if (completedLevels === 0) {
+    state.currentDifficulty = 1;
+    startNewRun();
+  } else if (completedLevels === 1) {
+    state.currentDifficulty = 2;
+    startLevel();
+  } else if (completedLevels === 2) {
+    state.currentDifficulty = 3;
+    startLevel();
+  } else {
+    // Все уровни пройдены
+    showWinMessage();
+  }
+}
+
+function handleStartNewGame() {
+  closeStartMenu();
+  
+  // Очищаем весь прогресс
+  state.servedSet.clear();
+  state.usedOrdersInLevel.clear();
+  state.currentDifficulty = 1;
+  state.runStartTime = null;
+  state.runs = 0;
+  state.bestTime = null;
+  state.levelStats = {};
+  
+  // Очищаем localStorage
+  localStorage.removeItem(STORAGE_KEY);
+  
+  // Обновляем отображение
+  if (statRunsEl) statRunsEl.textContent = '0';
+  if (hudRunsEl) hudRunsEl.textContent = '0';
+  renderBestTime();
+  
+  // Начинаем новую игру
+  startNewRun();
 }
 
 function renderRecipes() {
