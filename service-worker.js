@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tavern-tapper-v1';
+const CACHE_NAME = 'GAME_tavern-tapper-v1';
 const ASSETS = [
   './',
   './index.html',

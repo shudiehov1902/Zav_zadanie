@@ -14,6 +14,7 @@ const levelEl = document.getElementById('hud-level');
 const timeEl = document.getElementById('hud-time');
 const ordersEl = document.getElementById('hud-orders');
 const bestEl = document.getElementById('hud-best');
+const hudRunsEl = document.getElementById('hud-runs');
 const statRunsEl = document.getElementById('stat-runs');
 const statUniqueEl = document.getElementById('stat-unique');
 const progressEl = document.getElementById('fill-progress');
@@ -146,24 +147,17 @@ function getVisitorPositions() {
 function checkOrientation() {
   if (!orientationMessageEl) return;
 
-  const isMobile = window.innerWidth < 769;
+  const pageEl = document.querySelector('.page');
   
-  if (isMobile) {
-    
-    const isPortrait = window.innerHeight > window.innerWidth;
-    
-    if (isPortrait) {
-      
-      orientationMessageEl.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-    } else {
-      
-      orientationMessageEl.style.display = 'none';
-      document.body.style.overflow = '';
-    }
+  const isPortrait = window.innerHeight > window.innerWidth;
+  
+  if (isPortrait) {
+    orientationMessageEl.style.display = 'flex';
+    if (pageEl) pageEl.style.display = 'none';
+    document.body.style.overflow = 'hidden';
   } else {
-    
     orientationMessageEl.style.display = 'none';
+    if (pageEl) pageEl.style.display = '';
     document.body.style.overflow = '';
   }
 }
@@ -893,6 +887,7 @@ function hydrateProgress() {
     }
     
     statRunsEl.textContent = state.runs.toString();
+    if (hudRunsEl) hudRunsEl.textContent = state.runs.toString();
     renderBestTime();
   } catch (err) {
     console.warn('progress parse failed', err);
@@ -920,6 +915,7 @@ function startNewRun() {
   state.currentDifficulty = 1; 
   state.runStartTime = Date.now(); 
   statRunsEl.textContent = state.runs.toString();
+  if (hudRunsEl) hudRunsEl.textContent = state.runs.toString();
   startLevel();
   persistProgress();
 }
@@ -3221,13 +3217,13 @@ window.showFridgeIngredients = function() {
   
   const sorted = Array.from(allIngredients.values()).sort((a, b) => a.id.localeCompare(b.id));
   
-  console.log('%cВсе ингредиенты в холодильнике:', 'font-size: 16px; font-weight: bold; color: #f1b33f;');
+  console.log('%cAll ingredients in the fridge:', 'font-size: 16px; font-weight: bold; color: #f1b33f;');
   console.log('================================');
   sorted.forEach((ing, i) => {
     console.log(`${(i+1).toString().padStart(2, '0')}. ${ing.id.padEnd(20)} - ${ing.label}`);
   });
   console.log('================================');
-  console.log(`Всего: ${allIngredients.size} уникальных ингредиентов`);
+  console.log(`Total: ${allIngredients.size} unique ingredients`);
   
   return sorted;
 };

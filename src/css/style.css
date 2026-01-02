@@ -2795,33 +2795,7 @@ body {
   line-height: 1.4;
 }
 
-@media (min-width: 769px) {
-  .orientation-message {
-    display: none !important;
-  }
-}
 
-@media (max-width: 768px) {
-  .orientation-message {
-    display: flex;
-  }
-  
-  @media (orientation: landscape) {
-    .orientation-message {
-      display: none !important;
-    }
-  }
-  
-  @media (orientation: portrait) {
-    .orientation-message {
-      display: flex !important;
-    }
-    
-    .page {
-      display: none;
-    }
-  }
-}
 
 @media print {
   body { 
