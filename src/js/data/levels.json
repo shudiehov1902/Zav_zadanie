@@ -285,8 +285,7 @@
         { "id": "tonic", "label": "Tonic water" },
         { "id": "whiskey", "label": "Whiskey" },
         { "id": "bitters", "label": "Bitters" },
-        { "id": "orange", "label": "Orange peel" },
-        { "id": "rocks", "label": "Rocks glass" }
+        { "id": "orange", "label": "Orange peel" }
       ],
       "orders": [
         {
