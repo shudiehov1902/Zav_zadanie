@@ -2853,11 +2853,6 @@ function updateBest(elapsed) {
   
   const levelId = state.currentLevel.id;
 
-  if (state.bestTime === null || elapsed < state.bestTime) {
-    state.bestTime = elapsed;
-    renderBestTime();
-  }
-
   if (!state.levelStats[levelId]) {
     state.levelStats[levelId] = {
       plays: 0,
@@ -2869,12 +2864,14 @@ function updateBest(elapsed) {
 
   if (state.levelStats[levelId].bestTime === null || elapsed < state.levelStats[levelId].bestTime) {
     state.levelStats[levelId].bestTime = elapsed;
+    renderBestTime();
   }
 
   persistProgress();
 }
 
 function renderBestTime() {
+  if (!bestEl) return;
   
   if (state.currentLevel) {
     const levelStats = state.levelStats[state.currentLevel.id] || { plays: 0, bestTime: null };
@@ -2884,7 +2881,7 @@ function renderBestTime() {
     }
   }
   
-  bestEl.textContent = state.bestTime == null ? '—' : formatTime(state.bestTime);
+  bestEl.textContent = '—';
 }
 
 function status(msg, isDanger = false) {
@@ -3071,16 +3068,8 @@ function handleStartNewGame() {
   state.servedSet.clear();
   state.usedOrdersInLevel.clear();
   state.currentDifficulty = 1;
+  state.currentLevelId = null;
   state.runStartTime = null;
-  state.runs = 0;
-  state.bestTime = null;
-  state.levelStats = {};
-  
-  localStorage.removeItem(STORAGE_KEY);
-  
-  if (statRunsEl) statRunsEl.textContent = '0';
-  if (hudRunsEl) hudRunsEl.textContent = '0';
-  renderBestTime();
   
   startNewRun();
 }
