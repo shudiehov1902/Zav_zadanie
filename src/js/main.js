@@ -2964,18 +2964,15 @@ function closeInstructionsMenu() {
 function showStartMenu() {
   if (!startMenuEl) return;
   
-  // Проверяем, есть ли сохраненный прогресс
   const hasProgress = (state.servedSet && state.servedSet.size > 0) || (state.runs && state.runs > 0);
   
   if (hasProgress) {
-    // Показываем окно продолжения игры
     if (startMenuTitleEl) startMenuTitleEl.textContent = 'TAVERN TAPPER';
     if (startMenuMessageEl) {
       const completedLevels = state.servedSet ? state.servedSet.size : 0;
       startMenuMessageEl.textContent = `Do you want to continue?\nYou have completed ${completedLevels} level(s).`;
     }
     
-    // Очищаем действия и добавляем кнопки Continue и New Game
     if (startMenuActionsEl) {
       startMenuActionsEl.innerHTML = '';
       const continueBtn = document.createElement('button');
@@ -2990,13 +2987,11 @@ function showStartMenu() {
       startMenuActionsEl.appendChild(newGameBtn);
     }
   } else {
-    // Показываем обычное окно начала игры
     if (startMenuTitleEl) startMenuTitleEl.textContent = 'TAVERN TAPPER';
     if (startMenuMessageEl) {
       startMenuMessageEl.innerHTML = 'Welcome to the tavern!<br>Ready to serve drinks?';
     }
     
-    // Очищаем действия и добавляем кнопку Start
     if (startMenuActionsEl) {
       startMenuActionsEl.innerHTML = '';
       const startBtn = document.createElement('button');
@@ -3052,7 +3047,6 @@ function handleContinueGame() {
     state.currentDifficulty = 3;
     startLevel();
   } else {
-    // Все уровни пройдены
     showWinMessage();
   }
 }
@@ -3060,7 +3054,6 @@ function handleContinueGame() {
 function handleStartNewGame() {
   closeStartMenu();
   
-  // Очищаем весь прогресс
   state.servedSet.clear();
   state.usedOrdersInLevel.clear();
   state.currentDifficulty = 1;
@@ -3069,15 +3062,12 @@ function handleStartNewGame() {
   state.bestTime = null;
   state.levelStats = {};
   
-  // Очищаем localStorage
   localStorage.removeItem(STORAGE_KEY);
   
-  // Обновляем отображение
   if (statRunsEl) statRunsEl.textContent = '0';
   if (hudRunsEl) hudRunsEl.textContent = '0';
   renderBestTime();
   
-  // Начинаем новую игру
   startNewRun();
 }
 

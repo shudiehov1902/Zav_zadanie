@@ -52,7 +52,6 @@ self.addEventListener('fetch', event => {
     event.respondWith(
       fetch(request)
         .then(response => {
-          // Если запрос успешен, обновляем кеш
           if (response.ok) {
             const responseClone = response.clone();
             caches.open(CACHE_NAME).then(cache => {
