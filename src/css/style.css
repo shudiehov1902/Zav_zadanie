@@ -2944,3 +2944,311 @@ body {
     margin: 20px 0;
   }
 }
+
+/* Tatra banka Tavern brand layer */
+:root {
+  --bg: #000214;
+  --panel: #000537;
+  --accent: #63dcff;
+  --accent-2: #ffffff;
+  --text: #f7fbff;
+  --muted: #a9c7e8;
+  --danger: #ff667d;
+  --success: #62f2c1;
+  --border: rgba(126, 222, 255, 0.28);
+}
+
+body {
+  background:
+    radial-gradient(circle at 50% -20%, rgba(30, 112, 255, 0.42), transparent 45%),
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.018) 0 2px, transparent 2px 12px),
+    #000214;
+}
+
+.page {
+  background: linear-gradient(180deg, rgba(0, 5, 55, 0.92), rgba(0, 2, 20, 0.96));
+}
+
+.topbar,
+.status-bar {
+  background: linear-gradient(110deg, rgba(0, 5, 55, 0.97), rgba(4, 28, 91, 0.94));
+  border-color: rgba(126, 222, 255, 0.38);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 8px 30px rgba(0, 5, 55, 0.65);
+}
+
+.brand {
+  min-width: 260px;
+}
+
+.brand__logo {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 9px rgba(99, 220, 255, 0.65));
+}
+
+.brand__title {
+  color: #fff;
+  text-shadow: 0 0 10px rgba(99, 220, 255, 0.55);
+}
+
+.brand__subtitle {
+  color: #8edfff;
+  max-width: 320px;
+}
+
+.hud__item {
+  background: rgba(255,255,255,0.075);
+  border-color: rgba(126, 222, 255, 0.27);
+  box-shadow: inset 0 0 18px rgba(99, 220, 255, 0.04);
+}
+
+.label {
+  color: #8edfff;
+}
+
+.btn {
+  background: rgba(12, 50, 117, 0.68);
+  border-color: rgba(126, 222, 255, 0.35);
+  color: #fff;
+  box-shadow: inset 0 0 12px rgba(99, 220, 255, 0.08);
+}
+
+.btn:hover {
+  border-color: #fff;
+  box-shadow: 0 0 16px rgba(99, 220, 255, 0.45);
+}
+
+.btn--primary {
+  background: linear-gradient(135deg, #fff 0%, #9ceaff 48%, #62caff 100%);
+  color: #000537;
+  border-color: #fff;
+  box-shadow: 0 5px 22px rgba(99, 220, 255, 0.48);
+}
+
+.tavern {
+  border: 2px solid rgba(126, 222, 255, 0.3);
+  box-shadow: 0 0 30px rgba(38, 132, 255, 0.18), inset 0 0 40px rgba(0, 5, 55, 0.35);
+}
+
+.tavern__background {
+  background-image:
+    linear-gradient(180deg, rgba(0, 5, 55, 0.04), rgba(0, 5, 55, 0.12)),
+    url('../assets/background/tatra-tavern-bg.png');
+}
+
+.tatra-sign {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  width: 220px;
+  height: 150px;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  pointer-events: none;
+  filter: drop-shadow(0 0 18px rgba(93, 217, 255, 0.7));
+}
+
+.tatra-sign img {
+  width: 92px;
+  height: 92px;
+  object-fit: contain;
+}
+
+.tatra-sign span {
+  color: #fff;
+  font: 7px/1.5 'Press Start 2P', cursive;
+  letter-spacing: .6px;
+  text-shadow: 0 0 8px #63dcff;
+  white-space: nowrap;
+}
+
+.bar-fridge__icon,
+.beer-tap__icon,
+.shaker__icon,
+.tray__icon {
+  filter: drop-shadow(0 0 12px rgba(99, 220, 255, 0.42)) drop-shadow(0 7px 9px rgba(0,0,0,.72));
+}
+
+.bar-fridge__icon {
+  width: clamp(90px, 16vw, 190px);
+}
+
+.beer-tap__icon {
+  width: 185px;
+}
+
+.shaker__icon {
+  width: 135px;
+  height: 160px;
+}
+
+.tatra-pos {
+  position: absolute;
+  left: -42px;
+  bottom: 42px;
+  width: 82px;
+  height: 118px;
+  z-index: 4;
+  transform: rotate(7deg);
+  border: 4px solid #fff;
+  border-radius: 13px;
+  background: linear-gradient(155deg, #1163bb, #000537 72%);
+  box-shadow: 0 0 18px rgba(99, 220, 255, .55), 0 8px 16px rgba(0,0,0,.65);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  pointer-events: none;
+}
+
+.tatra-pos::after {
+  content: '))))';
+  color: #63dcff;
+  font: 7px 'Press Start 2P', cursive;
+  letter-spacing: -3px;
+  transform: rotate(90deg);
+}
+
+.tatra-pos img {
+  width: 44px;
+  height: 44px;
+}
+
+.tatra-pos span {
+  width: 100%;
+  color: #bcefff;
+  font: 5px/1.45 'Press Start 2P', cursive;
+  text-align: center;
+}
+
+.speech-bubble,
+.shaker-ingredients-panel,
+.fridge-menu__content,
+.pause-menu__content,
+.win-menu__content,
+.lose-menu__content,
+.recipes-menu__content,
+.start-menu__content,
+.instructions-menu__content,
+.orientation-message__content {
+  background:
+    linear-gradient(145deg, rgba(14, 62, 133, .96), rgba(0, 5, 55, .98) 68%),
+    #000537;
+  border-color: rgba(126, 222, 255, .62);
+  box-shadow:
+    0 0 0 2px #000214,
+    inset 0 0 0 1px rgba(255,255,255,.12),
+    0 0 28px rgba(52, 159, 255, .28),
+    0 14px 35px rgba(0,0,0,.75);
+}
+
+.speech-bubble.active {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px #000214, 0 0 24px rgba(99, 220, 255, .75);
+}
+
+.speech-bubble__title,
+.shaker-ingredients-panel__title,
+.fridge-menu__title,
+.pause-menu__title,
+.recipes-menu__title,
+.start-menu__title,
+.instructions-menu__title,
+.orientation-message__text {
+  color: #fff;
+  text-shadow: 0 0 9px rgba(99, 220, 255, .7);
+}
+
+.start-menu__content {
+  overflow: visible;
+  min-width: min(540px, 92vw);
+}
+
+.start-menu__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.start-menu__logo {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 18px rgba(99, 220, 255, .7));
+}
+
+.start-menu__message::after {
+  content: 'Inovácie, ktoré menia váš svet. Každý deň.';
+  display: block;
+  margin-top: 20px;
+  color: #8edfff;
+  font-size: 8px;
+  line-height: 1.7;
+}
+
+.progress__bar,
+.shake-progress__bar {
+  background: linear-gradient(90deg, #176bc1, #63dcff, #fff);
+  box-shadow: 0 0 12px rgba(99, 220, 255, .75);
+}
+
+.orientation-message {
+  background: rgba(0, 5, 55, .97);
+}
+
+@media (max-width: 768px) {
+  .brand {
+    min-width: 0;
+  }
+
+  .brand__logo {
+    width: 24px;
+    height: 24px;
+  }
+
+  .brand__subtitle {
+    display: none;
+  }
+
+  .tatra-sign {
+    top: 4px;
+    width: 130px;
+    height: 85px;
+  }
+
+  .tatra-sign img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .tatra-sign span {
+    font-size: 4px;
+  }
+
+  .tatra-pos {
+    left: -8px;
+    bottom: 20px;
+    width: 35px;
+    height: 52px;
+    border-width: 2px;
+    border-radius: 6px;
+  }
+
+  .tatra-pos img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .tatra-pos span,
+  .tatra-pos::after {
+    display: none;
+  }
+}

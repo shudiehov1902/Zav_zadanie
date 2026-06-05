@@ -1,4 +1,4 @@
-const CACHE_NAME = 'GAME_tavern-tapper-v3';
+const CACHE_NAME = 'GAME_tatra-banka-tavern-v1';
 const ASSETS = [
   './',
   './index.html',
@@ -7,8 +7,14 @@ const ASSETS = [
   './src/js/main.js',
   './src/js/data/levels.json',
   './src/js/iconMap.js',
-  './src/assets/background-music.mp3',
-  './instructions.html'
+  './src/assets/background/tatra-tavern-bg.png',
+  './src/assets/brand/tatra-banka-logo-blue.svg',
+  './src/assets/brand/tatra-banka-logo-white.svg',
+  './src/assets/brand/tatra-fridge.svg',
+  './src/assets/brand/tatra-tray.svg',
+  './src/assets/brand/tatra-shaker.svg',
+  './src/assets/brand/tatra-tap.svg',
+  './src/assets/background-music.mp3'
 ];
 
 self.addEventListener('install', event => {
@@ -86,5 +92,3 @@ self.addEventListener('fetch', event => {
     );
   }
 });
-
-

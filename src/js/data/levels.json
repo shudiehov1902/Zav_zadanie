@@ -6,23 +6,26 @@
       "difficulty": 1,
       "timeLimit": 180,
       "target": 4,
-      "ingredients": [
-      ],
+      "ingredients": [],
       "orders": [
         {
           "name": "Pint of Lager",
-          "tags": ["beer", "easy"],
-          "shortHint": "Take beer mug and fill it with lager",
-          "hint": "Take a clean mug, pour lager almost to the top and add a foam cap.",
+          "tags": [
+            "beer",
+            "easy"
+          ],
+          "shortHint": "Načapujte plný pohár piva",
+          "hint": "Naplňte čistý pohár pivom a položte ho na podnos.",
           "steps": [
-            "Take beer mug",
-            "Fill with lager to ~90%",
-            "Add foam on top"
-          ]
+            "Vezmite pohár",
+            "Naplňte ho pivom",
+            "Položte ho na podnos"
+          ],
+          "displayName": "Čapované pivo"
         }
-      ]
+      ],
+      "displayName": "Prvá zmena"
     },
-
     {
       "id": 2,
       "name": "Busy Taproom",
@@ -30,34 +33,47 @@
       "timeLimit": 170,
       "target": 5,
       "ingredients": [
-        { "id": "cola", "label": "Cola" }
+        {
+          "id": "cola",
+          "label": "Cola",
+          "displayLabel": "Kola"
+        }
       ],
       "orders": [
         {
           "name": "Pint of Lager",
-          "tags": ["beer", "easy"],
-          "shortHint": "Take beer mug and fill it with lager",
-          "hint": "Take a clean mug, pour lager almost to the top and add a foam cap.",
+          "tags": [
+            "beer",
+            "easy"
+          ],
+          "shortHint": "Načapujte plný pohár piva",
+          "hint": "Naplňte čistý pohár pivom a položte ho na podnos.",
           "steps": [
-            "Take beer mug",
-            "Fill with lager to ~90%",
-            "Add foam on top"
-          ]
+            "Vezmite pohár",
+            "Naplňte ho pivom",
+            "Položte ho na podnos"
+          ],
+          "displayName": "Čapované pivo"
         },
         {
           "name": "Shandy",
-          "tags": ["beer", "cola", "soft"],
-          "shortHint": "Half lager, half cola",
-          "hint": "Use tall glass, pour lager then cola 1:1.",
+          "tags": [
+            "beer",
+            "cola",
+            "soft"
+          ],
+          "shortHint": "Pivo a kola v jednom pohári",
+          "hint": "Načapujte pivo, pridajte kolu a položte pohár na podnos.",
           "steps": [
-            "Take tall glass",
-            "Pour lager to ~50%",
-            "Top with cola to 100%"
-          ]
+            "Načapujte pivo",
+            "Pridajte kolu",
+            "Položte pohár na podnos"
+          ],
+          "displayName": "Shandy"
         }
-      ]
+      ],
+      "displayName": "Rušný výčap"
     },
-
     {
       "id": 3,
       "name": "Rum & Cola Night",
@@ -65,51 +81,85 @@
       "timeLimit": 170,
       "target": 6,
       "ingredients": [
-        { "id": "rum", "label": "Rum" },
-        { "id": "cola", "label": "Cola" },
-        { "id": "lime", "label": "Lime wedge" },
-        { "id": "ice", "label": "Ice cubes" }
+        {
+          "id": "rum",
+          "label": "Rum",
+          "displayLabel": "Rum"
+        },
+        {
+          "id": "cola",
+          "label": "Cola",
+          "displayLabel": "Kola"
+        },
+        {
+          "id": "lime",
+          "label": "Lime wedge",
+          "displayLabel": "Limeta"
+        },
+        {
+          "id": "ice",
+          "label": "Ice cubes",
+          "displayLabel": "Ľad"
+        }
       ],
       "orders": [
         {
           "name": "Pint of Lager",
-          "tags": ["beer", "easy"],
-          "shortHint": "Take beer mug and fill it with lager",
-          "hint": "Take a clean mug, pour lager almost to the top and add a foam cap.",
+          "tags": [
+            "beer",
+            "easy"
+          ],
+          "shortHint": "Načapujte plný pohár piva",
+          "hint": "Naplňte čistý pohár pivom a položte ho na podnos.",
           "steps": [
-            "Take beer mug",
-            "Fill with lager to ~90%",
-            "Add foam on top"
-          ]
+            "Vezmite pohár",
+            "Naplňte ho pivom",
+            "Položte ho na podnos"
+          ],
+          "displayName": "Čapované pivo"
         },
         {
           "name": "Shandy",
-          "tags": ["beer", "cola", "soft"],
-          "shortHint": "Half lager, half cola",
-          "hint": "Use tall glass, pour lager then cola 1:1.",
+          "tags": [
+            "beer",
+            "cola",
+            "soft"
+          ],
+          "shortHint": "Pivo a kola v jednom pohári",
+          "hint": "Načapujte pivo, pridajte kolu a položte pohár na podnos.",
           "steps": [
-            "Take tall glass",
-            "Pour lager to ~50%",
-            "Top with cola to 100%"
-          ]
+            "Načapujte pivo",
+            "Pridajte kolu",
+            "Položte pohár na podnos"
+          ],
+          "displayName": "Shandy"
         },
         {
           "name": "Cuba Libre",
-          "tags": ["rum", "citrus"],
-          "shortHint": "Mix in shaker: ice, rum, cola, lime",
-          "hint": "Mix ice, rum, cola and lime in shaker, then serve.",
-          "ingredients": ["ice", "rum", "cola", "lime"],
+          "tags": [
+            "rum",
+            "citrus"
+          ],
+          "shortHint": "Ľad, rum, kola a limeta",
+          "hint": "V šejkri zmiešajte ľad, rum, kolu a limetu.",
+          "ingredients": [
+            "ice",
+            "rum",
+            "cola",
+            "lime"
+          ],
           "steps": [
-            "Add ice cubes to shaker",
-            "Add rum to shaker",
-            "Add cola to shaker",
-            "Add lime to shaker",
-            "Shake well"
-          ]
+            "Pridajte ľad",
+            "Pridajte rum",
+            "Pridajte kolu",
+            "Pridajte limetu",
+            "Dobre premiešajte"
+          ],
+          "displayName": "Cuba Libre"
         }
-      ]
+      ],
+      "displayName": "Noc rumu a koly"
     },
-
     {
       "id": 4,
       "name": "Garden Mojitos",
@@ -117,69 +167,126 @@
       "timeLimit": 180,
       "target": 6,
       "ingredients": [
-        { "id": "rum", "label": "Rum" },
-        { "id": "cola", "label": "Cola" },
-        { "id": "lime", "label": "Lime wedge" },
-        { "id": "ice", "label": "Ice cubes" },
-        { "id": "mint", "label": "Mint leaves" },
-        { "id": "syrup", "label": "Sugar syrup" },
-        { "id": "soda", "label": "Soda water" }
+        {
+          "id": "rum",
+          "label": "Rum",
+          "displayLabel": "Rum"
+        },
+        {
+          "id": "cola",
+          "label": "Cola",
+          "displayLabel": "Kola"
+        },
+        {
+          "id": "lime",
+          "label": "Lime wedge",
+          "displayLabel": "Limeta"
+        },
+        {
+          "id": "ice",
+          "label": "Ice cubes",
+          "displayLabel": "Ľad"
+        },
+        {
+          "id": "mint",
+          "label": "Mint leaves",
+          "displayLabel": "Mäta"
+        },
+        {
+          "id": "syrup",
+          "label": "Sugar syrup",
+          "displayLabel": "Cukrový sirup"
+        },
+        {
+          "id": "soda",
+          "label": "Soda water",
+          "displayLabel": "Sóda"
+        }
       ],
       "orders": [
         {
           "name": "Pint of Lager",
-          "tags": ["beer", "easy"],
-          "shortHint": "Take beer mug and fill it with lager",
-          "hint": "Take a clean mug, pour lager almost to the top and add a foam cap.",
+          "tags": [
+            "beer",
+            "easy"
+          ],
+          "shortHint": "Načapujte plný pohár piva",
+          "hint": "Naplňte čistý pohár pivom a položte ho na podnos.",
           "steps": [
-            "Take beer mug",
-            "Fill with lager to ~90%",
-            "Add foam on top"
-          ]
+            "Vezmite pohár",
+            "Naplňte ho pivom",
+            "Položte ho na podnos"
+          ],
+          "displayName": "Čapované pivo"
         },
         {
           "name": "Shandy",
-          "tags": ["beer", "cola", "soft"],
-          "shortHint": "Half lager, half cola",
-          "hint": "Use tall glass, pour lager then cola 1:1.",
+          "tags": [
+            "beer",
+            "cola",
+            "soft"
+          ],
+          "shortHint": "Pivo a kola v jednom pohári",
+          "hint": "Načapujte pivo, pridajte kolu a položte pohár na podnos.",
           "steps": [
-            "Take tall glass",
-            "Pour lager to ~50%",
-            "Top with cola to 100%"
-          ]
+            "Načapujte pivo",
+            "Pridajte kolu",
+            "Položte pohár na podnos"
+          ],
+          "displayName": "Shandy"
         },
         {
           "name": "Cuba Libre",
-          "tags": ["rum", "citrus"],
-          "shortHint": "Mix in shaker: ice, rum, cola, lime",
-          "hint": "Mix ice, rum, cola and lime in shaker, then serve.",
-          "ingredients": ["ice", "rum", "cola", "lime"],
+          "tags": [
+            "rum",
+            "citrus"
+          ],
+          "shortHint": "Ľad, rum, kola a limeta",
+          "hint": "V šejkri zmiešajte ľad, rum, kolu a limetu.",
+          "ingredients": [
+            "ice",
+            "rum",
+            "cola",
+            "lime"
+          ],
           "steps": [
-            "Add ice cubes to shaker",
-            "Add rum to shaker",
-            "Add cola to shaker",
-            "Add lime to shaker",
-            "Shake well"
-          ]
+            "Pridajte ľad",
+            "Pridajte rum",
+            "Pridajte kolu",
+            "Pridajte limetu",
+            "Dobre premiešajte"
+          ],
+          "displayName": "Cuba Libre"
         },
         {
           "name": "Mojito",
-          "tags": ["rum", "herbal"],
-          "shortHint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
-          "hint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
-          "ingredients": ["mint", "lime", "syrup", "rum", "ice", "soda"],
+          "tags": [
+            "rum",
+            "herbal"
+          ],
+          "shortHint": "Mäta, limeta, sirup, rum, ľad a sóda",
+          "hint": "V šejkri zmiešajte mätu, limetu, sirup, rum, ľad a sódu.",
+          "ingredients": [
+            "mint",
+            "lime",
+            "syrup",
+            "rum",
+            "ice",
+            "soda"
+          ],
           "steps": [
-            "Add mint leaves",
-            "Add lime wedge",
-            "Add sugar syrup",
-            "Add rum to shaker",
-            "Add ice cubes",
-            "Top with soda water"
-          ]
+            "Pridajte mätu",
+            "Pridajte limetu",
+            "Pridajte cukrový sirup",
+            "Pridajte rum",
+            "Pridajte ľad",
+            "Doplňte sódu"
+          ],
+          "displayName": "Mojito"
         }
-      ]
+      ],
+      "displayName": "Záhradné mojitá"
     },
-
     {
       "id": 5,
       "name": "Clear & Bubbly",
@@ -187,86 +294,158 @@
       "timeLimit": 170,
       "target": 7,
       "ingredients": [
-        { "id": "rum", "label": "Rum" },
-        { "id": "cola", "label": "Cola" },
-        { "id": "lime", "label": "Lime wedge" },
-        { "id": "ice", "label": "Ice cubes" },
-        { "id": "mint", "label": "Mint leaves" },
-        { "id": "syrup", "label": "Sugar syrup" },
-        { "id": "soda", "label": "Soda water" },
-        { "id": "gin", "label": "Gin" },
-        { "id": "tonic", "label": "Tonic water" }
-     
+        {
+          "id": "rum",
+          "label": "Rum",
+          "displayLabel": "Rum"
+        },
+        {
+          "id": "cola",
+          "label": "Cola",
+          "displayLabel": "Kola"
+        },
+        {
+          "id": "lime",
+          "label": "Lime wedge",
+          "displayLabel": "Limeta"
+        },
+        {
+          "id": "ice",
+          "label": "Ice cubes",
+          "displayLabel": "Ľad"
+        },
+        {
+          "id": "mint",
+          "label": "Mint leaves",
+          "displayLabel": "Mäta"
+        },
+        {
+          "id": "syrup",
+          "label": "Sugar syrup",
+          "displayLabel": "Cukrový sirup"
+        },
+        {
+          "id": "soda",
+          "label": "Soda water",
+          "displayLabel": "Sóda"
+        },
+        {
+          "id": "gin",
+          "label": "Gin",
+          "displayLabel": "Gin"
+        },
+        {
+          "id": "tonic",
+          "label": "Tonic water",
+          "displayLabel": "Tonik"
+        }
       ],
       "orders": [
         {
           "name": "Pint of Lager",
-          "tags": ["beer", "easy"],
-          "shortHint": "Take beer mug and fill it with lager",
-          "hint": "Take a clean mug, pour lager almost to the top and add a foam cap.",
+          "tags": [
+            "beer",
+            "easy"
+          ],
+          "shortHint": "Načapujte plný pohár piva",
+          "hint": "Naplňte čistý pohár pivom a položte ho na podnos.",
           "steps": [
-            "Take beer mug",
-            "Fill with lager to ~90%",
-            "Add foam on top"
-          ]
+            "Vezmite pohár",
+            "Naplňte ho pivom",
+            "Položte ho na podnos"
+          ],
+          "displayName": "Čapované pivo"
         },
         {
           "name": "Shandy",
-          "tags": ["beer", "cola", "soft"],
-          "shortHint": "Half lager, half cola",
-          "hint": "Use tall glass, pour lager then cola 1:1.",
+          "tags": [
+            "beer",
+            "cola",
+            "soft"
+          ],
+          "shortHint": "Pivo a kola v jednom pohári",
+          "hint": "Načapujte pivo, pridajte kolu a položte pohár na podnos.",
           "steps": [
-            "Take tall glass",
-            "Pour lager to ~50%",
-            "Top with cola to 100%"
-          ]
+            "Načapujte pivo",
+            "Pridajte kolu",
+            "Položte pohár na podnos"
+          ],
+          "displayName": "Shandy"
         },
         {
           "name": "Cuba Libre",
-          "tags": ["rum", "citrus"],
-          "shortHint": "Mix in shaker: ice, rum, cola, lime",
-          "hint": "Mix ice, rum, cola and lime in shaker, then serve.",
-          "ingredients": ["ice", "rum", "cola", "lime"],
+          "tags": [
+            "rum",
+            "citrus"
+          ],
+          "shortHint": "Ľad, rum, kola a limeta",
+          "hint": "V šejkri zmiešajte ľad, rum, kolu a limetu.",
+          "ingredients": [
+            "ice",
+            "rum",
+            "cola",
+            "lime"
+          ],
           "steps": [
-            "Add ice cubes to shaker",
-            "Add rum to shaker",
-            "Add cola to shaker",
-            "Add lime to shaker",
-            "Shake well"
-          ]
+            "Pridajte ľad",
+            "Pridajte rum",
+            "Pridajte kolu",
+            "Pridajte limetu",
+            "Dobre premiešajte"
+          ],
+          "displayName": "Cuba Libre"
         },
         {
           "name": "Mojito",
-          "tags": ["rum", "herbal"],
-          "shortHint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
-          "hint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
-          "ingredients": ["mint", "lime", "syrup", "rum", "ice", "soda"],
+          "tags": [
+            "rum",
+            "herbal"
+          ],
+          "shortHint": "Mäta, limeta, sirup, rum, ľad a sóda",
+          "hint": "V šejkri zmiešajte mätu, limetu, sirup, rum, ľad a sódu.",
+          "ingredients": [
+            "mint",
+            "lime",
+            "syrup",
+            "rum",
+            "ice",
+            "soda"
+          ],
           "steps": [
-            "Add mint leaves",
-            "Add lime wedge",
-            "Add sugar syrup",
-            "Add rum to shaker",
-            "Add ice cubes",
-            "Top with soda water"
-          ]
+            "Pridajte mätu",
+            "Pridajte limetu",
+            "Pridajte cukrový sirup",
+            "Pridajte rum",
+            "Pridajte ľad",
+            "Doplňte sódu"
+          ],
+          "displayName": "Mojito"
         },
         {
-          
           "name": "Gin & Tonic",
-          "tags": ["gin", "bubbly"],
-          "shortHint": "Mix in shaker : gin, tonic, ice , lime",
-          "hint": "Mix in shaker : gin, tonic, ice , lime",
-          "ingredients": ["lime", "ice", "gin", "tonic"],
+          "tags": [
+            "gin",
+            "bubbly"
+          ],
+          "shortHint": "Limeta, ľad, gin a tonik",
+          "hint": "V šejkri zmiešajte limetu, ľad, gin a tonik.",
+          "ingredients": [
+            "lime",
+            "ice",
+            "gin",
+            "tonic"
+          ],
           "steps": [
-            "Add lime wedge",
-            "Add ice cubes",
-            "Add gin",
-            "Add tonic water"
-          ]
+            "Pridajte limetu",
+            "Pridajte ľad",
+            "Pridajte gin",
+            "Pridajte tonik"
+          ],
+          "displayName": "Gin & Tonic"
         }
-      ]
+      ],
+      "displayName": "Číre a perlivé"
     },
-
     {
       "id": 6,
       "name": "Old Classics",
@@ -274,102 +453,197 @@
       "timeLimit": 165,
       "target": 7,
       "ingredients": [
-        { "id": "rum", "label": "Rum" },
-        { "id": "cola", "label": "Cola" },
-        { "id": "lime", "label": "Lime wedge" },
-        { "id": "ice", "label": "Ice cubes" },
-        { "id": "mint", "label": "Mint leaves" },
-        { "id": "syrup", "label": "Sugar syrup" },
-        { "id": "soda", "label": "Soda water" },
-        { "id": "gin", "label": "Gin" },
-        { "id": "tonic", "label": "Tonic water" },
-        { "id": "whiskey", "label": "Whiskey" },
-        { "id": "bitters", "label": "Bitters" },
-        { "id": "orange", "label": "Orange peel" }
+        {
+          "id": "rum",
+          "label": "Rum",
+          "displayLabel": "Rum"
+        },
+        {
+          "id": "cola",
+          "label": "Cola",
+          "displayLabel": "Kola"
+        },
+        {
+          "id": "lime",
+          "label": "Lime wedge",
+          "displayLabel": "Limeta"
+        },
+        {
+          "id": "ice",
+          "label": "Ice cubes",
+          "displayLabel": "Ľad"
+        },
+        {
+          "id": "mint",
+          "label": "Mint leaves",
+          "displayLabel": "Mäta"
+        },
+        {
+          "id": "syrup",
+          "label": "Sugar syrup",
+          "displayLabel": "Cukrový sirup"
+        },
+        {
+          "id": "soda",
+          "label": "Soda water",
+          "displayLabel": "Sóda"
+        },
+        {
+          "id": "gin",
+          "label": "Gin",
+          "displayLabel": "Gin"
+        },
+        {
+          "id": "tonic",
+          "label": "Tonic water",
+          "displayLabel": "Tonik"
+        },
+        {
+          "id": "whiskey",
+          "label": "Whiskey",
+          "displayLabel": "Whisky"
+        },
+        {
+          "id": "bitters",
+          "label": "Bitters",
+          "displayLabel": "Bitter"
+        },
+        {
+          "id": "orange",
+          "label": "Orange peel",
+          "displayLabel": "Pomarančová kôra"
+        }
       ],
       "orders": [
         {
           "name": "Pint of Lager",
-          "tags": ["beer", "easy"],
-          "shortHint": "Take beer mug and fill it with lager",
-          "hint": "Take a clean mug, pour lager almost to the top and add a foam cap.",
+          "tags": [
+            "beer",
+            "easy"
+          ],
+          "shortHint": "Načapujte plný pohár piva",
+          "hint": "Naplňte čistý pohár pivom a položte ho na podnos.",
           "steps": [
-            "Take beer mug",
-            "Fill with lager to ~90%",
-            "Add foam on top"
-          ]
+            "Vezmite pohár",
+            "Naplňte ho pivom",
+            "Položte ho na podnos"
+          ],
+          "displayName": "Čapované pivo"
         },
         {
           "name": "Shandy",
-          "tags": ["beer", "cola", "soft"],
-          "shortHint": "Half lager, half cola",
-          "hint": "Use tall glass, pour lager then cola 1:1.",
+          "tags": [
+            "beer",
+            "cola",
+            "soft"
+          ],
+          "shortHint": "Pivo a kola v jednom pohári",
+          "hint": "Načapujte pivo, pridajte kolu a položte pohár na podnos.",
           "steps": [
-            "Take tall glass",
-            "Pour lager to ~50%",
-            "Top with cola to 100%"
-          ]
+            "Načapujte pivo",
+            "Pridajte kolu",
+            "Položte pohár na podnos"
+          ],
+          "displayName": "Shandy"
         },
         {
           "name": "Cuba Libre",
-          "tags": ["rum", "citrus"],
-          "shortHint": "Mix in shaker: ice, rum, cola, lime",
-          "hint": "Mix ice, rum, cola and lime in shaker, then serve.",
-          "ingredients": ["ice", "rum", "cola", "lime"],
+          "tags": [
+            "rum",
+            "citrus"
+          ],
+          "shortHint": "Ľad, rum, kola a limeta",
+          "hint": "V šejkri zmiešajte ľad, rum, kolu a limetu.",
+          "ingredients": [
+            "ice",
+            "rum",
+            "cola",
+            "lime"
+          ],
           "steps": [
-            "Add ice cubes to shaker",
-            "Add rum to shaker",
-            "Add cola to shaker",
-            "Add lime to shaker",
-            "Shake well"
-          ]
+            "Pridajte ľad",
+            "Pridajte rum",
+            "Pridajte kolu",
+            "Pridajte limetu",
+            "Dobre premiešajte"
+          ],
+          "displayName": "Cuba Libre"
         },
         {
           "name": "Mojito",
-          "tags": ["rum", "herbal"],
-          "shortHint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
-          "hint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
-          "ingredients": ["mint", "lime", "syrup", "rum", "ice", "soda"],
+          "tags": [
+            "rum",
+            "herbal"
+          ],
+          "shortHint": "Mäta, limeta, sirup, rum, ľad a sóda",
+          "hint": "V šejkri zmiešajte mätu, limetu, sirup, rum, ľad a sódu.",
+          "ingredients": [
+            "mint",
+            "lime",
+            "syrup",
+            "rum",
+            "ice",
+            "soda"
+          ],
           "steps": [
-            "Add mint leaves",
-            "Add lime wedge",
-            "Add sugar syrup",
-            "Add rum to shaker",
-            "Add ice cubes",
-            "Top with soda water"
-          ]
+            "Pridajte mätu",
+            "Pridajte limetu",
+            "Pridajte cukrový sirup",
+            "Pridajte rum",
+            "Pridajte ľad",
+            "Doplňte sódu"
+          ],
+          "displayName": "Mojito"
         },
         {
-          
           "name": "Gin & Tonic",
-          "tags": ["gin", "bubbly"],
-          "shortHint": "Mix in shaker : gin, tonic, ice , lime",
-          "hint": "Mix in shaker : gin, tonic, ice , lime",
-          "ingredients": ["lime", "ice", "gin", "tonic"],
+          "tags": [
+            "gin",
+            "bubbly"
+          ],
+          "shortHint": "Limeta, ľad, gin a tonik",
+          "hint": "V šejkri zmiešajte limetu, ľad, gin a tonik.",
+          "ingredients": [
+            "lime",
+            "ice",
+            "gin",
+            "tonic"
+          ],
           "steps": [
-            "Add lime wedge",
-            "Add ice cubes",
-            "Add gin",
-            "Add tonic water"
-          ]
+            "Pridajte limetu",
+            "Pridajte ľad",
+            "Pridajte gin",
+            "Pridajte tonik"
+          ],
+          "displayName": "Gin & Tonic"
         },
         {
           "name": "Old Fashioned",
-          "tags": ["whiskey", "stirred"],
-          "shortHint": "Mix in shaker : syrup, bitters, ice, whiskey, orange",
-          "hint": "Mix syrup, bitters, ice, whiskey and orange in shaker, then serve.",
-          "ingredients": ["syrup", "bitters", "ice", "whiskey", "orange"],
+          "tags": [
+            "whiskey",
+            "stirred"
+          ],
+          "shortHint": "Sirup, bitter, ľad, whisky a pomaranč",
+          "hint": "Zmiešajte sirup, bitter, ľad, whisky a pomarančovú kôru.",
+          "ingredients": [
+            "syrup",
+            "bitters",
+            "ice",
+            "whiskey",
+            "orange"
+          ],
           "steps": [
-            "Add syrup splash",
-            "Add bitters",
-            "Add ice cubes",
-            "Add whiskey",
-            "Add orange peel"
-          ]
+            "Pridajte sirup",
+            "Pridajte bitter",
+            "Pridajte ľad",
+            "Pridajte whisky",
+            "Pridajte pomarančovú kôru"
+          ],
+          "displayName": "Old Fashioned"
         }
-      ]
+      ],
+      "displayName": "Staré klasiky"
     },
-
     {
       "id": 7,
       "name": "Negroni Ritual",
@@ -377,117 +651,231 @@
       "timeLimit": 160,
       "target": 8,
       "ingredients": [
-        { "id": "rum", "label": "Rum" },
-        { "id": "cola", "label": "Cola" },
-        { "id": "lime", "label": "Lime wedge" },
-        { "id": "ice", "label": "Ice cubes" },
-        { "id": "mint", "label": "Mint leaves" },
-        { "id": "syrup", "label": "Sugar syrup" },
-        { "id": "soda", "label": "Soda water" },
-        { "id": "gin", "label": "Gin" },
-        { "id": "tonic", "label": "Tonic water" },
-        { "id": "whiskey", "label": "Whiskey" },
-        { "id": "bitters", "label": "Bitters" },
-        { "id": "orange", "label": "Orange peel" },
-        { "id": "vermouth", "label": "Red vermouth" },
-        { "id": "bitter", "label": "Red bitter" }
+        {
+          "id": "rum",
+          "label": "Rum",
+          "displayLabel": "Rum"
+        },
+        {
+          "id": "cola",
+          "label": "Cola",
+          "displayLabel": "Kola"
+        },
+        {
+          "id": "lime",
+          "label": "Lime wedge",
+          "displayLabel": "Limeta"
+        },
+        {
+          "id": "ice",
+          "label": "Ice cubes",
+          "displayLabel": "Ľad"
+        },
+        {
+          "id": "mint",
+          "label": "Mint leaves",
+          "displayLabel": "Mäta"
+        },
+        {
+          "id": "syrup",
+          "label": "Sugar syrup",
+          "displayLabel": "Cukrový sirup"
+        },
+        {
+          "id": "soda",
+          "label": "Soda water",
+          "displayLabel": "Sóda"
+        },
+        {
+          "id": "gin",
+          "label": "Gin",
+          "displayLabel": "Gin"
+        },
+        {
+          "id": "tonic",
+          "label": "Tonic water",
+          "displayLabel": "Tonik"
+        },
+        {
+          "id": "whiskey",
+          "label": "Whiskey",
+          "displayLabel": "Whisky"
+        },
+        {
+          "id": "bitters",
+          "label": "Bitters",
+          "displayLabel": "Bitter"
+        },
+        {
+          "id": "orange",
+          "label": "Orange peel",
+          "displayLabel": "Pomarančová kôra"
+        },
+        {
+          "id": "vermouth",
+          "label": "Red vermouth",
+          "displayLabel": "Červený vermút"
+        },
+        {
+          "id": "bitter",
+          "label": "Red bitter",
+          "displayLabel": "Červený bitter"
+        }
       ],
       "orders": [
         {
           "name": "Pint of Lager",
-          "tags": ["beer", "easy"],
-          "shortHint": "Take beer mug and fill it with lager",
-          "hint": "Take a clean mug, pour lager almost to the top and add a foam cap.",
+          "tags": [
+            "beer",
+            "easy"
+          ],
+          "shortHint": "Načapujte plný pohár piva",
+          "hint": "Naplňte čistý pohár pivom a položte ho na podnos.",
           "steps": [
-            "Take beer mug",
-            "Fill with lager to ~90%",
-            "Add foam on top"
-          ]
+            "Vezmite pohár",
+            "Naplňte ho pivom",
+            "Položte ho na podnos"
+          ],
+          "displayName": "Čapované pivo"
         },
         {
           "name": "Shandy",
-          "tags": ["beer", "cola", "soft"],
-          "shortHint": "Half lager, half cola",
-          "hint": "Use tall glass, pour lager then cola 1:1.",
+          "tags": [
+            "beer",
+            "cola",
+            "soft"
+          ],
+          "shortHint": "Pivo a kola v jednom pohári",
+          "hint": "Načapujte pivo, pridajte kolu a položte pohár na podnos.",
           "steps": [
-            "Take tall glass",
-            "Pour lager to ~50%",
-            "Top with cola to 100%"
-          ]
+            "Načapujte pivo",
+            "Pridajte kolu",
+            "Položte pohár na podnos"
+          ],
+          "displayName": "Shandy"
         },
         {
           "name": "Cuba Libre",
-          "tags": ["rum", "citrus"],
-          "shortHint": "Mix in shaker: ice, rum, cola, lime",
-          "hint": "Mix ice, rum, cola and lime in shaker, then serve.",
-          "ingredients": ["ice", "rum", "cola", "lime"],
+          "tags": [
+            "rum",
+            "citrus"
+          ],
+          "shortHint": "Ľad, rum, kola a limeta",
+          "hint": "V šejkri zmiešajte ľad, rum, kolu a limetu.",
+          "ingredients": [
+            "ice",
+            "rum",
+            "cola",
+            "lime"
+          ],
           "steps": [
-            "Add ice cubes to shaker",
-            "Add rum to shaker",
-            "Add cola to shaker",
-            "Add lime to shaker",
-            "Shake well"
-          ]
+            "Pridajte ľad",
+            "Pridajte rum",
+            "Pridajte kolu",
+            "Pridajte limetu",
+            "Dobre premiešajte"
+          ],
+          "displayName": "Cuba Libre"
         },
         {
           "name": "Mojito",
-          "tags": ["rum", "herbal"],
-          "shortHint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
-          "hint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
-          "ingredients": ["mint", "lime", "syrup", "rum", "ice", "soda"],
+          "tags": [
+            "rum",
+            "herbal"
+          ],
+          "shortHint": "Mäta, limeta, sirup, rum, ľad a sóda",
+          "hint": "V šejkri zmiešajte mätu, limetu, sirup, rum, ľad a sódu.",
+          "ingredients": [
+            "mint",
+            "lime",
+            "syrup",
+            "rum",
+            "ice",
+            "soda"
+          ],
           "steps": [
-            "Add mint leaves",
-            "Add lime wedge",
-            "Add sugar syrup",
-            "Add rum to shaker",
-            "Add ice cubes",
-            "Top with soda water"
-          ]
+            "Pridajte mätu",
+            "Pridajte limetu",
+            "Pridajte cukrový sirup",
+            "Pridajte rum",
+            "Pridajte ľad",
+            "Doplňte sódu"
+          ],
+          "displayName": "Mojito"
         },
         {
           "name": "Gin & Tonic",
-          "tags": ["gin", "bubbly"],
-          "shortHint": "Mix in shaker : gin, tonic, ice , lime",
-          "hint": "Mix in shaker : gin, tonic, ice , lime",
-          "ingredients": ["lime", "ice", "gin", "tonic"],
+          "tags": [
+            "gin",
+            "bubbly"
+          ],
+          "shortHint": "Limeta, ľad, gin a tonik",
+          "hint": "V šejkri zmiešajte limetu, ľad, gin a tonik.",
+          "ingredients": [
+            "lime",
+            "ice",
+            "gin",
+            "tonic"
+          ],
           "steps": [
-            "Add lime wedge",
-            "Add ice cubes",
-            "Add gin",
-            "Add tonic water"
-          ]
+            "Pridajte limetu",
+            "Pridajte ľad",
+            "Pridajte gin",
+            "Pridajte tonik"
+          ],
+          "displayName": "Gin & Tonic"
         },
         {
           "name": "Old Fashioned",
-          "tags": ["whiskey", "stirred"],
-          "shortHint": "Mix in shaker : syrup, bitters, ice, whiskey, orange",
-          "hint": "Mix syrup, bitters, ice, whiskey and orange in shaker, then serve.",
-          "ingredients": ["syrup", "bitters", "ice", "whiskey", "orange"],
+          "tags": [
+            "whiskey",
+            "stirred"
+          ],
+          "shortHint": "Sirup, bitter, ľad, whisky a pomaranč",
+          "hint": "Zmiešajte sirup, bitter, ľad, whisky a pomarančovú kôru.",
+          "ingredients": [
+            "syrup",
+            "bitters",
+            "ice",
+            "whiskey",
+            "orange"
+          ],
           "steps": [
-            "Add syrup splash",
-            "Add bitters",
-            "Add ice cubes",
-            "Add whiskey",
-            "Add orange peel"
-          ]
+            "Pridajte sirup",
+            "Pridajte bitter",
+            "Pridajte ľad",
+            "Pridajte whisky",
+            "Pridajte pomarančovú kôru"
+          ],
+          "displayName": "Old Fashioned"
         },
         {
           "name": "Negroni",
-          "tags": ["bitter", "classic"],
-          "shortHint": "Mix in shaker : gin, red bitter, vermouth, ice, orange",
-          "hint": "Mix gin, red bitter, vermouth, ice and orange in shaker, then serve.",
-          "ingredients": ["ice", "gin", "bitter", "vermouth", "orange"],
+          "tags": [
+            "bitter",
+            "classic"
+          ],
+          "shortHint": "Ľad, gin, bitter, vermút a pomaranč",
+          "hint": "Zmiešajte ľad, gin, červený bitter, vermút a pomaranč.",
+          "ingredients": [
+            "ice",
+            "gin",
+            "bitter",
+            "vermouth",
+            "orange"
+          ],
           "steps": [
-            "Add ice cubes",
-            "Add gin",
-            "Add bitter",
-            "Add vermouth",
-            "Add orange peel"
-          ]
+            "Pridajte ľad",
+            "Pridajte gin",
+            "Pridajte červený bitter",
+            "Pridajte vermút",
+            "Pridajte pomarančovú kôru"
+          ],
+          "displayName": "Negroni"
         }
-      ]
+      ],
+      "displayName": "Negroni rituál"
     },
-
     {
       "id": 8,
       "name": "Arcane Specials",
@@ -495,145 +883,288 @@
       "timeLimit": 150,
       "target": 9,
       "ingredients": [
-        { "id": "rum", "label": "Rum" },
-        { "id": "cola", "label": "Cola" },
-        { "id": "lime", "label": "Lime wedge" },
-        { "id": "ice", "label": "Ice cubes" },
-        { "id": "mint", "label": "Mint leaves" },
-        { "id": "syrup", "label": "Sugar syrup" },
-        { "id": "soda", "label": "Soda water" },
-        { "id": "gin", "label": "Gin" },
-        { "id": "tonic", "label": "Tonic water" },
-        { "id": "whiskey", "label": "Whiskey" },
-        { "id": "bitters", "label": "Bitters" },
-        { "id": "orange", "label": "Orange peel" },
-        { "id": "vermouth", "label": "Red vermouth" },
-        { "id": "bitter", "label": "Red bitter" },
-        { "id": "blueEssence", "label": "Blue mana syrup" },
-        { "id": "chiliSyrup", "label": "Dragon chili syrup" }
+        {
+          "id": "rum",
+          "label": "Rum",
+          "displayLabel": "Rum"
+        },
+        {
+          "id": "cola",
+          "label": "Cola",
+          "displayLabel": "Kola"
+        },
+        {
+          "id": "lime",
+          "label": "Lime wedge",
+          "displayLabel": "Limeta"
+        },
+        {
+          "id": "ice",
+          "label": "Ice cubes",
+          "displayLabel": "Ľad"
+        },
+        {
+          "id": "mint",
+          "label": "Mint leaves",
+          "displayLabel": "Mäta"
+        },
+        {
+          "id": "syrup",
+          "label": "Sugar syrup",
+          "displayLabel": "Cukrový sirup"
+        },
+        {
+          "id": "soda",
+          "label": "Soda water",
+          "displayLabel": "Sóda"
+        },
+        {
+          "id": "gin",
+          "label": "Gin",
+          "displayLabel": "Gin"
+        },
+        {
+          "id": "tonic",
+          "label": "Tonic water",
+          "displayLabel": "Tonik"
+        },
+        {
+          "id": "whiskey",
+          "label": "Whiskey",
+          "displayLabel": "Whisky"
+        },
+        {
+          "id": "bitters",
+          "label": "Bitters",
+          "displayLabel": "Bitter"
+        },
+        {
+          "id": "orange",
+          "label": "Orange peel",
+          "displayLabel": "Pomarančová kôra"
+        },
+        {
+          "id": "vermouth",
+          "label": "Red vermouth",
+          "displayLabel": "Červený vermút"
+        },
+        {
+          "id": "bitter",
+          "label": "Red bitter",
+          "displayLabel": "Červený bitter"
+        },
+        {
+          "id": "blueEssence",
+          "label": "Blue mana syrup",
+          "displayLabel": "Modrá mana esencia"
+        },
+        {
+          "id": "chiliSyrup",
+          "label": "Dragon chili syrup",
+          "displayLabel": "Dračí čili sirup"
+        }
       ],
       "orders": [
         {
           "name": "Pint of Lager",
-          "tags": ["beer", "easy"],
-          "shortHint": "Take beer mug and fill it with lager",
-          "hint": "Take a clean mug, pour lager almost to the top and add a foam cap.",
+          "tags": [
+            "beer",
+            "easy"
+          ],
+          "shortHint": "Načapujte plný pohár piva",
+          "hint": "Naplňte čistý pohár pivom a položte ho na podnos.",
           "steps": [
-            "Take beer mug",
-            "Fill with lager to ~90%",
-            "Add foam on top"
-          ]
+            "Vezmite pohár",
+            "Naplňte ho pivom",
+            "Položte ho na podnos"
+          ],
+          "displayName": "Čapované pivo"
         },
         {
           "name": "Shandy",
-          "tags": ["beer", "cola", "soft"],
-          "shortHint": "Half lager, half cola",
-          "hint": "Use tall glass, pour lager then cola 1:1.",
+          "tags": [
+            "beer",
+            "cola",
+            "soft"
+          ],
+          "shortHint": "Pivo a kola v jednom pohári",
+          "hint": "Načapujte pivo, pridajte kolu a položte pohár na podnos.",
           "steps": [
-            "Take tall glass",
-            "Pour lager to ~50%",
-            "Top with cola to 100%"
-          ]
+            "Načapujte pivo",
+            "Pridajte kolu",
+            "Položte pohár na podnos"
+          ],
+          "displayName": "Shandy"
         },
         {
           "name": "Cuba Libre",
-          "tags": ["rum", "citrus"],
-          "shortHint": "Mix in shaker: ice, rum, cola, lime",
-          "hint": "Mix ice, rum, cola and lime in shaker, then serve.",
-          "ingredients": ["ice", "rum", "cola", "lime"],
+          "tags": [
+            "rum",
+            "citrus"
+          ],
+          "shortHint": "Ľad, rum, kola a limeta",
+          "hint": "V šejkri zmiešajte ľad, rum, kolu a limetu.",
+          "ingredients": [
+            "ice",
+            "rum",
+            "cola",
+            "lime"
+          ],
           "steps": [
-            "Add ice cubes to shaker",
-            "Add rum to shaker",
-            "Add cola to shaker",
-            "Add lime to shaker",
-            "Shake well"
-          ]
+            "Pridajte ľad",
+            "Pridajte rum",
+            "Pridajte kolu",
+            "Pridajte limetu",
+            "Dobre premiešajte"
+          ],
+          "displayName": "Cuba Libre"
         },
         {
           "name": "Mojito",
-          "tags": ["rum", "herbal"],
-          "shortHint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
-          "hint": "Mix in shaker :muddle mint + lime, rum, ice, soda, syrup",
-          "ingredients": ["mint", "lime", "syrup", "rum", "ice", "soda"],
+          "tags": [
+            "rum",
+            "herbal"
+          ],
+          "shortHint": "Mäta, limeta, sirup, rum, ľad a sóda",
+          "hint": "V šejkri zmiešajte mätu, limetu, sirup, rum, ľad a sódu.",
+          "ingredients": [
+            "mint",
+            "lime",
+            "syrup",
+            "rum",
+            "ice",
+            "soda"
+          ],
           "steps": [
-            "Add mint leaves",
-            "Add lime wedge",
-            "Add sugar syrup",
-            "Add rum to shaker",
-            "Add ice cubes",
-            "Top with soda water"
-          ]
+            "Pridajte mätu",
+            "Pridajte limetu",
+            "Pridajte cukrový sirup",
+            "Pridajte rum",
+            "Pridajte ľad",
+            "Doplňte sódu"
+          ],
+          "displayName": "Mojito"
         },
         {
           "name": "Gin & Tonic",
-          "tags": ["gin", "bubbly"],
-          "shortHint": "Mix in shaker : gin, tonic, ice , lime",
-          "hint": "Mix in shaker : gin, tonic, ice , lime",
-          "ingredients": ["lime", "ice", "gin", "tonic"],
+          "tags": [
+            "gin",
+            "bubbly"
+          ],
+          "shortHint": "Limeta, ľad, gin a tonik",
+          "hint": "V šejkri zmiešajte limetu, ľad, gin a tonik.",
+          "ingredients": [
+            "lime",
+            "ice",
+            "gin",
+            "tonic"
+          ],
           "steps": [
-            "Add lime wedge",
-            "Add ice cubes",
-            "Add gin",
-            "Add tonic water"
-          ]
+            "Pridajte limetu",
+            "Pridajte ľad",
+            "Pridajte gin",
+            "Pridajte tonik"
+          ],
+          "displayName": "Gin & Tonic"
         },
         {
           "name": "Old Fashioned",
-          "tags": ["whiskey", "stirred"],
-          "shortHint": "Mix in shaker : syrup, bitters, ice, whiskey, orange",
-          "hint": "Mix syrup, bitters, ice, whiskey and orange in shaker, then serve.",
-          "ingredients": ["syrup", "bitters", "ice", "whiskey", "orange"],
+          "tags": [
+            "whiskey",
+            "stirred"
+          ],
+          "shortHint": "Sirup, bitter, ľad, whisky a pomaranč",
+          "hint": "Zmiešajte sirup, bitter, ľad, whisky a pomarančovú kôru.",
+          "ingredients": [
+            "syrup",
+            "bitters",
+            "ice",
+            "whiskey",
+            "orange"
+          ],
           "steps": [
-            "Add syrup splash",
-            "Add bitters",
-            "Add ice cubes",
-            "Add whiskey",
-            "Add orange peel"
-          ]
+            "Pridajte sirup",
+            "Pridajte bitter",
+            "Pridajte ľad",
+            "Pridajte whisky",
+            "Pridajte pomarančovú kôru"
+          ],
+          "displayName": "Old Fashioned"
         },
         {
           "name": "Negroni",
-          "tags": ["bitter", "classic"],
-          "shortHint": "Mix in shaker : gin, red bitter, vermouth, ice, orange",
-          "hint": "Mix gin, red bitter, vermouth, ice and orange in shaker, then serve.",
-          "ingredients": ["ice", "gin", "bitter", "vermouth", "orange"],
+          "tags": [
+            "bitter",
+            "classic"
+          ],
+          "shortHint": "Ľad, gin, bitter, vermút a pomaranč",
+          "hint": "Zmiešajte ľad, gin, červený bitter, vermút a pomaranč.",
+          "ingredients": [
+            "ice",
+            "gin",
+            "bitter",
+            "vermouth",
+            "orange"
+          ],
           "steps": [
-            "Add ice cubes",
-            "Add gin",
-            "Add bitter",
-            "Add vermouth",
-            "Add orange peel"
-          ]
+            "Pridajte ľad",
+            "Pridajte gin",
+            "Pridajte červený bitter",
+            "Pridajte vermút",
+            "Pridajte pomarančovú kôru"
+          ],
+          "displayName": "Negroni"
         },
         {
           "name": "Mana Elixir",
-          "tags": ["magic", "bubbly"],
-          "shortHint": "Mix in shaker : gin, blueEssence, tonic, ice, lime",
-          "hint": "Mix gin, blueEssence, tonic, ice and lime in shaker, then serve.",
-          "ingredients": ["ice", "gin", "blueEssence", "tonic", "lime"],
+          "tags": [
+            "magic",
+            "bubbly"
+          ],
+          "shortHint": "Ľad, gin, mana esencia, tonik a limeta",
+          "hint": "Zmiešajte ľad, gin, modrú mana esenciu, tonik a limetu.",
+          "ingredients": [
+            "ice",
+            "gin",
+            "blueEssence",
+            "tonic",
+            "lime"
+          ],
           "steps": [
-            "Add ice cubes",
-            "Add gin",
-            "Add blueEssence",
-            "Add tonic",
-            "Add lime wedge"
-          ]
+            "Pridajte ľad",
+            "Pridajte gin",
+            "Pridajte mana esenciu",
+            "Pridajte tonik",
+            "Pridajte limetu"
+          ],
+          "displayName": "Mana elixír"
         },
         {
           "name": "Dragon's Breath",
-          "tags": ["magic", "spicy"],
-          "shortHint": "Mix in rocks glass : ice, rum, red bitter, chiliSyrup, lime",
-          "hint": "Mix ice, rum, red bitter, chiliSyrup and lime in rocks glass, then serve.",
-          "ingredients": ["ice", "rum", "bitter", "chiliSyrup", "lime"],
+          "tags": [
+            "magic",
+            "spicy"
+          ],
+          "shortHint": "Ľad, rum, bitter, čili sirup a limeta",
+          "hint": "Zmiešajte ľad, rum, bitter, dračí čili sirup a limetu.",
+          "ingredients": [
+            "ice",
+            "rum",
+            "bitter",
+            "chiliSyrup",
+            "lime"
+          ],
           "steps": [
-            "Add ice cubes",
-            "Add rum",
-            "Add bitter",
-            "Add chiliSyrup",
-            "Add lime wedge"
-          ]
+            "Pridajte ľad",
+            "Pridajte rum",
+            "Pridajte bitter",
+            "Pridajte čili sirup",
+            "Pridajte limetu"
+          ],
+          "displayName": "Dračí dych"
         }
-      ]
+      ],
+      "displayName": "Magické špeciality"
     }
   ]
 }

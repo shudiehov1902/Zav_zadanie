@@ -1,16 +1,16 @@
 
 <!doctype html>
-<html lang="en">
+<html lang="sk">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#1b1424">
+  <meta name="theme-color" content="#000537">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Tavern Tapper">
-  <title>Tavern Tapper</title>
-  <link rel="icon" type="image/png" href="./src/assets/icons/EmptyPintOfBeer.png">
+  <meta name="apple-mobile-web-app-title" content="Tatra banka Tavern">
+  <title>Tatra banka Tavern</title>
+  <link rel="icon" type="image/svg+xml" href="./src/assets/brand/tatra-banka-logo-blue.svg">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="stylesheet" href="./src/css/style.css">
 </head>
@@ -19,47 +19,47 @@
   <div class="orientation-message" id="orientation-message">
     <div class="orientation-message__content">
       <div class="orientation-message__icon">📱</div>
-      <div class="orientation-message__text">Please rotate your device to landscape mode</div>
-      <div class="orientation-message__subtext">This game is best played in landscape orientation</div>
+      <div class="orientation-message__text">Otočte zariadenie na šírku</div>
+      <div class="orientation-message__subtext">Tatra banka Tavern sa najlepšie hrá v režime na šírku</div>
     </div>
   </div>
 
   <div class="page">
     <header class="topbar">
       <div class="brand">
-        <div class="brand__dot"></div>
+        <img class="brand__logo" src="./src/assets/brand/tatra-banka-logo-white.svg" alt="Tatra banka">
         <div>
-          <div class="brand__title">Tavern Tapper</div>
-          <div class="brand__subtitle">Pixel bar rush PWA</div>
+          <div class="brand__title">Tatra banka Tavern</div>
+          <div class="brand__subtitle">Inovácie, ktoré menia váš svet. Každý deň.</div>
         </div>
       </div>
       <nav class="hud">
         <div class="hud__item">
-          <div class="label">Level</div>
+          <div class="label">Úroveň</div>
           <div id="hud-level" class="value">-</div>
         </div>
         <div class="hud__item">
-          <div class="label">Time</div>
+          <div class="label">Čas</div>
           <div id="hud-time" class="value">00:00</div>
         </div>
         <div class="hud__item">
-          <div class="label">Orders</div>
+          <div class="label">Objednávky</div>
           <div id="hud-orders" class="value">0/0</div>
         </div>
         <div class="hud__item">
-          <div class="label">Best</div>
+          <div class="label">Rekord</div>
           <div id="hud-best" class="value">—</div>
         </div>
         <div class="hud__item">
-          <div class="label">Runs</div>
+          <div class="label">Hry</div>
           <div id="hud-runs" class="value">0</div>
         </div>
-        <button id="btn-recipes" class="btn btn--ghost">Recipes</button>
-        <button id="btn-pause" class="btn btn--ghost">Pause</button>
-        <button id="btn-hint" class="btn btn--ghost">Hint</button>
-        <button id="btn-reset" class="btn btn--ghost">Restart</button>
-        <button id="btn-fullscreen" class="btn btn--ghost" title="Toggle Fullscreen">⛶</button>
-        <button id="btn-instructions" class="btn btn--ghost">Instructions</button>
+        <button id="btn-recipes" class="btn btn--ghost">Recepty</button>
+        <button id="btn-pause" class="btn btn--ghost">Pauza</button>
+        <button id="btn-hint" class="btn btn--ghost">Pomoc</button>
+        <button id="btn-reset" class="btn btn--ghost">Nová hra</button>
+        <button id="btn-fullscreen" class="btn btn--ghost" title="Celá obrazovka">⛶</button>
+        <button id="btn-instructions" class="btn btn--ghost">Návod</button>
       </nav>
     </header>
 
@@ -71,16 +71,24 @@
 
         <!-- Vnútorná vrstva s pevnou veľkosťou (1280x720), škáluje sa podľa okna -->
         <div class="tavern__content">
+          <div class="tatra-sign" aria-hidden="true">
+            <img src="./src/assets/brand/tatra-banka-logo-white.svg" alt="">
+            <span>TATRA BANKA TAVERN</span>
+          </div>
           <div class="visitors" id="visitors-container">
           </div>
 
           <div class="bar-fridge-container">
-            <img src="./src/assets/icons/barfridge.png" alt="Bar fridge" class="bar-fridge__icon" id="bar-fridge" draggable="false">
+            <img src="./src/assets/brand/tatra-fridge.svg" alt="Chladnička" class="bar-fridge__icon" id="bar-fridge" draggable="false">
           </div>
 
           <div class="tray-container">
-            <img src="./src/assets/icons/server.png" alt="Serving tray" class="tray__icon" id="serving-tray" draggable="false">
-            <img src="" alt="" class="tray__drink" id="tray-drink" style="display:none" draggable="false">
+            <img src="./src/assets/brand/tatra-tray.svg" alt="Servírovací podnos" class="tray__icon" id="serving-tray" draggable="false">
+            <img alt="" class="tray__drink" id="tray-drink" style="display:none" draggable="false">
+            <div class="tatra-pos" aria-label="Tatra banka POS terminál">
+              <img src="./src/assets/brand/tatra-banka-logo-white.svg" alt="">
+              <span>PRILOŽTE KARTU</span>
+            </div>
           </div>
 
           <div class="shaker-container">
@@ -88,8 +96,8 @@
                  ondrop="event.preventDefault(); handleDrop(event)" 
                  ondragover="event.preventDefault()"
                  draggable="false">
-              <img src="./src/assets/icons/Shaker.png" alt="Shaker" class="shaker__icon" id="shaker-icon">
-              <div class="shaker__label">Drop ingredients</div>
+              <img src="./src/assets/brand/tatra-shaker.svg" alt="Šejker" class="shaker__icon" id="shaker-icon">
+              <div class="shaker__label">Pridajte ingrediencie</div>
               <div class="shake-progress">
                 <div class="shake-progress__bar" id="shake-progress-bar"></div>
                 <div class="shake-progress__label" id="shake-progress-label">0%</div>
@@ -98,22 +106,22 @@
           </div>
 
           <div class="shaker-ingredients-panel" id="shaker-ingredients-panel">
-            <div class="shaker-ingredients-panel__title">Ingredients in Shaker</div>
+            <div class="shaker-ingredients-panel__title">Ingrediencie v šejkri</div>
             <div class="shaker-ingredients-panel__content" id="shaker-content">
-              <div class="shaker-ingredients-panel__empty">Drop ingredients here</div>
+              <div class="shaker-ingredients-panel__empty">Pridajte ingrediencie</div>
             </div>
           </div>
 
           <div class="beer-tap-container">
-            <img src="./src/assets/icons/beerTap.png" alt="Beer tap" class="beer-tap__icon" id="beer-tap" draggable="false">
+            <img src="./src/assets/brand/tatra-tap.svg" alt="Výčap" class="beer-tap__icon" id="beer-tap" draggable="false">
           </div>
 
           <div class="beer-glass-start">
-            <img src="./src/assets/icons/EmptyPintOfBeer.png" alt="Beer glass" class="beer-tap__glass" id="beer-glass" data-state="empty">
+            <img src="./src/assets/icons/EmptyPintOfBeer.png" alt="Pivný pohár" class="beer-tap__glass" id="beer-glass" data-state="empty">
           </div>
 
           <div class="controls-on-table">
-            <button id="btn-serve" class="btn btn--primary controls-on-table__serve">Serve</button>
+            <button id="btn-serve" class="btn btn--primary controls-on-table__serve">Servírovať</button>
           </div>
         </div>
       </section>
@@ -123,7 +131,7 @@
         <div class="fridge-menu__overlay"></div>
         <div class="fridge-menu__content">
           <div class="fridge-menu__header">
-            <h2 class="fridge-menu__title">Bar Fridge</h2>
+            <h2 class="fridge-menu__title">Chladnička</h2>
             <button class="fridge-menu__close" id="fridge-menu-close">×</button>
           </div>
           <div class="fridge-menu__grid" id="fridge-menu-grid">
@@ -136,7 +144,7 @@
         <div class="recipes-menu__overlay"></div>
         <div class="recipes-menu__content">
           <div class="recipes-menu__header">
-            <h2 class="recipes-menu__title">COCKTAIL RECIPES</h2>
+            <h2 class="recipes-menu__title">RECEPTY KOKTAILOV</h2>
             <button class="recipes-menu__close" id="recipes-menu-close">×</button>
           </div>
           <div class="recipes-menu__body">
@@ -151,19 +159,19 @@
         <div class="pause-menu__overlay"></div>
         <div class="pause-menu__content">
           <div class="pause-menu__header">
-            <h2 class="pause-menu__title">PAUSE MENU</h2>
+            <h2 class="pause-menu__title">PAUZA</h2>
             <button class="pause-menu__close" id="pause-menu-close">×</button>
           </div>
           <div class="pause-menu__body">
             <div class="pause-menu__section">
-              <h3 class="pause-menu__section-title">Select Level</h3>
+              <h3 class="pause-menu__section-title">Vyberte úroveň</h3>
               <div class="pause-menu__levels" id="pause-menu-levels">
               </div>
             </div>
             <div class="pause-menu__actions">
-              <button class="btn btn--primary" id="pause-menu-restart">Restart Level</button>
-              <button class="btn btn--ghost" id="pause-menu-resume">Resume</button>
-              <button class="btn btn--ghost" id="pause-menu-instructions">Instructions</button>
+              <button class="btn btn--primary" id="pause-menu-restart">Reštartovať úroveň</button>
+              <button class="btn btn--ghost" id="pause-menu-resume">Pokračovať</button>
+              <button class="btn btn--ghost" id="pause-menu-instructions">Návod</button>
             </div>
           </div>
         </div>
@@ -174,14 +182,14 @@
         <div class="win-menu__overlay"></div>
         <div class="win-menu__content">
           <div class="win-menu__header">
-            <h2 class="win-menu__title">🎉 YOU WON!</h2>
+            <h2 class="win-menu__title">VYHRALI STE!</h2>
           </div>
           <div class="win-menu__body">
             <div class="win-menu__message" id="win-menu-message">
-              Total time: <span id="win-menu-time">00:00</span>
+              Celkový čas: <span id="win-menu-time">00:00</span>
             </div>
             <div class="win-menu__actions">
-              <button class="btn btn--primary" id="win-menu-restart">Restart</button>
+              <button class="btn btn--primary" id="win-menu-restart">Hrať znova</button>
             </div>
           </div>
         </div>
@@ -192,14 +200,14 @@
         <div class="lose-menu__overlay"></div>
         <div class="lose-menu__content">
           <div class="lose-menu__header">
-            <h2 class="lose-menu__title">💀 YOU LOST</h2>
+            <h2 class="lose-menu__title">ČAS VYPRŠAL</h2>
           </div>
           <div class="lose-menu__body">
             <div class="lose-menu__message">
-              Time's up! You didn't complete the level in time.
+              Nestihli ste dokončiť všetky objednávky. Skúste to znova.
             </div>
             <div class="lose-menu__actions">
-              <button class="btn btn--primary" id="lose-menu-restart">Restart</button>
+              <button class="btn btn--primary" id="lose-menu-restart">Hrať znova</button>
             </div>
           </div>
         </div>
@@ -210,15 +218,16 @@
         <div class="start-menu__overlay"></div>
         <div class="start-menu__content">
           <div class="start-menu__header">
-            <h2 class="start-menu__title" id="start-menu-title">TAVERN TAPPER</h2>
+            <img class="start-menu__logo" src="./src/assets/brand/tatra-banka-logo-white.svg" alt="Tatra banka">
+            <h2 class="start-menu__title" id="start-menu-title">TATRA BANKA TAVERN</h2>
           </div>
           <div class="start-menu__body">
             <div class="start-menu__message" id="start-menu-message">
-              Welcome to the tavern!<br>
-              Ready to serve drinks?
+              Vitajte v Tatra banka Tavern.<br>
+              Ste pripravení obslúžiť hostí?
             </div>
             <div class="start-menu__actions" id="start-menu-actions">
-              <button class="btn btn--primary" id="start-menu-start">START</button>
+              <button class="btn btn--primary" id="start-menu-start">SPUSTIŤ HRU</button>
             </div>
           </div>
         </div>
@@ -229,83 +238,68 @@
         <div class="instructions-menu__overlay"></div>
         <div class="instructions-menu__content">
           <div class="instructions-menu__header">
-            <h2 class="instructions-menu__title">INSTRUCTIONS</h2>
+            <h2 class="instructions-menu__title">AKO HRAŤ</h2>
             <button class="instructions-menu__close" id="instructions-menu-close">×</button>
           </div>
           <div class="instructions-menu__body">
             <div class="instructions-menu__section">
-              <h3 class="instructions-menu__section-title">Game Description</h3>
+              <h3 class="instructions-menu__section-title">O hre</h3>
               <p class="instructions-menu__text">
-                Tavern Tapper is a pixel-art bartending game where you play as a bartender serving drinks to customers. 
-                Your goal is to complete orders by mixing cocktails, pouring beer, and serving drinks within the time limit. 
-                The game features multiple levels with increasing difficulty, each requiring you to serve a certain number of drinks.
+                Tatra banka Tavern je pixelová barmanská hra. Miešajte koktaily, čapujte pivo
+                a vybavte objednávky hostí pred vypršaním časového limitu.
               </p>
               <p class="instructions-menu__text">
-                You'll progress through three levels per run: starting with difficulty 1, then difficulty 2, and finally difficulty 3. 
-                Complete all three levels to win the game!
+                Počas jednej hry prejdete tromi úrovňami rastúcej náročnosti. Dokončite všetky tri a vyhrajte.
               </p>
             </div>
             
             <div class="instructions-menu__section">
-              <h3 class="instructions-menu__section-title">How to Play</h3>
+              <h3 class="instructions-menu__section-title">Ovládanie</h3>
               
-              <h4 class="instructions-menu__subsection-title">Basic Controls:</h4>
+              <h4 class="instructions-menu__subsection-title">Základné kroky:</h4>
               <ul class="instructions-menu__list">
-                <li><strong>Fridge:</strong> Click the fridge icon to open the ingredients menu</li>
-                <li><strong>Add Ingredients:</strong> Click on an ingredient to add it to the shaker, or drag it to the shaker</li>
-                <li><strong>Shake:</strong> Drag the shaker around to shake it. The speed and rotation change based on your movement</li>
-                <li><strong>Serve:</strong> Click the "Serve" button when the drink is ready</li>
-                <li><strong>Beer:</strong> Click the beer tap to fill the glass, then drag it to the tray</li>
-                <li><strong>Hint:</strong> Click the "Hint" button to see a hint. Click again quickly to see the solution</li>
-                <li><strong>Pause:</strong> Click "Pause" to pause the game and access the menu</li>
-                <li><strong>Restart:</strong> Click "Restart" to start a new game from the beginning</li>
+                <li><strong>Chladnička:</strong> Kliknite na ňu a vyberte ingrediencie.</li>
+                <li><strong>Ingrediencie:</strong> Kliknite alebo ich presuňte do šejkra.</li>
+                <li><strong>Miešanie:</strong> Pohybujte šejkrom, kým nebude nápoj pripravený.</li>
+                <li><strong>Servírovanie:</strong> Hotový nápoj podajte tlačidlom „Servírovať“.</li>
+                <li><strong>Pivo:</strong> Naplňte pohár pri výčape a presuňte ho na podnos.</li>
+                <li><strong>Pomoc:</strong> Prvé kliknutie ukáže radu, druhé riešenie.</li>
               </ul>
               
-              <h4 class="instructions-menu__subsection-title">Game Mechanics:</h4>
+              <h4 class="instructions-menu__subsection-title">Pravidlá:</h4>
               <ul class="instructions-menu__list">
-                <li>Each level has a time limit and a target number of drinks to serve</li>
-                <li>Customers will appear with orders. Complete their orders to progress</li>
-                <li>For cocktails: Add ingredients to the shaker, shake it, then serve</li>
-                <li>For beer: Fill the glass from the tap and place it on the serving tray</li>
-                <li>Your best time for each level is tracked and displayed</li>
+                <li>Každá úroveň má časový limit a cieľový počet objednávok.</li>
+                <li>Pri koktailoch použite presnú kombináciu ingrediencií.</li>
+                <li>Najlepší čas každej úrovne sa automaticky uloží.</li>
               </ul>
             </div>
             
             <div class="instructions-menu__section">
-              <h3 class="instructions-menu__section-title">📱 Mobile Instructions</h3>
+              <h3 class="instructions-menu__section-title">Mobilné zariadenia</h3>
               <p class="instructions-menu__text">
-                On mobile devices, you can tap and drag ingredients and the shaker just like on desktop. 
-                The game is fully touch-optimized. Use your finger to drag the shaker around to shake cocktails, 
-                and tap ingredients to add them to the shaker. All controls work with touch gestures.
+                Na mobile používajte dotyk a hrajte v režime na šírku. Všetky predmety môžete presúvať prstom.
               </p>
             </div>
             
             <div class="instructions-menu__section">
-              <h3 class="instructions-menu__section-title">Tips & Strategies</h3>
+              <h3 class="instructions-menu__section-title">Tipy</h3>
               <ul class="instructions-menu__list">
-                <li>Read the hints carefully - they tell you what ingredients are needed</li>
-                <li>Shake the shaker vigorously for better results</li>
-                <li>Pay attention to the order details in the speech bubble</li>
-                <li>Use the "Recipes" button to see all available cocktail recipes</li>
-                <li>Manage your time wisely - each level has a time limit</li>
-                <li>Practice makes perfect - try to beat your best time!</li>
+                <li>Pozorne čítajte objednávku hosťa.</li>
+                <li>Recepty nájdete kedykoľvek v hornom menu.</li>
+                <li>Prázdny čas využite na zapamätanie receptov.</li>
               </ul>
             </div>
             
             <div class="instructions-menu__section">
-              <h3 class="instructions-menu__section-title">Game Menu</h3>
+              <h3 class="instructions-menu__section-title">Menu hry</h3>
               <p class="instructions-menu__text">
-                You can access the game menu at any time by clicking the "Pause" button. From the menu, you can:
+                V menu pauzy môžete:
               </p>
               <ul class="instructions-menu__list">
-                <li>Select different levels to play</li>
-                <li>Restart the current level</li>
-                <li>Resume the game</li>
+                <li>vybrať inú úroveň,</li>
+                <li>reštartovať aktuálnu úroveň,</li>
+                <li>pokračovať v hre.</li>
               </ul>
-              <p class="instructions-menu__text">
-                You can also restart the entire game at any time using the "Restart" button in the top bar, 
-                which will start a new run from difficulty 1.
-              </p>
             </div>
           </div>
         </div>
@@ -313,7 +307,7 @@
 
       <!-- Status bar -->
       <div class="status-bar">
-        <div class="status" id="status-line">Welcome to the tavern! Drag ingredients to the shaker.</div>
+        <div class="status" id="status-line">Vitajte v Tatra banka Tavern. Pridajte ingrediencie do šejkra.</div>
         <div class="progress">
           <div class="progress__bar" id="fill-progress" style="width:0%"></div>
         </div>
@@ -322,12 +316,12 @@
 
     <!-- Informačný panel (skrytý v hre, viditeľný pri tlači) -->
     <aside class="info-panel print-only">
-      <h2>How to play</h2>
-      <p>Drag ingredients from the table to the shaker. Shake the shaker to mix. Follow the orders shown in speech bubbles above customers. Rotate garnishes with R key or double tap. Adjust pour speed with the slider. Serve correct drinks before time runs out!</p>
-      <p class="note">Touch tips: tap-and-hold to grab, shake button to mix, swipe on slider to change speed.</p>
+      <h2>Ako hrať</h2>
+      <p>Vyberte ingrediencie, namiešajte nápoj a obslúžte hostí pred vypršaním času.</p>
+      <p class="note">Na dotykovej obrazovke presúvajte predmety prstom.</p>
       <div class="stats">
-        <div>Runs played: <span id="stat-runs">0</span></div>
-        <div>Unique tasks in cycle: <span id="stat-unique">0</span></div>
+        <div>Odohrané hry: <span id="stat-runs">0</span></div>
+        <div>Počet úloh: <span id="stat-unique">0</span></div>
       </div>
     </aside>
   </div>
@@ -359,7 +353,7 @@
 
   <script type="module" src="./src/js/main.js"></script>
   <script>
-    if ('serviceWorker' in navigator) {
+    if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./service-worker.js');
       });

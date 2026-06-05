@@ -89,11 +89,19 @@ const INGREDIENT_TEMPLATE = document.getElementById('ingredient-chip');
 
 let gameData = { levels: [] };
 
+function getDisplayName(item) {
+  return item?.displayName || item?.name || '';
+}
+
+function getIngredientLabel(ingredient) {
+  return ingredient?.displayLabel || ingredient?.label || ingredient?.id || '';
+}
+
 const VISITOR_CHARACTERS = [
-  { id: 'knight', icon: 'knight.png', label: 'Knight' },
-  { id: 'witch', icon: 'witch2.png', label: 'Witch' },
-  { id: 'mage', icon: 'mag.png', label: 'Mage' },
-  { id: 'dwarf', icon: 'dwarf.png', label: 'Dwarf' },
+  { id: 'knight', icon: 'knight.png', label: 'Rytier' },
+  { id: 'witch', icon: 'witch2.png', label: 'Čarodejnica' },
+  { id: 'mage', icon: 'mag.png', label: 'Mág' },
+  { id: 'dwarf', icon: 'dwarf.png', label: 'Trpaslík' },
 ];
 
 function getRandomVisitorCharacter() {
@@ -259,10 +267,10 @@ function updateFullscreenButton() {
   if (!btnFullscreen) return;
   if (isFullscreen()) {
     btnFullscreen.textContent = '⛶';
-    btnFullscreen.title = 'Exit Fullscreen';
+    btnFullscreen.title = 'Ukončiť celú obrazovku';
   } else {
     btnFullscreen.textContent = '⛶';
-    btnFullscreen.title = 'Enter Fullscreen';
+    btnFullscreen.title = 'Celá obrazovka';
   }
 }
 
@@ -586,7 +594,7 @@ function setupShakerShaking() {
 
   shakerEl.addEventListener('mousedown', (e) => {
     if (state.currentDrink.length === 0) {
-      status('Add ingredients to shaker first!', true);
+      status('Najprv pridajte ingrediencie do šejkra!', true);
       return;
     }
 
@@ -669,7 +677,7 @@ function setupShakerShaking() {
       
       if (state.shakeProgress >= 100) {
         state.isShaking = false;
-        status('Shaker fully mixed! Ready to serve.');
+        status('Nápoj je dokonale premiešaný a pripravený na servírovanie.');
         if (state.currentDrink.length > 0) {
           showDrinkOnTray();
           setTimeout(() => {
@@ -689,7 +697,7 @@ function setupShakerShaking() {
   
   shakerEl.addEventListener('touchstart', (e) => {
     if (state.currentDrink.length === 0) {
-      status('Add ingredients to shaker first!', true);
+      status('Najprv pridajte ingrediencie do šejkra!', true);
       return;
     }
     
@@ -775,7 +783,7 @@ function setupShakerShaking() {
       
       if (state.shakeProgress >= 100) {
         state.isShaking = false;
-        status('Shaker fully mixed! Ready to serve.');
+        status('Nápoj je dokonale premiešaný a pripravený na servírovanie.');
         if (state.currentDrink.length > 0) {
           showDrinkOnTray();
           setTimeout(() => {
@@ -814,7 +822,7 @@ function updateShakeProgress(distance) {
     shakeProgressLabelEl.textContent = `${Math.floor(newProgress)}%`;
     
     if (newProgress >= 100) {
-      shakeProgressLabelEl.textContent = 'READY!';
+      shakeProgressLabelEl.textContent = 'HOTOVO!';
       shakeProgressLabelEl.style.color = 'var(--success)';
       state.isShaken = true; 
       
@@ -843,11 +851,18 @@ function updateShakeProgress(distance) {
 async function loadData() {
   try {
     const res = await fetch('./src/js/data/levels.json');
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status} while loading levels.json`);
+    }
     gameData = await res.json();
     statUniqueEl.textContent = gameData.levels.length.toString();
   } catch (err) {
     console.error(err);
-    status('Failed to load levels.json', true);
+    const isFileProtocol = window.location.protocol === 'file:';
+    const message = isFileProtocol
+      ? 'Spustite hru cez lokálny server, nie priamo cez file://index.html'
+      : 'Nepodarilo sa načítať dáta úrovní.';
+    status(message, true);
   }
 }
 
@@ -979,7 +994,7 @@ function startLevel() {
   
   ordersEl.textContent = `0/${state.currentLevel.target}`;
   const difficulty = state.currentLevel.difficulty || 1;
-  levelEl.textContent = `Dif ${difficulty} Lv.${state.currentLevel.id}`;
+  levelEl.textContent = `Nár. ${difficulty} Úr.${state.currentLevel.id}`;
   
   renderBestTime();
 
@@ -992,7 +1007,7 @@ function startLevel() {
   clearShaker();
   updateShakeIntensity();
   tick();
-  status(`Level ${state.currentLevel.name} — serve ${state.currentLevel.target} drinks`);
+  status(`${getDisplayName(state.currentLevel)} — obslúžte ${state.currentLevel.target} objednávok`);
 }
 
 function renderVisitors() {
@@ -1064,7 +1079,7 @@ function createVisitor(order, index, position) {
     avatarImg.alt = character.label;
   }
   
-  titleEl.textContent = order.name.toUpperCase();
+  titleEl.textContent = getDisplayName(order).toUpperCase();
   hintEl.textContent = order.shortHint;
   bubbleEl.dataset.orderId = order.name;
   
@@ -1101,7 +1116,7 @@ function startVisitorTimer(visitor) {
       clearVisitorTimer(visitor);
       visitor.bubble.classList.add('expired');
       if (visitor === state.activeVisitor) {
-        status('Order expired! Try next customer.', true);
+        status('Objednávka vypršala. Prichádza ďalší hosť.', true);
         
         setTimeout(() => {
           const el = visitor.element;
@@ -1136,7 +1151,7 @@ function activateVisitor(visitor) {
   state.activeOrder = visitor.order;
   visitor.bubble.classList.add('active');
   startVisitorTimer(visitor);
-  status(`Active order: ${visitor.order.name}`);
+  status(`Aktívna objednávka: ${getDisplayName(visitor.order)}`);
 }
 
 function activateNextVisitor() {
@@ -1170,17 +1185,18 @@ function renderIngredients() {
     const item = document.createElement('div');
     item.className = 'fridge-menu__item';
     item.dataset.id = ing.id;
-    item.dataset.label = ing.label;
+    const displayLabel = getIngredientLabel(ing);
+    item.dataset.label = displayLabel;
     item.draggable = true;
     
     const img = document.createElement('img');
     img.src = getIconPath(ing.id);
-    img.alt = ing.label;
+    img.alt = displayLabel;
     img.draggable = false;
     
     const label = document.createElement('span');
     label.className = 'fridge-menu__item-label';
-    label.textContent = ing.label;
+    label.textContent = displayLabel;
     
     item.appendChild(img);
     item.appendChild(label);
@@ -1206,13 +1222,13 @@ function openFridgeMenu() {
   if (!fridgeMenuEl) return;
   fridgeMenuEl.style.display = 'block';
   renderIngredients(); 
-  status('Fridge menu opened');
+  status('Chladnička je otvorená.');
 }
 
 function closeFridgeMenu() {
   if (!fridgeMenuEl) return;
   fridgeMenuEl.style.display = 'none';
-  status('Fridge menu closed');
+  status('Chladnička je zatvorená.');
 }
 
 let draggedElement = null;
@@ -1290,7 +1306,7 @@ function handleTouchStart(e) {
         addIngredientToShaker(element.dataset.id);
         handled = true;
       } else {
-        status('Only ingredients can be added to the shaker!', true);
+        status('Do šejkra môžete pridať iba ingrediencie.', true);
       }
     }
     
@@ -1310,13 +1326,13 @@ function handleTouchStart(e) {
             beerGlassEl.style.filter = '';
             
             hideTrayDrink();
-            status('Shandy created! Beer + Cola', false);
+            status('Shandy je pripravené: pivo a kola.', false);
             handled = true;
           } else {
-            status('Fill the glass with beer first!', true);
+            status('Najprv naplňte pohár pivom.', true);
           }
         } else {
-          status('Only cola can be mixed with beer!', true);
+          status('S pivom môžete zmiešať iba kolu.', true);
         }
       }
     }
@@ -1597,13 +1613,13 @@ function setupIngredientDragging(item, ingredient) {
                 beerGlassEl.dataset.state = 'shandy';
                 beerGlassEl.style.filter = '';
                 hideTrayDrink();
-                status('Shandy created! Beer + Cola', false);
+                status('Shandy je pripravené: pivo a kola.', false);
                 handled = true;
               } else {
-                status('Fill the glass with beer first!', true);
+                status('Najprv naplňte pohár pivom.', true);
               }
             } else {
-              status('Only cola can be mixed with beer!', true);
+              status('S pivom môžete zmiešať iba kolu.', true);
             }
           }
         }
@@ -1759,13 +1775,13 @@ function setupIngredientDragging(item, ingredient) {
                 beerGlassEl.dataset.state = 'shandy';
                 beerGlassEl.style.filter = '';
                 hideTrayDrink();
-                status('Shandy created! Beer + Cola', false);
+                status('Shandy je pripravené: pivo a kola.', false);
                 handled = true;
               } else {
-                status('Fill the glass with beer first!', true);
+                status('Najprv naplňte pohár pivom.', true);
               }
             } else {
-              status('Only cola can be mixed with beer!', true);
+              status('S pivom môžete zmiešať iba kolu.', true);
             }
           }
         }
@@ -1797,7 +1813,7 @@ function addIngredientToShaker(ingredientId) {
   
   const forbiddenIds = ['beer-glass', 'fridge', 'tap', 'trash', 'shaker', 'tray', 'server'];
   if (forbiddenIds.includes(ingredientId)) {
-    status('This item cannot be added to the shaker!', true);
+    status('Tento predmet nemožno pridať do šejkra.', true);
     return;
   }
   
@@ -1813,7 +1829,7 @@ function addIngredientToShaker(ingredientId) {
   }
   
   if (!ingredient) {
-    status('Only ingredients can be added to the shaker!', true);
+    status('Do šejkra môžete pridať iba ingrediencie.', true);
     return;
   }
   
@@ -1824,17 +1840,17 @@ function addIngredientToShaker(ingredientId) {
   
   state.currentDrink.push({
     id: ingredientId,
-    label: ingredient.label,
+    label: getIngredientLabel(ingredient),
     rotation: state.rotation,
   });
   
   renderShaker();
-  status(`Added ${ingredient.label} to shaker`);
+  status(`Pridané do šejkra: ${getIngredientLabel(ingredient)}`);
 }
 
 function handleRotate() {
   if (state.currentDrink.length === 0) {
-    status('Add ingredient first to rotate', true);
+    status('Najprv pridajte ingredienciu.', true);
     return;
   }
   
@@ -1843,27 +1859,27 @@ function handleRotate() {
     state.currentDrink[state.currentDrink.length - 1].rotation = state.rotation;
   }
   renderShaker();
-  status(`Rotated ${state.rotation}°`);
+  status(`Otočené o ${state.rotation}°`);
 }
 
 function getPowerLabel(power) {
   const labels = {
-    1: 'Light (1)',
-    2: 'Medium (2)',
-    3: 'Hard (3)',
-    4: 'Very Hard (4)'
+    1: 'Jemne (1)',
+    2: 'Stredne (2)',
+    3: 'Silno (3)',
+    4: 'Veľmi silno (4)'
   };
-  return labels[power] || 'Medium (2)';
+  return labels[power] || 'Stredne (2)';
 }
 
 function getPowerDescription(power) {
   const descriptions = {
-    1: 'Light shake - gentle mixing',
-    2: 'Medium shake - standard mixing',
-    3: 'Hard shake - vigorous mixing',
-    4: 'Very hard shake - maximum power'
+    1: 'Jemné miešanie',
+    2: 'Bežné miešanie',
+    3: 'Silné miešanie',
+    4: 'Maximálna sila'
   };
-  return descriptions[power] || 'Medium shake';
+  return descriptions[power] || 'Bežné miešanie';
 }
 
 function updateShakeIntensity() {
@@ -1881,7 +1897,7 @@ function renderShaker() {
   if (state.currentDrink.length === 0) {
     const emptyMsg = document.createElement('div');
     emptyMsg.className = 'shaker-ingredients-panel__empty';
-    emptyMsg.textContent = 'Drop ingredients here';
+    emptyMsg.textContent = 'Pridajte ingrediencie';
     shakerContentEl.appendChild(emptyMsg);
     return;
   }
@@ -1902,7 +1918,7 @@ function renderShaker() {
     const removeBtn = document.createElement('button');
     removeBtn.className = 'shaker-ingredient-item__remove';
     removeBtn.textContent = '×';
-    removeBtn.setAttribute('aria-label', `Remove ${ing.label}`);
+    removeBtn.setAttribute('aria-label', `Odstrániť ${ing.label}`);
     removeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       removeIngredientFromShaker(index);
@@ -1916,7 +1932,7 @@ function renderShaker() {
   
   const shakeInfo = document.createElement('div');
   shakeInfo.className = 'shaker-ingredients-panel__shake-info';
-  shakeInfo.textContent = `Set shake power: ${state.pourSpeed} (${getPowerLabel(state.pourSpeed).split('(')[0].trim()})`;
+  shakeInfo.textContent = `Sila miešania: ${state.pourSpeed} (${getPowerLabel(state.pourSpeed).split('(')[0].trim()})`;
   shakerContentEl.appendChild(shakeInfo);
 }
 
@@ -1925,7 +1941,7 @@ function removeIngredientFromShaker(index) {
     const removed = state.currentDrink[index];
     state.currentDrink.splice(index, 1);
     renderShaker();
-    status(`Removed ${removed.label} from shaker`);
+    status(`Odstránené zo šejkra: ${removed.label}`);
   }
 }
 
@@ -1958,7 +1974,7 @@ function showTrayDrink(order) {
   if (!sprite) return;
   
   trayDrinkEl.src = `./src/assets/icons/${sprite}`;
-  trayDrinkEl.alt = order.name;
+  trayDrinkEl.alt = getDisplayName(order);
   trayDrinkEl.style.display = 'block';
 }
 
@@ -1991,7 +2007,7 @@ function handleBeerTap() {
   if (!beerGlassEl) return;
   
   if (!isGlassUnderTap()) {
-    status('Place the glass under the tap first!', true);
+    status('Najprv položte pohár pod výčap.', true);
     return;
   }
   
@@ -2000,13 +2016,13 @@ function handleBeerTap() {
   if (isFull) {
     beerGlassEl.src = './src/assets/icons/EmptyPintOfBeer.png';
     beerGlassEl.dataset.state = 'empty';
-    status('Glass emptied.', false);
+    status('Pohár je prázdny.', false);
   } else {
     beerGlassEl.src = './src/assets/icons/FullPintOfBeer.png';
     beerGlassEl.dataset.state = 'full';
     
     hideTrayDrink();
-    status('Beer poured!', false);
+    status('Pivo je načapované.', false);
   }
 }
 
@@ -2228,7 +2244,7 @@ function setupBeerGlassDragging() {
         beerGlassEl.style.top = '';
         beerGlassEl.style.transform = '';
         beerGlassEl.style.zIndex = '';
-    status('Glass moved under the tap.', false);
+    status('Pohár je pod výčapom.', false);
         dropped = true;
         originalPosition = null; 
       } else if (trayRect && currentX >= trayRect.left && currentX <= trayRect.right &&
@@ -2241,7 +2257,7 @@ function setupBeerGlassDragging() {
         beerGlassEl.style.top = '';
         beerGlassEl.style.transform = '';
         beerGlassEl.style.zIndex = '';
-    status('Glass placed on the tray.', false);
+    status('Pohár je na podnose.', false);
         dropped = true;
         originalPosition = null; 
       }
@@ -2368,7 +2384,7 @@ function setupBeerGlassDragging() {
         beerGlassEl.style.top = '';
         beerGlassEl.style.transform = '';
         beerGlassEl.style.zIndex = '';
-      status('Glass moved under the tap.', false);
+      status('Pohár je pod výčapom.', false);
       dropped = true;
         originalPosition = null; 
     } else if (trayRect && touchEnd.clientX >= trayRect.left && touchEnd.clientX <= trayRect.right &&
@@ -2381,7 +2397,7 @@ function setupBeerGlassDragging() {
         beerGlassEl.style.top = '';
         beerGlassEl.style.transform = '';
         beerGlassEl.style.zIndex = '';
-      status('Glass placed on the tray.', false);
+      status('Pohár je na podnose.', false);
       dropped = true;
         originalPosition = null; 
       }
@@ -2413,7 +2429,7 @@ function handleIngredientOnBeerGlass(e) {
   if (!beerGlassEl) return;
   
   if (beerGlassEl.dataset.state !== 'full') {
-    status('Fill the glass with beer first!', true);
+    status('Najprv naplňte pohár pivom.', true);
     beerGlassEl.style.filter = '';
     return;
   }
@@ -2423,7 +2439,7 @@ function handleIngredientOnBeerGlass(e) {
   
   const ingredientIdLower = ingredientId.toLowerCase();
   if (ingredientIdLower !== 'coke' && ingredientIdLower !== 'cola') {
-    status('Only cola can be mixed with beer!', true);
+    status('S pivom môžete zmiešať iba kolu.', true);
     beerGlassEl.style.filter = '';
     return;
   }
@@ -2433,7 +2449,7 @@ function handleIngredientOnBeerGlass(e) {
   beerGlassEl.style.filter = '';
   
   hideTrayDrink();
-  status('Shandy created! Beer + Cola', false);
+  status('Shandy je pripravené: pivo a kola.', false);
 }
 
 function isBeerOrder(order) {
@@ -2468,7 +2484,7 @@ function isShandyOnTray() {
 
 function handleServe() {
   if (!state.activeOrder) {
-    status('No active order!', true);
+    status('Nie je aktívna žiadna objednávka.', true);
     return;
   }
   
@@ -2480,13 +2496,13 @@ function handleServe() {
     if (isShandy) {
       
       if (!isShandyOnTray()) {
-        status('Place shandy on the tray first!', true);
+        status('Najprv položte Shandy na podnos.', true);
         return;
       }
     } else {
       
       if (!isFullBeerGlassOnTray()) {
-        status('Place a full beer glass on the tray first!', true);
+        status('Najprv položte plný pivný pohár na podnos.', true);
         return;
       }
     }
@@ -2499,7 +2515,7 @@ function handleServe() {
     state.activeVisitor.bubble.classList.remove('active');
     state.activeVisitor.bubble.classList.add('served');
     
-    status(`✓ ${state.activeOrder.name} served!`, false);
+    status(`✓ ${getDisplayName(state.activeOrder)} je obslúžené.`, false);
     
     if (beerGlassEl) {
       beerGlassEl.src = './src/assets/icons/EmptyPintOfBeer.png';
@@ -2522,10 +2538,10 @@ function handleServe() {
       updateBest(elapsed);
 
       if (state.servedSet.size >= 3) {
-        status('Level complete!', false);
+        status('Úroveň je dokončená.', false);
         setTimeout(() => showWinMessage(), 1500);
       } else {
-        status('Level complete! Starting next level...', false);
+        status('Úroveň je dokončená. Spúšťa sa ďalšia...', false);
       setTimeout(() => startLevel(), 1500);
       }
     } else {
@@ -2546,12 +2562,12 @@ function handleServe() {
   } else {
     
     if (state.currentDrink.length === 0) {
-      status('Prepare a drink first!', true);
+      status('Najprv pripravte nápoj.', true);
       return;
     }
     
     if (state.shakeProgress < 100 && !state.isShaken) {
-      status(`Shake the shaker more! (${Math.floor(state.shakeProgress)}%)`, true);
+      status(`Miešajte ešte chvíľu. (${Math.floor(state.shakeProgress)} %)`, true);
       return;
     }
     
@@ -2568,7 +2584,7 @@ function handleServe() {
       state.activeVisitor.bubble.classList.remove('active');
       state.activeVisitor.bubble.classList.add('served');
       
-      status(`✓ ${state.activeOrder.name} served!`, false);
+      status(`✓ ${getDisplayName(state.activeOrder)} je obslúžené.`, false);
       clearShaker();
       
       if (state.served >= state.currentLevel.target) {
@@ -2577,10 +2593,10 @@ function handleServe() {
         updateBest(elapsed);
 
         if (state.servedSet.size >= 3) {
-          status('Level complete!', false);
+          status('Úroveň je dokončená.', false);
           setTimeout(() => showWinMessage(), 1500);
         } else {
-          status('Level complete! Starting next level...', false);
+          status('Úroveň je dokončená. Spúšťa sa ďalšia...', false);
         setTimeout(() => startLevel(), 1500);
         }
       } else {
@@ -2606,11 +2622,11 @@ function handleServe() {
       
       if (matchedOrder) {
         
-        status(`Wrong order! You made ${matchedOrder.name}, but customer wants ${state.activeOrder.name}.`, true);
+        status(`Nesprávna objednávka. Pripravili ste ${getDisplayName(matchedOrder)}, hosť chce ${getDisplayName(state.activeOrder)}.`, true);
         clearShaker();
       } else {
         
-        status('Trash created! Ingredients don\'t match any recipe.', true);
+        status('Táto kombinácia nezodpovedá žiadnemu receptu.', true);
         clearShaker();
       }
     }
@@ -2653,12 +2669,12 @@ function showDrinkOnTray() {
     
     showTrayDrink(matchedOrder);
     
-    status(`Cocktail created: ${matchedOrder.name}`, false);
+    status(`Koktail je pripravený: ${getDisplayName(matchedOrder)}`, false);
   } else {
     
     showTrayTrash();
     
-    status('Trash created! Ingredients don\'t match any recipe.', true);
+    status('Táto kombinácia nezodpovedá žiadnemu receptu.', true);
   }
 }
 
@@ -2711,7 +2727,7 @@ let showingSolution = false;
 
 function showCurrentHint() {
   if (!state.activeOrder) {
-    status('No active order', true);
+    status('Nie je aktívna žiadna objednávka.', true);
     return;
   }
   
@@ -2727,12 +2743,12 @@ function showCurrentHint() {
   showingSolution = false;
   lastHintClick = now;
   const hint = state.activeOrder.hint || state.activeOrder.shortHint;
-  status(`Hint: ${hint} (click again for solution)`, false);
+  status(`Pomoc: ${hint} (kliknite znova pre riešenie)`, false);
 }
 
 function showSolution() {
   if (!state.activeOrder) {
-    status('No active order', true);
+    status('Nie je aktívna žiadna objednávka.', true);
     return;
   }
   
@@ -2745,7 +2761,7 @@ function showSolution() {
           if (level.ingredients) {
             const ingredient = level.ingredients.find(i => i.id === ing);
             if (ingredient) {
-              label = ingredient.label;
+              label = getIngredientLabel(ingredient);
               break;
             }
           }
@@ -2753,13 +2769,13 @@ function showSolution() {
       }
       return label;
     }).join(', ');
-    status(`Solution: ${ingredients}`, false);
+    status(`Riešenie: ${ingredients}`, false);
   } else if (state.activeOrder.steps && state.activeOrder.steps.length > 0) {
     
     const steps = state.activeOrder.steps.join(' → ');
-    status(`Solution: ${steps}`, false);
+    status(`Riešenie: ${steps}`, false);
   } else {
-    status('No solution available for this order', true);
+    status('Pre túto objednávku nie je dostupné riešenie.', true);
   }
 }
 
@@ -2772,7 +2788,7 @@ function togglePause() {
     clearTimer();
     state.visitors.forEach(v => clearVisitorTimer(v));
     openPauseMenu();
-    status('Paused.');
+    status('Hra je pozastavená.');
   }
 }
 
@@ -2789,7 +2805,7 @@ function closePauseMenu() {
   if (!state.timerId) {
     tick();
     state.visitors.forEach(v => startVisitorTimer(v));
-    status('Resumed.');
+    status('Pokračujete v hre.');
   }
 }
 
@@ -2806,7 +2822,7 @@ function renderPauseMenuLevels() {
     }
     
     const difficulty = level.difficulty || 1;
-    btn.textContent = `Dif ${difficulty} Lv.${level.id}: ${level.name}`;
+    btn.textContent = `Nár. ${difficulty} Úr.${level.id}: ${getDisplayName(level)}`;
     btn.addEventListener('click', () => {
       
       state.currentLevel = level;
@@ -2816,13 +2832,13 @@ function renderPauseMenuLevels() {
       state.shakeProgress = 0;
       
       ordersEl.textContent = `0/${level.target}`;
-      levelEl.textContent = `Dif ${difficulty} Lv.${level.id}`;
+      levelEl.textContent = `Nár. ${difficulty} Úr.${level.id}`;
       
       renderVisitors();
       clearShaker();
       tick();
       closePauseMenu();
-      status(`Switched to Level ${level.id}: ${level.name}`);
+      status(`Zvolená úroveň ${level.id}: ${getDisplayName(level)}`);
     });
     
     pauseMenuLevelsEl.appendChild(btn);
@@ -2978,29 +2994,29 @@ function showStartMenu() {
   const hasProgress = (state.servedSet && state.servedSet.size > 0) || (state.runs && state.runs > 0);
   
   if (hasProgress) {
-    if (startMenuTitleEl) startMenuTitleEl.textContent = 'TAVERN TAPPER';
+    if (startMenuTitleEl) startMenuTitleEl.textContent = 'TATRA BANKA TAVERN';
     if (startMenuMessageEl) {
       const completedLevels = state.servedSet ? state.servedSet.size : 0;
-      startMenuMessageEl.textContent = `Do you want to continue?\nYou have completed ${completedLevels} level(s).`;
+      startMenuMessageEl.textContent = `Chcete pokračovať?\nDokončené úrovne: ${completedLevels}.`;
     }
     
     if (startMenuActionsEl) {
       startMenuActionsEl.innerHTML = '';
       const continueBtn = document.createElement('button');
       continueBtn.className = 'btn btn--primary';
-      continueBtn.textContent = 'CONTINUE';
+      continueBtn.textContent = 'POKRAČOVAŤ';
       continueBtn.addEventListener('click', handleContinueGame);
       const newGameBtn = document.createElement('button');
       newGameBtn.className = 'btn btn--ghost';
-      newGameBtn.textContent = 'START NEW GAME';
+      newGameBtn.textContent = 'NOVÁ HRA';
       newGameBtn.addEventListener('click', handleStartNewGame);
       startMenuActionsEl.appendChild(continueBtn);
       startMenuActionsEl.appendChild(newGameBtn);
     }
   } else {
-    if (startMenuTitleEl) startMenuTitleEl.textContent = 'TAVERN TAPPER';
+    if (startMenuTitleEl) startMenuTitleEl.textContent = 'TATRA BANKA TAVERN';
     if (startMenuMessageEl) {
-      startMenuMessageEl.innerHTML = 'Welcome to the tavern!<br>Ready to serve drinks?';
+      startMenuMessageEl.innerHTML = 'Vitajte v Tatra banka Tavern.<br>Ste pripravení obslúžiť hostí?';
     }
     
     if (startMenuActionsEl) {
@@ -3008,7 +3024,7 @@ function showStartMenu() {
       const startBtn = document.createElement('button');
       startBtn.className = 'btn btn--primary';
       startBtn.id = 'start-menu-start';
-      startBtn.textContent = 'START';
+      startBtn.textContent = 'SPUSTIŤ HRU';
       startBtn.addEventListener('click', handleStartGame);
       startMenuActionsEl.appendChild(startBtn);
     }
@@ -3090,17 +3106,18 @@ function renderRecipes() {
       if (!allRecipes.has(key)) {
         allRecipes.set(key, {
           name: order.name,
+          displayName: getDisplayName(order),
           hint: order.hint || order.shortHint || '',
           steps: order.steps || [],
           ingredients: order.ingredients || [],
-          level: level.name
+          level: getDisplayName(level)
         });
       }
     });
   });
   
   const sortedRecipes = Array.from(allRecipes.values()).sort((a, b) => 
-    a.name.localeCompare(b.name)
+    a.displayName.localeCompare(b.displayName, 'sk')
   );
   
   sortedRecipes.forEach(recipe => {
@@ -3120,14 +3137,14 @@ function renderRecipes() {
     const imageEl = document.createElement('img');
     imageEl.className = 'recipes-menu__item-image';
     imageEl.src = cocktailImagePath;
-    imageEl.alt = recipe.name;
+    imageEl.alt = recipe.displayName;
     
     const infoEl = document.createElement('div');
     infoEl.className = 'recipes-menu__item-info';
     
     const nameEl = document.createElement('h3');
     nameEl.className = 'recipes-menu__item-name';
-    nameEl.textContent = recipe.name;
+    nameEl.textContent = recipe.displayName;
     
     const hintEl = document.createElement('p');
     hintEl.className = 'recipes-menu__item-hint';
@@ -3144,7 +3161,7 @@ function renderRecipes() {
     if (ingredients.length > 0) {
       const ingredientsTitleEl = document.createElement('h4');
       ingredientsTitleEl.className = 'recipes-menu__item-ingredients-title';
-      ingredientsTitleEl.textContent = 'Ingredients:';
+      ingredientsTitleEl.textContent = 'Ingrediencie:';
       
       const ingredientsListEl = document.createElement('div');
       ingredientsListEl.className = 'recipes-menu__item-ingredients-list';
@@ -3195,7 +3212,7 @@ function extractIngredientsFromSteps(steps, recipeIngredients) {
       
       ingredients.push({
         id: ingId,
-        label: ingredientData?.label || ingId.charAt(0).toUpperCase() + ingId.slice(1)
+        label: ingredientData ? getIngredientLabel(ingredientData) : ingId.charAt(0).toUpperCase() + ingId.slice(1)
       });
     });
     return ingredients;
@@ -3224,7 +3241,7 @@ function extractIngredientsFromSteps(steps, recipeIngredients) {
         }
         ingredients.push({
           id: normalizedIng,
-          label: ingredientData?.label || 'Blue mana syrup'
+          label: ingredientData ? getIngredientLabel(ingredientData) : 'Modrá mana esencia'
         });
       }
     }
@@ -3243,7 +3260,7 @@ function extractIngredientsFromSteps(steps, recipeIngredients) {
         }
         ingredients.push({
           id: normalizedIng,
-          label: ingredientData?.label || 'Dragon chili syrup'
+          label: ingredientData ? getIngredientLabel(ingredientData) : 'Dračí čili sirup'
         });
       }
     }
@@ -3262,7 +3279,7 @@ function extractIngredientsFromSteps(steps, recipeIngredients) {
         }
         ingredients.push({
           id: normalizedIng,
-          label: ingredientData?.label || 'Red bitter'
+          label: ingredientData ? getIngredientLabel(ingredientData) : 'Červený bitter'
         });
       }
     }
@@ -3295,7 +3312,7 @@ function extractIngredientsFromSteps(steps, recipeIngredients) {
             
             ingredients.push({
               id: normalizedIng,
-              label: ingredientData?.label || normalizedIng.charAt(0).toUpperCase() + normalizedIng.slice(1)
+              label: ingredientData ? getIngredientLabel(ingredientData) : normalizedIng.charAt(0).toUpperCase() + normalizedIng.slice(1)
             });
           }
         }

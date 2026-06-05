@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 400">
+  <defs>
+    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#000537"/>
+      <stop offset=".35" stop-color="#2a8de3"/>
+      <stop offset=".58" stop-color="#fff"/>
+      <stop offset="1" stop-color="#000537"/>
+    </linearGradient>
+    <filter id="glow"><feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#62dcff"/></filter>
+  </defs>
+  <rect x="93" y="18" width="74" height="126" rx="22" fill="#000537" stroke="#75ddff" stroke-width="7" filter="url(#glow)"/>
+  <path d="M108 42h12v75h-12zm26-17h12v92h-12z" fill="#fff"/>
+  <path d="M108 140h44v54h-44z" fill="url(#metal)" stroke="#fff" stroke-width="6"/>
+  <path d="M130 190v86h-43q-25 0-25-25v-45h30v28h8v-44z" fill="none" stroke="url(#metal)" stroke-width="28" stroke-linejoin="round"/>
+  <path d="M132 270v64" stroke="#fff" stroke-width="14"/>
+  <path d="M105 331h54v25h-54z" fill="#000537" stroke="#71ddff" stroke-width="5"/>
+  <ellipse cx="132" cy="369" rx="82" ry="19" fill="#000537" stroke="#fff" stroke-width="6"/>
+</svg>
