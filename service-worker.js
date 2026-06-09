@@ -1,4 +1,4 @@
-const CACHE_NAME = 'GAME_tatra-banka-tavern-v6';
+const CACHE_NAME = 'GAME_tatra-banka-tavern-v7';
 const ASSETS = [
   './',
   './index.html',
@@ -12,8 +12,8 @@ const ASSETS = [
   './src/assets/brand/tatra-banka-logo-white.svg',
   './src/assets/brand/tatra-fridge.svg',
   './src/assets/brand/tatra-tray.svg',
-  './src/assets/brand/tatra-shaker.svg',
-  './src/assets/brand/tatra-tap.svg',
+  './src/assets/equipment/cobbler-shaker.png',
+  './src/assets/equipment/single-beer-tower.png',
   './src/assets/visitors/knight.png',
   './src/assets/visitors/witch.png',
   './src/assets/visitors/mage.png',

@@ -2021,15 +2021,13 @@ function isGlassUnderTap() {
   
   const glassCenterX = glassRect.left + glassRect.width / 2;
   const glassBottomY = glassRect.bottom;
-  
-  const withinX =
-    glassCenterX >= tapRect.left - 30 &&
-    glassCenterX <= tapRect.right + 30;
-  
-  const tapMiddleY = tapRect.top + tapRect.height * 0.5;
+
+  // The faucet is left of the tower column, so validate against its real spout.
+  const spoutX = tapRect.left + tapRect.width * 0.28;
+  const withinX = Math.abs(glassCenterX - spoutX) <= 60;
   const withinY =
-    glassBottomY >= tapMiddleY &&
-    glassBottomY <= tapRect.bottom + 40;
+    glassBottomY >= tapRect.bottom - 35 &&
+    glassBottomY <= tapRect.bottom + 45;
   
   return withinX && withinY;
 }

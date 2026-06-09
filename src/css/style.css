@@ -3384,6 +3384,30 @@ body {
   bottom: 130px;
 }
 
+.shaker__icon {
+  width: auto;
+  height: 172px;
+  object-fit: contain;
+}
+
+.beer-tap-container {
+  right: 120px;
+  width: 180px;
+  height: 235px;
+  justify-content: flex-end;
+}
+
+.beer-tap__icon {
+  width: auto;
+  height: 235px;
+  object-fit: contain;
+}
+
+.beer-tap-container .beer-tap__glass {
+  bottom: -4px;
+  left: 28%;
+}
+
 .beer-glass-start {
   bottom: 112px;
 }
@@ -3444,9 +3468,19 @@ body {
     left: 60%;
   }
 
+  .shaker__icon {
+    height: 150px;
+  }
+
   .beer-tap-container {
     bottom: 76px;
     right: 7%;
+    width: 160px;
+    height: 205px;
+  }
+
+  .beer-tap__icon {
+    height: 205px;
   }
 
   .beer-glass-start {
