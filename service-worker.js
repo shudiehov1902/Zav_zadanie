@@ -1,4 +1,4 @@
-const CACHE_NAME = 'GAME_tatra-banka-tavern-v9';
+const CACHE_NAME = 'GAME_tatra-banka-tavern-v10';
 const ASSETS = [
   './',
   './index.html',
@@ -61,9 +61,7 @@ self.addEventListener('fetch', event => {
     url.pathname.endsWith('.js') ||
     url.pathname.endsWith('.json')
   )) {
-    const networkRequest = request.mode === 'navigate'
-      ? new Request(request, { cache: 'no-store' })
-      : request;
+    const networkRequest = new Request(request, { cache: 'no-store' });
 
     event.respondWith(
       fetch(networkRequest)
