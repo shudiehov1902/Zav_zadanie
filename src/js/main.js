@@ -15,6 +15,8 @@ const timeEl = document.getElementById('hud-time');
 const ordersEl = document.getElementById('hud-orders');
 const bestEl = document.getElementById('hud-best');
 const hudRunsEl = document.getElementById('hud-runs');
+const hudScoreEl = document.getElementById('hud-score');
+const hudComboEl = document.getElementById('hud-combo');
 const statRunsEl = document.getElementById('stat-runs');
 const statUniqueEl = document.getElementById('stat-unique');
 const progressEl = document.getElementById('fill-progress');
@@ -23,6 +25,7 @@ const btnServe = document.getElementById('btn-serve');
 const btnHint = document.getElementById('btn-hint');
 const btnReset = document.getElementById('btn-reset');
 const btnPause = document.getElementById('btn-pause');
+const btnSfx = document.getElementById('btn-sfx');
 const btnFullscreen = document.getElementById('btn-fullscreen');
 const backgroundMusicEl = document.getElementById('background-music');
 const btnRotate = null; 
@@ -37,6 +40,8 @@ const beerGlassEl = document.getElementById('beer-glass');
 const trayContainerEl = document.querySelector('.tray-container');
 const beerTapContainerEl = document.querySelector('.beer-tap-container');
 const trayDrinkEl = document.getElementById('tray-drink');
+const tatraPosEl = document.querySelector('.tatra-pos');
+const shakeParticlesEl = document.getElementById('shake-particles');
 const pauseMenuEl = document.getElementById('pause-menu');
 const pauseMenuCloseEl = document.getElementById('pause-menu-close');
 const pauseMenuLevelsEl = document.getElementById('pause-menu-levels');
@@ -61,8 +66,21 @@ const startMenuStartEl = document.getElementById('start-menu-start');
 const startMenuTitleEl = document.getElementById('start-menu-title');
 const startMenuMessageEl = document.getElementById('start-menu-message');
 const startMenuActionsEl = document.getElementById('start-menu-actions');
+const receiptMenuEl = document.getElementById('receipt-menu');
+const receiptTitleEl = document.getElementById('receipt-title');
+const receiptLevelEl = document.getElementById('receipt-level');
+const receiptOrdersEl = document.getElementById('receipt-orders');
+const receiptTimeEl = document.getElementById('receipt-time');
+const receiptLevelScoreEl = document.getElementById('receipt-level-score');
+const receiptTotalScoreEl = document.getElementById('receipt-total-score');
+const receiptComboEl = document.getElementById('receipt-combo');
+const receiptBestLabelEl = document.getElementById('receipt-best-label');
+const receiptBestScoreEl = document.getElementById('receipt-best-score');
+const receiptActionEl = document.getElementById('receipt-action');
 
 const STORAGE_KEY = 'tavern-tapper-progress';
+const GUEST_PATIENCE = { 1: 50, 2: 42, 3: 35 };
+const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 const TAVERN_BASE_WIDTH = 1280;
 const TAVERN_BASE_HEIGHT = 720;
@@ -133,11 +151,107 @@ let state = {
   isDraggingShaker: false,
   lastShakePosition: { x: 0, y: 0 },
   shakeAnimationId: null,
+  score: 0,
+  levelScore: 0,
+  combo: 0,
+  maxCombo: 0,
+  bestRunScore: 0,
+  sfxEnabled: true,
+  transitionActive: false,
+  serving: false,
 };
 
 const VISITOR_POSITIONS = [
   { left: '50%', bottom: '118px' },
 ];
+
+let audioContext = null;
+let lastParticleAt = 0;
+const particlePool = [];
+
+function wait(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function renderScoreHud() {
+  if (hudScoreEl) hudScoreEl.textContent = state.score.toLocaleString('sk-SK');
+  if (hudComboEl) {
+    hudComboEl.textContent = `×${state.combo}`;
+    hudComboEl.parentElement?.classList.toggle('hud__item--combo-active', state.combo > 1);
+  }
+  if (btnSfx) {
+    btnSfx.textContent = `SFX: ${state.sfxEnabled ? 'ON' : 'OFF'}`;
+    btnSfx.setAttribute('aria-pressed', String(state.sfxEnabled));
+  }
+}
+
+function resetCombo() {
+  state.combo = 0;
+  renderScoreHud();
+}
+
+function playTone(frequency, duration, delay = 0, type = 'square', volume = 0.035) {
+  if (!state.sfxEnabled) return;
+  try {
+    audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+    const startAt = audioContext.currentTime + delay;
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency, startAt);
+    gain.gain.setValueAtTime(0.0001, startAt);
+    gain.gain.exponentialRampToValueAtTime(volume, startAt + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, startAt + duration);
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+    oscillator.start(startAt);
+    oscillator.stop(startAt + duration + 0.02);
+  } catch (err) {
+    console.warn('SFX unavailable', err);
+  }
+}
+
+function playSfx(type) {
+  if (!state.sfxEnabled) return;
+  if (type === 'pos') {
+    playTone(980, 0.08, 0, 'sine', 0.04);
+    playTone(1320, 0.1, 0.1, 'sine', 0.04);
+  } else if (type === 'success') {
+    playTone(660, 0.12, 0, 'square', 0.035);
+    playTone(880, 0.16, 0.12, 'square', 0.035);
+  } else if (type === 'error') {
+    playTone(220, 0.15, 0, 'sawtooth', 0.025);
+    playTone(165, 0.2, 0.13, 'sawtooth', 0.025);
+  } else if (type === 'receipt') {
+    for (let i = 0; i < 7; i += 1) {
+      playTone(760 + (i % 2) * 80, 0.035, i * 0.055, 'square', 0.018);
+    }
+  }
+}
+
+function emitShakeParticle() {
+  if (!shakeParticlesEl || REDUCED_MOTION.matches) return;
+  const now = performance.now();
+  if (now - lastParticleAt < 45) return;
+  lastParticleAt = now;
+
+  let particle = particlePool.find(item => !item.classList.contains('active'));
+  if (!particle && particlePool.length < 12) {
+    particle = document.createElement('i');
+    particle.className = 'shake-particle';
+    shakeParticlesEl.appendChild(particle);
+    particlePool.push(particle);
+  }
+  if (!particle) return;
+
+  particle.style.setProperty('--particle-x', `${Math.round(Math.random() * 70 - 35)}px`);
+  particle.style.setProperty('--particle-y', `${Math.round(Math.random() * -42 - 18)}px`);
+  particle.style.setProperty('--particle-delay', `${Math.random() * 40}ms`);
+  particle.classList.remove('active');
+  void particle.offsetWidth;
+  particle.classList.add('active');
+  setTimeout(() => particle.classList.remove('active'), 520);
+}
 
 function getVisitorPositions() {
   return VISITOR_POSITIONS;
@@ -390,7 +504,14 @@ function attachControls() {
   });
   btnHint?.addEventListener('click', showCurrentHint);
   btnPause?.addEventListener('click', togglePause);
+  btnSfx?.addEventListener('click', () => {
+    state.sfxEnabled = !state.sfxEnabled;
+    renderScoreHud();
+    if (state.sfxEnabled) playSfx('success');
+    persistProgress();
+  });
   btnFullscreen?.addEventListener('click', toggleFullscreen);
+  receiptActionEl?.addEventListener('click', handleReceiptAction);
   
   pauseMenuCloseEl?.addEventListener('click', closePauseMenu);
   pauseMenuResumeEl?.addEventListener('click', closePauseMenu);
@@ -640,6 +761,7 @@ function setupShakerShaking() {
     if (moveDistance > 5) {
       shakeDistance += moveDistance;
       updateShakeProgress(shakeDistance);
+      emitShakeParticle();
       
       if (!shakerEl.classList.contains('shaking')) {
         shakerEl.classList.add('shaking');
@@ -746,6 +868,7 @@ function setupShakerShaking() {
     if (moveDistance > 5) {
       shakeDistance += moveDistance;
       updateShakeProgress(shakeDistance);
+      emitShakeParticle();
       
       if (!shakerEl.classList.contains('shaking')) {
         shakerEl.classList.add('shaking');
@@ -863,10 +986,20 @@ function hydrateProgress() {
       state.bestTime = saved.bestTime ?? null;
       state.levelStats = saved.levelStats || {};
     }
+
+    Object.values(state.levelStats).forEach(levelStat => {
+      levelStat.bestScore = Number(levelStat.bestScore) || 0;
+    });
     
     state.servedSet = new Set(saved.servedSet || []);
     state.runStartTime = saved.runStartTime || null; 
     state.currentLevelId = saved.currentLevelId || null;
+    state.score = Number(saved.score) || 0;
+    state.levelScore = Number(saved.levelScore) || 0;
+    state.combo = Number(saved.combo) || 0;
+    state.maxCombo = Number(saved.maxCombo) || 0;
+    state.bestRunScore = Number(saved.bestRunScore) || 0;
+    state.sfxEnabled = saved.sfxEnabled !== false;
 
     const completedLevels = state.servedSet.size;
     if (completedLevels === 0) {
@@ -882,6 +1015,7 @@ function hydrateProgress() {
     statRunsEl.textContent = state.runs.toString();
     if (hudRunsEl) hudRunsEl.textContent = state.runs.toString();
     renderBestTime();
+    renderScoreHud();
   } catch (err) {
     console.warn('progress parse failed', err);
   }
@@ -896,6 +1030,12 @@ function persistProgress() {
     currentDifficulty: state.currentDifficulty, 
     currentLevelId: state.currentLevel ? state.currentLevel.id : null,
     runStartTime: state.runStartTime, 
+    score: state.score,
+    levelScore: state.levelScore,
+    combo: state.combo,
+    maxCombo: state.maxCombo,
+    bestRunScore: state.bestRunScore,
+    sfxEnabled: state.sfxEnabled,
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
 }
@@ -909,8 +1049,16 @@ function startNewRun() {
   state.currentDifficulty = 1; 
   state.currentLevelId = null;
   state.runStartTime = Date.now(); 
+  state.score = 0;
+  state.levelScore = 0;
+  state.combo = 0;
+  state.maxCombo = 0;
+  state.transitionActive = false;
+  state.serving = false;
+  closeReceipt();
   statRunsEl.textContent = state.runs.toString();
   if (hudRunsEl) hudRunsEl.textContent = state.runs.toString();
+  renderScoreHud();
   startLevel();
   persistProgress();
 }
@@ -918,6 +1066,9 @@ function startNewRun() {
 function startLevel() {
   clearTimer();
   if (!gameData.levels.length) return;
+  state.transitionActive = false;
+  state.serving = false;
+  if (btnServe) btnServe.disabled = false;
   
   const completedLevels = state.servedSet.size;
 
@@ -969,6 +1120,7 @@ function startLevel() {
   
   state.timer = state.currentLevel.timeLimit;
   state.served = 0;
+  state.levelScore = 0;
   state.currentDrink = [];
   state.rotation = 0;
   state.isShaking = false;
@@ -982,6 +1134,7 @@ function startLevel() {
   levelEl.textContent = `Nár. ${difficulty} Úr.${state.currentLevel.id}`;
   
   renderBestTime();
+  renderScoreHud();
 
   if (pourSpeedInput) {
     pourSpeedInput.value = state.pourSpeed;
@@ -993,6 +1146,7 @@ function startLevel() {
   updateShakeIntensity();
   tick();
   status(`${getDisplayName(state.currentLevel)} — obslúžte ${state.currentLevel.target} objednávok`);
+  persistProgress();
 }
 
 function renderVisitors() {
@@ -1082,7 +1236,8 @@ function createVisitor(order, index, position) {
     bubble: bubbleEl,
     order: order,
     index: index,
-    timer: state.currentLevel.timeLimit,
+    timer: Math.min(GUEST_PATIENCE[state.currentDifficulty] || 50, state.timer),
+    maxTimer: Math.min(GUEST_PATIENCE[state.currentDifficulty] || 50, state.timer),
     timerId: null,
   };
   
@@ -1101,6 +1256,10 @@ function startVisitorTimer(visitor) {
       clearVisitorTimer(visitor);
       visitor.bubble.classList.add('expired');
       if (visitor === state.activeVisitor) {
+        if (state.timer <= 0 || state.transitionActive) return;
+        resetCombo();
+        playSfx('error');
+        visitor.element.classList.add('visitor--leaving');
         status('Objednávka vypršala. Prichádza ďalší hosť.', true);
         
         setTimeout(() => {
@@ -1116,7 +1275,20 @@ function startVisitorTimer(visitor) {
 }
 
 function updateVisitorTimer(visitor) {
+  if (!visitor?.bubble || !visitor?.element) return;
+  const ratio = Math.max(0, Math.min(1, visitor.timer / Math.max(1, visitor.maxTimer)));
+  const percent = Math.round(ratio * 100);
+  const bar = visitor.bubble.querySelector('.speech-bubble__timer-bar');
+  const value = visitor.bubble.querySelector('.speech-bubble__timer-value');
+  if (bar) bar.style.width = `${percent}%`;
+  if (value) value.textContent = `${percent}%`;
 
+  const isAngry = ratio <= 0.2;
+  const isImpatient = ratio <= 0.4 && !isAngry;
+  visitor.element.classList.toggle('visitor--impatient', isImpatient);
+  visitor.element.classList.toggle('visitor--angry', isAngry);
+  visitor.bubble.classList.toggle('speech-bubble--impatient', isImpatient);
+  visitor.bubble.classList.toggle('speech-bubble--angry', isAngry);
 }
 
 function clearVisitorTimer(visitor) {
@@ -2466,7 +2638,9 @@ function isShandyOnTray() {
   return isOnTray && isShandy;
 }
 
-function handleServe() {
+async function handleServe() {
+  if (state.serving || state.transitionActive) return;
+
   if (!state.activeOrder) {
     status('Nie je aktívna žiadna objednávka.', true);
     return;
@@ -2480,69 +2654,39 @@ function handleServe() {
     if (isShandy) {
       
       if (!isShandyOnTray()) {
+        if (isFullBeerGlassOnTray()) {
+          resetCombo();
+          playSfx('error');
+          persistProgress();
+        }
         status('Najprv položte Shandy na podnos.', true);
         return;
       }
     } else {
       
       if (!isFullBeerGlassOnTray()) {
+        if (isShandyOnTray()) {
+          resetCombo();
+          playSfx('error');
+          persistProgress();
+        }
         status('Najprv položte plný pivný pohár na podnos.', true);
         return;
       }
     }
     
-    state.served += 1;
-    ordersEl.textContent = `${state.served}/${state.currentLevel.target}`;
-    progressEl.style.width = Math.min(100, (state.served / state.currentLevel.target) * 100) + '%';
-    
-    clearVisitorTimer(state.activeVisitor);
-    state.activeVisitor.bubble.classList.remove('active');
-    state.activeVisitor.bubble.classList.add('served');
-    
-    status(`✓ ${getDisplayName(state.activeOrder)} je obslúžené.`, false);
-    
-    if (beerGlassEl) {
-      beerGlassEl.src = './src/assets/icons/EmptyPintOfBeer.png';
-      beerGlassEl.dataset.state = 'empty';
-      
-      const beerGlassStartEl = document.querySelector('.beer-glass-start');
-      if (beerGlassStartEl) {
-        beerGlassStartEl.appendChild(beerGlassEl);
-        beerGlassEl.style.position = '';
-      }
-    }
-    
-    if (isShandy && trayDrinkEl) {
-      trayDrinkEl.style.display = 'none';
-    }
-    
-    if (state.served >= state.currentLevel.target) {
-      const elapsed = state.currentLevel.timeLimit - state.timer;
-      state.servedSet.add(state.currentLevel.id);
-      updateBest(elapsed);
-
-      if (state.servedSet.size >= 3) {
-        status('Úroveň je dokončená.', false);
-        setTimeout(() => showWinMessage(), 1500);
-      } else {
-        status('Úroveň je dokončená. Spúšťa sa ďalšia...', false);
-      setTimeout(() => startLevel(), 1500);
-      }
-    } else {
-      setTimeout(() => {
-        
-        const active = state.activeVisitor;
-        if (active) {
-          const el = active.element;
-          if (el && el.parentElement === visitorsContainerEl) {
-            visitorsContainerEl.removeChild(el);
-          }
+    await processSuccessfulServe(() => {
+      if (beerGlassEl) {
+        beerGlassEl.src = './src/assets/icons/EmptyPintOfBeer.png';
+        beerGlassEl.dataset.state = 'empty';
+        const beerGlassStartEl = document.querySelector('.beer-glass-start');
+        if (beerGlassStartEl) {
+          beerGlassStartEl.appendChild(beerGlassEl);
+          beerGlassEl.style.position = '';
         }
-        spawnNextVisitor();
-      }, 1000);
-    }
-    
-    persistProgress();
+      }
+      if (isShandy && trayDrinkEl) trayDrinkEl.style.display = 'none';
+    });
   } else {
     
     if (state.currentDrink.length === 0) {
@@ -2558,62 +2702,177 @@ function handleServe() {
     const isValid = validateRecipe(state.currentDrink, state.activeOrder);
     
     if (isValid) {
-
-      hideTrayDrink();
-      state.served += 1;
-      ordersEl.textContent = `${state.served}/${state.currentLevel.target}`;
-      progressEl.style.width = Math.min(100, (state.served / state.currentLevel.target) * 100) + '%';
-      
-      clearVisitorTimer(state.activeVisitor);
-      state.activeVisitor.bubble.classList.remove('active');
-      state.activeVisitor.bubble.classList.add('served');
-      
-      status(`✓ ${getDisplayName(state.activeOrder)} je obslúžené.`, false);
-      clearShaker();
-      
-      if (state.served >= state.currentLevel.target) {
-        const elapsed = state.currentLevel.timeLimit - state.timer;
-        state.servedSet.add(state.currentLevel.id);
-        updateBest(elapsed);
-
-        if (state.servedSet.size >= 3) {
-          status('Úroveň je dokončená.', false);
-          setTimeout(() => showWinMessage(), 1500);
-        } else {
-          status('Úroveň je dokončená. Spúšťa sa ďalšia...', false);
-        setTimeout(() => startLevel(), 1500);
-        }
-      } else {
-        setTimeout(() => {
-          
-          const active = state.activeVisitor;
-          if (active) {
-            const el = active.element;
-            if (el && el.parentElement === visitorsContainerEl) {
-              visitorsContainerEl.removeChild(el);
-            }
-          }
-          spawnNextVisitor();
-        }, 1000);
-      }
-      
-      persistProgress();
+      await processSuccessfulServe(() => {
+        hideTrayDrink();
+        clearShaker();
+      });
     } else {
-      
       const matchedOrder = findMatchingRecipe(state.currentDrink);
-      
       hideTrayDrink();
+      resetCombo();
+      playSfx('error');
       
       if (matchedOrder) {
-        
         status(`Nesprávna objednávka. Pripravili ste ${getDisplayName(matchedOrder)}, hosť chce ${getDisplayName(state.activeOrder)}.`, true);
         clearShaker();
       } else {
-        
         status('Táto kombinácia nezodpovedá žiadnemu receptu.', true);
         clearShaker();
       }
+      persistProgress();
     }
+  }
+}
+
+async function playPosTransaction() {
+  tatraPosEl?.classList.remove('approved');
+  tatraPosEl?.classList.add('processing');
+  playSfx('pos');
+  await wait(430);
+  tatraPosEl?.classList.remove('processing');
+  tatraPosEl?.classList.add('approved');
+  playSfx('success');
+  await wait(220);
+  tatraPosEl?.classList.remove('approved');
+}
+
+function awardSuccessfulOrder() {
+  const nextCombo = state.combo + 1;
+  const patienceRatio = state.activeVisitor
+    ? state.activeVisitor.timer / Math.max(1, state.activeVisitor.maxTimer)
+    : 0;
+  const patienceBonus = Math.round(Math.max(0, Math.min(1, patienceRatio)) * 100);
+  const comboBonus = Math.min(nextCombo, 5) * 25;
+  const points = 100 + patienceBonus + comboBonus;
+
+  state.combo = nextCombo;
+  state.maxCombo = Math.max(state.maxCombo, state.combo);
+  state.score += points;
+  state.levelScore += points;
+  renderScoreHud();
+  return points;
+}
+
+function removeActiveVisitor() {
+  const active = state.activeVisitor;
+  if (active?.element?.parentElement === visitorsContainerEl) {
+    visitorsContainerEl.removeChild(active.element);
+  }
+  active?.bubble?.remove();
+  state.activeVisitor = null;
+  state.activeOrder = null;
+}
+
+async function processSuccessfulServe(cleanup) {
+  state.serving = true;
+  if (btnServe) btnServe.disabled = true;
+  clearTimer();
+  clearVisitorTimer(state.activeVisitor);
+  status('Spracovanie bezkontaktnej platby...', false);
+
+  await playPosTransaction();
+
+  const orderName = getDisplayName(state.activeOrder);
+  const points = awardSuccessfulOrder();
+  state.served += 1;
+  ordersEl.textContent = `${state.served}/${state.currentLevel.target}`;
+  progressEl.style.width = Math.min(100, (state.served / state.currentLevel.target) * 100) + '%';
+  state.activeVisitor?.bubble?.classList.remove('active');
+  state.activeVisitor?.bubble?.classList.add('served');
+  cleanup?.();
+  status(`✓ ${orderName} je obslúžené. +${points} bodov`, false);
+  persistProgress();
+
+  await wait(350);
+  if (state.served >= state.currentLevel.target) {
+    finishLevel();
+    return;
+  }
+
+  removeActiveVisitor();
+  spawnNextVisitor();
+  tick();
+  state.serving = false;
+  if (btnServe) btnServe.disabled = false;
+}
+
+function finishLevel() {
+  clearTimer();
+  state.visitors.forEach(visitor => clearVisitorTimer(visitor));
+  state.serving = false;
+  state.transitionActive = true;
+  if (btnServe) btnServe.disabled = true;
+
+  const elapsed = Math.max(0, state.currentLevel.timeLimit - state.timer);
+  state.servedSet.add(state.currentLevel.id);
+  updateBest(elapsed, state.levelScore);
+  const isFinal = state.servedSet.size >= 3;
+
+  if (isFinal) {
+    const totalTime = state.runStartTime
+      ? Math.floor((Date.now() - state.runStartTime) / 1000)
+      : elapsed;
+    if (state.bestTime === null || totalTime < state.bestTime) state.bestTime = totalTime;
+    state.bestRunScore = Math.max(state.bestRunScore, state.score);
+  }
+
+  status(isFinal ? 'Séria je dokončená. Skvelá práca!' : 'Úroveň je dokončená.', false);
+  showReceipt({ elapsed, isFinal });
+  persistProgress();
+}
+
+function animateReceiptCounter(element, value) {
+  if (!element) return;
+  if (REDUCED_MOTION.matches) {
+    element.textContent = value.toLocaleString('sk-SK');
+    return;
+  }
+  const startedAt = performance.now();
+  const duration = 650;
+  const step = now => {
+    const progress = Math.max(0, Math.min(1, (now - startedAt) / duration));
+    const eased = 1 - Math.pow(1 - progress, 3);
+    element.textContent = Math.round(value * eased).toLocaleString('sk-SK');
+    if (progress < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+function showReceipt({ elapsed, isFinal }) {
+  if (!receiptMenuEl || !state.currentLevel) return;
+  const levelStat = state.levelStats[state.currentLevel.id] || {};
+  receiptTitleEl.textContent = isFinal ? 'SÉRIA DOKONČENÁ' : 'ÚROVEŇ DOKONČENÁ';
+  receiptLevelEl.textContent = getDisplayName(state.currentLevel);
+  receiptOrdersEl.textContent = `${state.served}/${state.currentLevel.target}`;
+  receiptTimeEl.textContent = formatTime(elapsed);
+  receiptComboEl.textContent = `×${state.maxCombo}`;
+  receiptBestLabelEl.textContent = isFinal ? 'Najlepšie skóre série' : 'Najlepšie skóre úrovne';
+  receiptBestScoreEl.textContent = Number(isFinal ? state.bestRunScore : levelStat.bestScore || 0).toLocaleString('sk-SK');
+  receiptActionEl.textContent = isFinal ? 'Nová hra' : 'Ďalšia úroveň';
+  receiptActionEl.dataset.final = String(isFinal);
+  receiptMenuEl.classList.remove('receipt-menu--visible');
+  receiptMenuEl.style.display = 'grid';
+  void receiptMenuEl.offsetWidth;
+  receiptMenuEl.classList.add('receipt-menu--visible');
+  animateReceiptCounter(receiptLevelScoreEl, state.levelScore);
+  animateReceiptCounter(receiptTotalScoreEl, state.score);
+  playSfx('receipt');
+}
+
+function closeReceipt() {
+  if (!receiptMenuEl) return;
+  receiptMenuEl.classList.remove('receipt-menu--visible');
+  receiptMenuEl.style.display = 'none';
+}
+
+function handleReceiptAction() {
+  const isFinal = receiptActionEl?.dataset.final === 'true';
+  closeReceipt();
+  state.transitionActive = false;
+  if (isFinal) {
+    startNewRun();
+  } else {
+    startLevel();
   }
 }
 
@@ -2766,6 +3025,10 @@ function showSolution() {
 }
 
 function togglePause() {
+  if (state.serving || state.transitionActive) {
+    status(state.serving ? 'Dokončuje sa platba.' : 'Pokračujte cez účtenku.', false);
+    return;
+  }
   if (!state.timerId) {
     
     closePauseMenu();
@@ -2788,7 +3051,7 @@ function closePauseMenu() {
   if (!pauseMenuEl) return;
   pauseMenuEl.style.display = 'none';
   
-  if (!state.timerId) {
+  if (!state.timerId && !state.transitionActive && !state.serving) {
     tick();
     state.visitors.forEach(v => startVisitorTimer(v));
     status('Pokračujete v hre.');
@@ -2850,7 +3113,7 @@ function clearTimer() {
   state.timerId = null;
 }
 
-function updateBest(elapsed) {
+function updateBest(elapsed, levelScore = state.levelScore) {
   if (!state.currentLevel) return;
   
   const levelId = state.currentLevel.id;
@@ -2858,11 +3121,16 @@ function updateBest(elapsed) {
   if (!state.levelStats[levelId]) {
     state.levelStats[levelId] = {
       plays: 0,
-      bestTime: null
+      bestTime: null,
+      bestScore: 0
     };
   }
 
   state.levelStats[levelId].plays += 1;
+  state.levelStats[levelId].bestScore = Math.max(
+    Number(state.levelStats[levelId].bestScore) || 0,
+    Number(levelScore) || 0
+  );
 
   if (state.levelStats[levelId].bestTime === null || elapsed < state.levelStats[levelId].bestTime) {
     state.levelStats[levelId].bestTime = elapsed;
@@ -2898,6 +3166,26 @@ function formatTime(sec) {
 }
 
 function showWinMessage() {
+  if (!state.currentLevel) {
+    const lastLevelId = state.currentLevelId || Array.from(state.servedSet).at(-1);
+    state.currentLevel = gameData.levels.find(level => level.id === lastLevelId) || null;
+  }
+
+  if (state.currentLevel) {
+    clearTimer();
+    state.visitors.forEach(visitor => clearVisitorTimer(visitor));
+    state.transitionActive = true;
+    state.bestRunScore = Math.max(state.bestRunScore, state.score);
+    state.served = state.currentLevel.target;
+    if (btnServe) btnServe.disabled = true;
+    showReceipt({
+      elapsed: state.levelStats[state.currentLevel.id]?.bestTime || 0,
+      isFinal: true
+    });
+    persistProgress();
+    return;
+  }
+
   if (!winMenuEl) return;
 
   let totalTime = 0;
@@ -2944,6 +3232,8 @@ function showLoseMenu() {
 
   clearTimer();
   state.visitors.forEach(v => clearVisitorTimer(v));
+  state.serving = false;
+  if (btnServe) btnServe.disabled = true;
 
   loseMenuEl.style.display = 'block';
 }

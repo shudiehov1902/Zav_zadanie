@@ -1,4 +1,4 @@
-const CACHE_NAME = 'GAME_tatra-banka-tavern-v10';
+const CACHE_NAME = 'GAME_tatra-banka-tavern-v11';
 const ASSETS = [
   './',
   './index.html',

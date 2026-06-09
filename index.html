@@ -54,9 +54,18 @@
           <div class="label">Hry</div>
           <div id="hud-runs" class="value">0</div>
         </div>
+        <div class="hud__item hud__item--score">
+          <div class="label">Skóre</div>
+          <div id="hud-score" class="value">0</div>
+        </div>
+        <div class="hud__item hud__item--combo">
+          <div class="label">Combo</div>
+          <div id="hud-combo" class="value">×0</div>
+        </div>
         <button id="btn-recipes" class="btn btn--ghost">Recepty</button>
         <button id="btn-pause" class="btn btn--ghost">Pauza</button>
         <button id="btn-hint" class="btn btn--ghost">Pomoc</button>
+        <button id="btn-sfx" class="btn btn--ghost" aria-pressed="true">SFX: ON</button>
         <button id="btn-reset" class="btn btn--ghost">Nová hra</button>
         <button id="btn-fullscreen" class="btn btn--ghost" title="Celá obrazovka">⛶</button>
         <button id="btn-instructions" class="btn btn--ghost">Návod</button>
@@ -93,6 +102,7 @@
             <div class="tatra-pos" aria-label="Tatra banka POS terminál">
               <img src="./src/assets/brand/tatra-banka-logo-white.svg" alt="">
               <span>PRILOŽTE KARTU</span>
+              <strong class="tatra-pos__state" aria-hidden="true"></strong>
             </div>
           </div>
 
@@ -107,6 +117,7 @@
                 <div class="shake-progress__bar" id="shake-progress-bar"></div>
                 <div class="shake-progress__label" id="shake-progress-label">0%</div>
               </div>
+              <div class="shake-particles" id="shake-particles" aria-hidden="true"></div>
             </div>
           </div>
 
@@ -200,6 +211,31 @@
         </div>
       </div>
 
+      <!-- POS účtenka medzi úrovňami -->
+      <div class="receipt-menu" id="receipt-menu" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="receipt-title">
+        <div class="receipt-menu__overlay"></div>
+        <div class="receipt-menu__terminal" aria-hidden="true">
+          <div class="receipt-menu__terminal-light"></div>
+        </div>
+        <div class="receipt-menu__paper">
+          <div class="receipt-menu__brand">TATRA BANKA TAVERN</div>
+          <h2 class="receipt-menu__title" id="receipt-title">ÚROVEŇ DOKONČENÁ</h2>
+          <div class="receipt-menu__divider"></div>
+          <div class="receipt-menu__lines">
+            <div class="receipt-menu__line"><span>Úroveň</span><strong id="receipt-level">-</strong></div>
+            <div class="receipt-menu__line"><span>Objednávky</span><strong id="receipt-orders">0/0</strong></div>
+            <div class="receipt-menu__line"><span>Čas</span><strong id="receipt-time">00:00</strong></div>
+            <div class="receipt-menu__line"><span>Skóre úrovne</span><strong id="receipt-level-score">0</strong></div>
+            <div class="receipt-menu__line receipt-menu__line--total"><span>Celkové skóre</span><strong id="receipt-total-score">0</strong></div>
+            <div class="receipt-menu__line"><span>Najvyššie combo</span><strong id="receipt-combo">×0</strong></div>
+            <div class="receipt-menu__line"><span id="receipt-best-label">Najlepšie skóre úrovne</span><strong id="receipt-best-score">0</strong></div>
+          </div>
+          <div class="receipt-menu__divider"></div>
+          <div class="receipt-menu__thanks">ĎAKUJEME ZA VAŠU NÁVŠTEVU</div>
+          <button class="btn btn--primary receipt-menu__action" id="receipt-action">Ďalšia úroveň</button>
+        </div>
+      </div>
+
       <!-- Modálne okno prehry -->
       <div class="lose-menu" id="lose-menu" style="display: none;">
         <div class="lose-menu__overlay"></div>
@@ -274,6 +310,8 @@
               <h4 class="instructions-menu__subsection-title">Pravidlá:</h4>
               <ul class="instructions-menu__list">
                 <li>Každá úroveň má časový limit a cieľový počet objednávok.</li>
+                <li>Rýchla obsluha a séria správnych objednávok zvyšujú skóre a combo.</li>
+                <li>Keď hosť stratí trpezlivosť alebo dostane nesprávny nápoj, combo sa vynuluje.</li>
                 <li>Pri koktailoch použite presnú kombináciu ingrediencií.</li>
                 <li>Najlepší čas každej úrovne sa automaticky uloží.</li>
               </ul>
@@ -338,12 +376,21 @@
         <div class="speech-bubble__content">
           <div class="speech-bubble__title"></div>
           <div class="speech-bubble__hint"></div>
-          <div class="speech-bubble__timer"></div>
+          <div class="speech-bubble__timer">
+            <div class="speech-bubble__timer-label">
+              <span>Trpezlivosť</span>
+              <span class="speech-bubble__timer-value">100%</span>
+            </div>
+            <div class="speech-bubble__timer-track">
+              <div class="speech-bubble__timer-bar"></div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="visitor__avatar">
         <img class="visitor__img" src="" alt="">
       </div>
+      <div class="visitor__emotion" aria-hidden="true">#!@*</div>
     </div>
   </template>
 
@@ -360,7 +407,7 @@
   <script>
     if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js?v=10', {
+        navigator.serviceWorker.register('./service-worker.js?v=11', {
           updateViaCache: 'none'
         });
       });
