@@ -99,8 +99,8 @@ function getIngredientLabel(ingredient) {
 
 const VISITOR_CHARACTERS = [
   { id: 'knight', icon: 'knight.png', label: 'Rytier' },
-  { id: 'witch', icon: 'witch2.png', label: 'Čarodejnica' },
-  { id: 'mage', icon: 'mag.png', label: 'Mág' },
+  { id: 'witch', icon: 'witch.png', label: 'Čarodejnica' },
+  { id: 'mage', icon: 'mage.png', label: 'Mág' },
   { id: 'dwarf', icon: 'dwarf.png', label: 'Trpaslík' },
 ];
 
@@ -136,25 +136,10 @@ let state = {
 };
 
 const VISITOR_POSITIONS = [
-  { left: '50%', top: '4%' }, 
+  { left: '50%', bottom: '118px' },
 ];
 
 function getVisitorPositions() {
-  const isMobile = window.innerWidth <= 768;
-  const isSmallMobile = window.innerWidth <= 480;
-  
-  if (isSmallMobile) {
-    
-    return [
-      { left: '50%', top: '20%' },
-    ];
-  } else if (isMobile) {
-    
-    return [
-      { left: '50%', top: '22%' },
-    ];
-  }
-  
   return VISITOR_POSITIONS;
 }
 
@@ -382,7 +367,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           const position = positions[0] || VISITOR_POSITIONS[0];
           
           activeVisitor.element.style.left = position.left || '50%';
-          activeVisitor.element.style.top = position.top;
+          activeVisitor.element.style.bottom = position.bottom;
           
           if (!activeVisitor.element.hasAttribute('data-animating')) {
             activeVisitor.element.style.transform = 'translateX(-50%)';
@@ -1064,7 +1049,7 @@ function createVisitor(order, index, position) {
   const avatarImg = clone.querySelector('.visitor__img');
   
   visitorEl.style.left = position.left || '50%';
-  visitorEl.style.top = position.top;
+  visitorEl.style.bottom = position.bottom;
   
   visitorEl.setAttribute('data-animating', 'true');
   
@@ -1075,7 +1060,7 @@ function createVisitor(order, index, position) {
   const character = getRandomVisitorCharacter();
   visitorEl.dataset.characterId = character.id;
   if (avatarImg) {
-    avatarImg.src = `./src/assets/icons/${character.icon}`;
+    avatarImg.src = `./src/assets/visitors/${character.icon}`;
     avatarImg.alt = character.label;
   }
   
@@ -1973,6 +1958,7 @@ function showTrayDrink(order) {
   const sprite = getTraySpriteForOrder(order);
   if (!sprite) return;
   
+  trayContainerEl?.classList.remove('tray-container--trash');
   trayDrinkEl.src = `./src/assets/icons/${sprite}`;
   trayDrinkEl.alt = getDisplayName(order);
   trayDrinkEl.style.display = 'block';
@@ -2653,8 +2639,9 @@ function findMatchingRecipe(drink) {
 
 function showTrayTrash() {
   if (!trayDrinkEl) return;
+  trayContainerEl?.classList.remove('tray-container--trash');
   trayDrinkEl.src = './src/assets/icons/trash.png';
-  trayDrinkEl.alt = 'Trash';
+  trayDrinkEl.alt = 'Pokazený koktail';
   trayDrinkEl.style.display = 'block';
 }
 
@@ -2680,6 +2667,7 @@ function showDrinkOnTray() {
 
 function hideTrayDrink() {
   if (!trayDrinkEl) return;
+  trayContainerEl?.classList.remove('tray-container--trash');
   trayDrinkEl.style.display = 'none';
 }
 

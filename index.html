@@ -78,6 +78,11 @@
           <div class="visitors" id="visitors-container">
           </div>
 
+          <div class="bar-counter" aria-hidden="true">
+            <div class="bar-counter__surface"></div>
+            <div class="bar-counter__front"></div>
+          </div>
+
           <div class="bar-fridge-container">
             <img src="./src/assets/brand/tatra-fridge.svg" alt="Chladnička" class="bar-fridge__icon" id="bar-fridge" draggable="false">
           </div>
@@ -328,7 +333,7 @@
 
   <!-- Šablóny pre dynamické prvky -->
   <template id="visitor-template">
-    <div class="visitor" style="left: 0; top: 0;">
+    <div class="visitor" style="left: 0; bottom: 0;">
       <div class="speech-bubble" data-order-id="">
         <div class="speech-bubble__content">
           <div class="speech-bubble__title"></div>

@@ -3252,3 +3252,209 @@ body {
     display: none;
   }
 }
+
+/* Tatra fantasy visitors share one doorway baseline in the 1280x720 scene. */
+.visitor {
+  bottom: 118px;
+  width: 360px;
+  animation: visitor-enter 900ms cubic-bezier(.18, .82, .25, 1) forwards !important;
+  transform-origin: center bottom;
+}
+
+.visitor__avatar {
+  position: relative;
+  width: 360px;
+  height: 360px;
+  margin: 0;
+}
+
+.visitor__avatar::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  bottom: -5px;
+  left: 50%;
+  width: 150px;
+  height: 20px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: rgba(0, 3, 30, .68);
+  filter: blur(7px);
+  box-shadow: 0 0 24px rgba(75, 205, 255, .24);
+}
+
+.visitor__img {
+  width: 360px !important;
+  height: 360px !important;
+  object-fit: contain;
+  object-position: center bottom;
+  filter:
+    drop-shadow(0 0 7px rgba(74, 209, 255, .22))
+    drop-shadow(0 9px 12px rgba(0, 0, 0, .82));
+}
+
+.visitor .speech-bubble {
+  top: 78px;
+  right: calc(100% + 18px);
+  bottom: auto;
+  left: auto;
+  width: 280px;
+  min-width: 280px;
+  max-width: 280px;
+  max-height: none;
+  overflow: visible;
+}
+
+.shaker-ingredients-panel {
+  right: 10%;
+}
+
+@keyframes visitor-enter {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(34px) scale(.92);
+    filter: brightness(.28);
+  }
+  55% {
+    opacity: 1;
+    filter: brightness(.78);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+    filter: brightness(1);
+  }
+}
+
+/* Wide foreground counter: interactive tools sit above it, visitors stay behind it. */
+.bar-counter {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.bar-counter__surface,
+.bar-counter__front {
+  position: absolute;
+  left: -800px;
+  width: 2880px;
+  pointer-events: none;
+}
+
+.bar-counter__surface {
+  bottom: 72px;
+  z-index: 11;
+  height: 112px;
+  clip-path: polygon(1.5% 0, 98.5% 0, 100% 100%, 0 100%);
+  background:
+    linear-gradient(90deg, transparent 0 5%, rgba(102, 224, 255, .28) 15%, transparent 28% 72%, rgba(102, 224, 255, .28) 85%, transparent 95%),
+    radial-gradient(ellipse at 50% 5%, rgba(102, 224, 255, .17), transparent 48%),
+    linear-gradient(180deg, #24365b 0 5%, #101a35 7% 47%, #070d20 48% 100%);
+  border-top: 5px solid rgba(203, 247, 255, .82);
+  box-shadow:
+    0 -4px 18px rgba(78, 205, 255, .38),
+    inset 0 6px 0 rgba(255, 255, 255, .08),
+    inset 0 -20px 30px rgba(0, 0, 0, .62);
+}
+
+.bar-counter__front {
+  bottom: 0;
+  z-index: 12;
+  height: 82px;
+  background:
+    linear-gradient(90deg, transparent 0 8%, rgba(71, 194, 255, .16) 8.2% 8.5%, transparent 8.7% 91.3%, rgba(71, 194, 255, .16) 91.5% 91.8%, transparent 92%),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.025) 0 2px, transparent 2px 86px),
+    linear-gradient(180deg, #111b38, #050a1b 72%);
+  border-top: 2px solid rgba(118, 222, 255, .36);
+  box-shadow:
+    inset 0 14px 24px rgba(0, 0, 0, .38),
+    inset 0 -3px 0 rgba(81, 192, 255, .18);
+}
+
+.bar-fridge-container {
+  bottom: 112px;
+}
+
+.tray-container {
+  bottom: 72px;
+}
+
+.shaker-container,
+.beer-tap-container {
+  bottom: 130px;
+}
+
+.beer-glass-start {
+  bottom: 112px;
+}
+
+.bar-fridge-container::after,
+.shaker-container::after,
+.beer-tap-container::after,
+.beer-glass-start::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  bottom: -8px;
+  width: 78%;
+  height: 16px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: rgba(0, 2, 18, .7);
+  filter: blur(6px);
+  box-shadow: 0 0 16px rgba(81, 211, 255, .2);
+  pointer-events: none;
+}
+
+.controls-on-table {
+  z-index: 16;
+}
+
+@media (max-width: 1100px) and (orientation: landscape) {
+  .tavern {
+    min-height: 0;
+  }
+
+  .bar-counter__surface {
+    bottom: 34px;
+    height: 72px;
+    border-top-width: 4px;
+  }
+
+  .bar-counter__front {
+    height: 40px;
+  }
+
+  .visitor {
+    bottom: 78px;
+  }
+
+  .bar-fridge-container {
+    bottom: 62px;
+    left: 6%;
+  }
+
+  .tray-container {
+    bottom: 34px;
+  }
+
+  .shaker-container {
+    bottom: 76px;
+    left: 60%;
+  }
+
+  .beer-tap-container {
+    bottom: 76px;
+    right: 7%;
+  }
+
+  .beer-glass-start {
+    bottom: 62px;
+    right: 18%;
+  }
+
+  .controls-on-table {
+    bottom: 38px;
+  }
+}
